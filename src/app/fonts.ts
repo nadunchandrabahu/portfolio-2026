@@ -1,18 +1,24 @@
-import { Archivo, IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
+import { IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
+import localFont from "next/font/local";
 
-// next/font downloads these at build time and serves them from this site,
-// so nothing is requested from Google at runtime (CLAUDE.md 2.4).
+// Every font is served from this site, never requested from Google at
+// runtime (CLAUDE.md 2.4). next/font/google downloads at build time.
 //
 // Only the two faces needed for the first paint are preloaded (Plex Sans
 // regular for body text, Archivo for the name). Preloading all four costs
 // ~1.5s of LCP on slow 4G because they compete for bandwidth.
 
-/** Display: variable weight plus the width axis for the expanded cuts. */
-export const archivo = Archivo({
-  subsets: ["latin"],
-  axes: ["wdth"],
+/**
+ * Display: Archivo variable, trimmed to weights 500–800 and widths 100–125%
+ * (56 KB instead of 88 KB). Regenerate with scripts/fonts/subset_archivo.py.
+ */
+export const archivo = localFont({
+  src: "./fonts/archivo-variable.woff2",
+  weight: "500 800",
+  style: "normal",
   variable: "--font-archivo",
   display: "swap",
+  declarations: [{ prop: "font-stretch", value: "100% 125%" }],
 });
 
 /** Body: 400/500. */
