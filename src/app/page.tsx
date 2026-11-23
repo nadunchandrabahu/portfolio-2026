@@ -1,11 +1,37 @@
-// Phase 1 placeholder. Sections arrive in phase 2 (CLAUDE.md section 12).
+import { Hero } from "@/components/hero/Hero";
+import { Footer } from "@/components/layout/Footer";
+import { Nav } from "@/components/layout/Nav";
+import { RevealObserver } from "@/components/layout/RevealObserver";
+import { About } from "@/components/sections/About";
+import { Contact } from "@/components/sections/Contact";
+import { Education } from "@/components/sections/Education";
+import { Experience } from "@/components/sections/Experience";
+import { HandsOn } from "@/components/sections/HandsOn";
+import { Toolbox } from "@/components/sections/Toolbox";
+import { Work } from "@/components/sections/Work";
+
 export default function Home() {
   return (
-    <main id="main" className="mx-auto max-w-measure px-4 py-24">
-      <p className="font-mono text-mono-label uppercase text-concrete">Phase 1 · scaffold</p>
-      <h1 className="mt-4 font-display text-display-l font-extrabold uppercase [font-stretch:125%]">
-        Nadun Chandrabahu
-      </h1>
-    </main>
+    <>
+      <a
+        href="#main"
+        className="sr-only z-[100] rounded-sm bg-brass px-4 py-3 font-mono text-small text-graphite focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
+      >
+        Skip to content
+      </a>
+      <Nav />
+      <main id="main" tabIndex={-1} className="focus:outline-none">
+        <Hero />
+        <Work />
+        <About />
+        <HandsOn />
+        <Toolbox />
+        <Experience />
+        <Education />
+        <Contact />
+      </main>
+      <Footer />
+      <RevealObserver />
+    </>
   );
 }

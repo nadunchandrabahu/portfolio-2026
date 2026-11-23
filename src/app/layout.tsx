@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { archivo, jetbrainsMono, plexSans } from "./fonts";
+import { archivo, jetbrainsMono, plexSans, plexSansItalic } from "./fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -18,7 +18,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en-AU"
-      className={`${archivo.variable} ${plexSans.variable} ${jetbrainsMono.variable}`}
+      className={`${archivo.variable} ${plexSans.variable} ${plexSansItalic.variable} ${jetbrainsMono.variable}`}
     >
       <body>{children}</body>
     </html>

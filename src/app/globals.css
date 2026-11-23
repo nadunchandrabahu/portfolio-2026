@@ -55,6 +55,7 @@
 
   --font-display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans-italic: var(--font-plex-sans-italic), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
 }
 
@@ -92,6 +93,13 @@
   html {
     background-color: var(--graphite);
     -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 5rem;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
 
   body {
@@ -113,4 +121,353 @@
     background-color: var(--brass);
     color: var(--graphite);
   }
+}
+
+/* ------------------------------------------------------------------ */
+/* Utilities                                                          */
+/* ------------------------------------------------------------------ */
+
+/* Mono "instrument" label: eyebrows, tags, data-plate fields. */
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-label);
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Archivo at an expanded width for the name and section titles. */
+@utility display-expanded {
+  font-family: var(--font-display);
+  font-stretch: 112%;
+  line-height: 1.05;
+
+  @media (min-width: 64rem) {
+    font-stretch: 120%;
+  }
+}
+
+/* Machined panel: hairline border, inner top highlight, soft drop. */
+@utility machined-card {
+  background-color: var(--machined);
+  border: 1px solid var(--steel-line);
+  border-radius: var(--radius-machined);
+  box-shadow: var(--shadow-machined);
+}
+
+/* Underline that grows from the left on hover and focus. */
+@utility link-underline {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 0% 1px;
+  transition: background-size 250ms var(--ease-reveal);
+
+  &:hover,
+  &:focus-visible {
+    background-size: 100% 1px;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Texture (CLAUDE.md 2.5)                                            */
+/* ------------------------------------------------------------------ */
+
+.knurl {
+  height: 6px;
+  opacity: 0.06;
+  background-image:
+    repeating-linear-gradient(45deg, var(--bone) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(-45deg, var(--bone) 0 1px, transparent 1px 4px);
+}
+
+.blueprint-grid {
+  --minor: color-mix(in srgb, var(--steel-line) 25%, transparent);
+  --major: color-mix(in srgb, var(--steel-line) 45%, transparent);
+  background-image:
+    linear-gradient(to right, var(--major) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--major) 1px, transparent 1px),
+    linear-gradient(to right, var(--minor) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--minor) 1px, transparent 1px);
+  background-size:
+    120px 120px,
+    120px 120px,
+    24px 24px,
+    24px 24px;
+  mask-image: radial-gradient(ellipse 70% 65% at 60% 45%, #000 35%, transparent 80%);
+}
+
+/* Film grain over the page, desktop only. */
+@media (min-width: 48rem) {
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    pointer-events: none;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Data plate (CLAUDE.md 2.6A)                                        */
+/* ------------------------------------------------------------------ */
+
+.data-plate {
+  position: relative;
+  border: 1px solid #5d6166;
+  border-radius: 4px;
+  color: #15171a;
+  background:
+    repeating-linear-gradient(90deg, rgb(255 255 255 / 0.04) 0 1px, transparent 1px 3px),
+    linear-gradient(165deg, #9aa0a5 0%, #8d9297 40%, #969ba0 62%, #868b90 100%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.35),
+    inset 0 -1px 0 rgb(0 0 0 / 0.35),
+    0 12px 32px -14px rgb(0 0 0 / 0.8);
+}
+
+.data-plate__engraved {
+  text-shadow: 0 1px 0 rgb(255 255 255 / 0.35);
+}
+
+.data-plate__rule {
+  height: 1px;
+  background: rgb(0 0 0 / 0.28);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.25);
+}
+
+.hex-screw {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #d3d6d9, #6c7075 72%);
+  box-shadow:
+    inset 0 0 0 1px rgb(0 0 0 / 0.35),
+    0 1px 0 rgb(255 255 255 / 0.3);
+}
+
+.hex-screw::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  background: #3a3d41;
+  clip-path: polygon(25% 6%, 75% 6%, 100% 50%, 75% 94%, 25% 94%, 0 50%);
+}
+
+.status-lamp {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--brass);
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.45),
+    0 0 4px 1px rgb(201 163 94 / 0.45);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .status-lamp {
+    animation: lamp-breathe 3s ease-in-out infinite;
+  }
+}
+
+@keyframes lamp-breathe {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 1px rgb(0 0 0 / 0.45),
+      0 0 2px 0 rgb(201 163 94 / 0.3);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgb(0 0 0 / 0.45),
+      0 0 10px 3px rgb(201 163 94 / 0.7);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Inspection tag (CLAUDE.md 2.6B)                                    */
+/* ------------------------------------------------------------------ */
+
+.inspection-tag {
+  --notch: 12px;
+  position: relative;
+  border-left: 2px solid var(--brass);
+  background: color-mix(in srgb, var(--graphite) 60%, var(--machined));
+  clip-path: polygon(0 0, calc(100% - var(--notch)) 0, 100% var(--notch), 100% 100%, 0 100%);
+}
+
+/* Punched hole. */
+.inspection-tag::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  width: 8px;
+  height: 8px;
+  margin-top: -4px;
+  border-radius: 50%;
+  background: var(--machined);
+  box-shadow:
+    inset 0 1px 2px rgb(0 0 0 / 0.7),
+    0 0 0 1px var(--steel-line);
+}
+
+/* Temper-tint sheen that runs down the rule on card hover. */
+.inspection-tag::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -1px;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    var(--temper-straw),
+    var(--temper-bronze),
+    var(--temper-purple),
+    var(--temper-blue)
+  );
+  opacity: 0;
+  transform: scaleY(0);
+  transform-origin: top;
+  transition:
+    transform 600ms var(--ease-reveal),
+    opacity 200ms linear;
+}
+
+.project-card:hover .inspection-tag::after,
+.project-card:focus-within .inspection-tag::after {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+/* ------------------------------------------------------------------ */
+/* Cards                                                              */
+/* ------------------------------------------------------------------ */
+
+.lift-card {
+  transition:
+    translate 250ms var(--ease-reveal),
+    border-color 250ms var(--ease-reveal);
+}
+
+.lift-card:hover,
+.lift-card:focus-within {
+  border-color: color-mix(in srgb, var(--brass) 40%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .lift-card:hover {
+    translate: 0 -4px;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Dimension-line section header (CLAUDE.md 2.6C)                     */
+/* ------------------------------------------------------------------ */
+
+.dimension-line {
+  display: flex;
+  align-items: center;
+  color: var(--concrete);
+}
+
+.dimension-line__tick {
+  width: 1px;
+  height: 14px;
+  flex: none;
+  background: var(--steel-line);
+}
+
+.dimension-line__rule {
+  position: relative;
+  height: 1px;
+  flex: 1 1 0;
+  min-width: 1.5rem;
+  background: var(--steel-line);
+  transform-origin: left;
+}
+
+.dimension-line__label {
+  flex: none;
+  padding-inline: 0.75rem;
+}
+
+/* Arrowheads pointing out at the ticks. */
+.dimension-line__rule::before {
+  content: "";
+  position: absolute;
+  top: -3px;
+  border-block: 3.5px solid transparent;
+}
+
+.dimension-line__rule--start::before {
+  left: 0;
+  border-right: 7px solid var(--steel-line);
+}
+
+.dimension-line__rule--end::before {
+  right: 0;
+  border-left: 7px solid var(--steel-line);
+}
+
+/* ------------------------------------------------------------------ */
+/* Reveal on scroll (CLAUDE.md 2.7)                                   */
+/* Only active once JS has marked <html data-reveal-ready>, so all    */
+/* content stays visible with JS off.                                 */
+/* ------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: no-preference) {
+  html[data-reveal-ready] [data-reveal]:not(.dimension-line) {
+    transition:
+      opacity 500ms var(--ease-reveal),
+      translate 500ms var(--ease-reveal);
+    transition-delay: calc(var(--reveal-index, 0) * 60ms);
+  }
+
+  html[data-reveal-ready] [data-reveal]:not(.dimension-line):not([data-revealed]) {
+    opacity: 0;
+    translate: 0 16px;
+  }
+
+  /* The dimension line draws itself left to right. */
+  html[data-reveal-ready] .dimension-line > * {
+    transition:
+      scale 300ms var(--ease-reveal),
+      opacity 300ms var(--ease-reveal);
+  }
+
+  html[data-reveal-ready] .dimension-line > :nth-child(2) {
+    transition-delay: 100ms;
+  }
+  html[data-reveal-ready] .dimension-line > :nth-child(3) {
+    transition-delay: 300ms;
+  }
+  html[data-reveal-ready] .dimension-line > :nth-child(4) {
+    transition-delay: 400ms;
+  }
+  html[data-reveal-ready] .dimension-line > :nth-child(5) {
+    transition-delay: 600ms;
+  }
+
+  html[data-reveal-ready] .dimension-line:not([data-revealed]) .dimension-line__rule {
+    scale: 0 1;
+  }
+
+  html[data-reveal-ready] .dimension-line:not([data-revealed]) .dimension-line__tick {
+    scale: 1 0;
+  }
+
+  html[data-reveal-ready] .dimension-line:not([data-revealed]) .dimension-line__label {
+    opacity: 0;
+  }
+}
+
+/* Mobile sheet menu (popover). */
+.sheet-menu::backdrop {
+  background: rgb(15 16 17 / 0.6);
 }
