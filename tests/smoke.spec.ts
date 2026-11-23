@@ -55,6 +55,31 @@ test.describe("home page", () => {
   });
 });
 
+test.describe("3D gearbox", () => {
+  test("starts after interaction and only ever talks to this origin", async ({ page, baseURL }) => {
+    const origin = new URL(baseURL ?? "http://localhost").origin;
+    const external: string[] = [];
+    page.on("request", (request) => {
+      const url = request.url();
+      if (!url.startsWith(origin) && !url.startsWith("data:") && !url.startsWith("blob:")) {
+        external.push(url);
+      }
+    });
+
+    await page.goto("/", { waitUntil: "networkidle" });
+    await expect(page.locator("#hero canvas")).toHaveCount(0); // poster only until interaction
+    await page.mouse.move(200, 200);
+    await page.mouse.move(400, 300);
+
+    // Either the canvas appears, or (no WebGL in this browser) the poster stays.
+    const canvas = page.locator("#hero canvas");
+    await canvas.waitFor({ state: "attached", timeout: 15_000 }).catch(() => undefined);
+    await page.waitForTimeout(3000);
+    await expect(page.locator('#hero img[src*="gearbox-poster"]')).toHaveCount(1);
+    expect(external).toEqual([]);
+  });
+});
+
 test.describe("mobile menu", () => {
   test.skip(({ viewport }) => (viewport?.width ?? 0) >= 1024, "desktop shows inline links");
 

@@ -467,6 +467,75 @@
   }
 }
 
+/* ------------------------------------------------------------------ */
+/* Gearbox part callouts (CLAUDE.md 2.6D)                             */
+/* ------------------------------------------------------------------ */
+
+.gearbox-callout {
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+.gearbox-callout__anchor {
+  position: absolute;
+  left: -5px;
+  top: -5px;
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid var(--brass);
+  border-radius: 50%;
+}
+
+/* Leader runs up and to the left: the gearbox sits on the right of the page. */
+.gearbox-callout__leader {
+  position: absolute;
+  right: 4px;
+  top: -4px;
+  width: 56px;
+  height: 1px;
+  background: var(--brass);
+  transform: rotate(35deg);
+  transform-origin: right center;
+}
+
+.gearbox-callout__label {
+  position: absolute;
+  right: 50px;
+  top: -46px;
+  padding: 4px 8px;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--brass);
+  background: color-mix(in srgb, var(--graphite) 80%, transparent);
+  color: var(--bone);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .gearbox-callout {
+    animation: callout-in 400ms var(--ease-reveal);
+  }
+}
+
+@keyframes callout-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Soft edges on the gearbox canvas, so zoomed-in parts fade out instead of
+   being cut by the canvas rectangle. Only the <canvas> is masked; drei <Html>
+   callouts are its siblings and stay fully visible. */
+.gearbox-canvas-fade canvas {
+  mask-image:
+    linear-gradient(to right, transparent 0, #000 14%, #000 100%),
+    linear-gradient(to bottom, transparent 0, #000 10%, #000 88%, transparent 100%);
+  mask-composite: intersect;
+}
+
 /* Mobile sheet menu (popover). */
 .sheet-menu::backdrop {
   background: rgb(15 16 17 / 0.6);

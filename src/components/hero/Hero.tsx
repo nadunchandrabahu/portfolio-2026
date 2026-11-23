@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { HeroGearbox } from "@/components/gearbox/HeroGearbox";
 import { GithubIcon, LinkedinIcon } from "@/components/ui/BrandIcons";
 import { EmailIconLink } from "@/components/ui/Email";
 import { site } from "@/content/site";
@@ -20,17 +21,21 @@ export function Hero() {
       <div className="relative mx-auto grid max-w-7xl items-center gap-y-8 px-4 pt-6 pb-20 sm:px-6 lg:grid-cols-[55fr_45fr] lg:gap-x-8 lg:px-8 lg:pt-16 lg:pb-28">
         {/* Gearbox: above the text on mobile, right column (bleeding off) on desktop. */}
         <div className="relative -mx-4 h-[60vw] max-h-[30rem] sm:mx-0 lg:order-2 lg:-mr-[max(2rem,calc((100vw-80rem)/2+2rem))] lg:h-auto lg:max-h-none">
-          {/* Raster render of <GearboxPoster />: far cheaper to paint on phones than the
-              live SVG. The 3D canvas replaces it in phase 3 and falls back to it. */}
-          <Image
-            src="/gearbox-poster.webp"
-            alt=""
-            width={1200}
-            height={1200}
-            preload
-            fetchPriority="high"
-            sizes="(min-width: 1024px) 45vw, 60vw"
-            className="mx-auto h-full w-auto lg:h-auto lg:w-full lg:drop-shadow-[0_30px_40px_rgb(0_0_0/0.55)] lg:[transform:perspective(1600px)_rotateY(-22deg)_rotateX(12deg)]"
+          {/* The poster is a render of the 3D gearbox (scripts/render-poster.mjs). It is the
+              LCP image and the no-WebGL fallback; the live canvas fades in over it. */}
+          <HeroGearbox
+            poster={
+              <Image
+                src="/gearbox-poster.webp"
+                alt=""
+                width={1200}
+                height={1200}
+                preload
+                fetchPriority="high"
+                sizes="(min-width: 1024px) 45vw, 60vw"
+                className="mx-auto h-full w-auto lg:h-auto lg:w-full"
+              />
+            }
           />
         </div>
 
