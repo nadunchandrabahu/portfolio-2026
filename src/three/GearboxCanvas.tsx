@@ -11,6 +11,7 @@ import { Canvas, useThree } from "@react-three/fiber";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { ASSEMBLY_RADIUS, Gearbox } from "./Gearbox";
 import { useGearboxStore } from "./gearboxStore";
+import { useGearboxUi } from "./gearboxUi";
 
 /** Postprocessing lives in its own chunk; low-power devices never fetch it. */
 const Effects = lazy(() => import("./Effects"));
@@ -62,6 +63,13 @@ function ReadySignal({ onReady }: { onReady: () => void }) {
 function Warmup({ onWarm }: { onWarm: () => void }) {
   const { gl, scene, camera } = useThree();
   useEffect(() => {
+    // Dev only: React Strict Mode mounts the canvas twice, and three's
+    // compileAsync keeps polling the discarded first renderer's programs,
+    // flooding the console. It is a production speed-up, so skip it in dev.
+    if (process.env.NODE_ENV !== "production") {
+      onWarm();
+      return;
+    }
     let cancelled = false;
     gl.compileAsync(scene, camera)
       .catch(() => undefined)
@@ -109,11 +117,14 @@ export default function GearboxCanvas({ lowPower, reducedMotion, onReady }: Gear
         dpr={[1, maxDpr]}
         gl={{ antialias: !effects, alpha: true, powerPreference: "high-performance" }}
         camera={{ fov: 30, near: 0.1, far: 60, position: [3, 2, 6] }}
-        style={{ background: "transparent" }}
+        // Drag to rotate (useDragRotate). pan-y keeps vertical swipes scrolling the page.
+        style={{ background: "transparent", touchAction: "pan-y", cursor: "grab", userSelect: "none" }}
         onCreated={({ gl }) => {
           // getProgramParameter(LINK_STATUS) stalls until each shader links.
           gl.debug.checkShaderErrors = process.env.NODE_ENV !== "production";
         }}
+        // A tap or click on empty space closes the part details card.
+        onPointerMissed={() => useGearboxUi.getState().setInspect(null)}
       >
         <PerformanceMonitor onDecline={() => setEffects(false)} />
         <AdaptiveDpr />

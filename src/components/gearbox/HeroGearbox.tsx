@@ -16,6 +16,7 @@ import { hasWebGL, isLowPower } from "@/three/webgl";
 // The 3D chunk (three, R3F, drei, postprocessing) loads only on the client,
 // after first paint (CLAUDE.md 7.7).
 const GearboxCanvas = dynamic(() => import("@/three/GearboxCanvas"), { ssr: false });
+const GearboxInspectCard = dynamic(() => import("./GearboxInspectCard"), { ssr: false });
 const GearboxDevPanel =
   process.env.NODE_ENV === "development"
     ? dynamic(() => import("./GearboxDevPanel"), { ssr: false })
@@ -132,6 +133,15 @@ export function HeroGearbox({ poster }: { poster: ReactNode }) {
           <CanvasBoundary onError={onError}>
             <GearboxCanvas lowPower={capability.lowPower} reducedMotion={reducedMotion} onReady={onReady} />
           </CanvasBoundary>
+          {canvasReady ? (
+            <>
+              <GearboxInspectCard />
+              <p className="gearbox-hint pointer-events-none absolute inset-x-0 bottom-1 text-center font-mono text-[11px] tracking-[0.08em] text-concrete/80 uppercase lg:bottom-4">
+                <span className="pointer-coarse:hidden">Drag to rotate · Hover a gear · Double-click to reset</span>
+                <span className="hidden pointer-coarse:inline">Swipe to rotate · Tap a gear</span>
+              </p>
+            </>
+          ) : null}
         </div>
       ) : null}
       {GearboxDevPanel && show3d ? <GearboxDevPanel /> : null}

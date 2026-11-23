@@ -526,6 +526,20 @@
   }
 }
 
+/* Hover/tap details card beside the gearbox (GearboxInspectCard). */
+@media (prefers-reduced-motion: no-preference) {
+  .gearbox-inspect {
+    animation: inspect-in 180ms var(--ease-reveal);
+  }
+}
+
+@keyframes inspect-in {
+  from {
+    opacity: 0;
+    translate: 0 6px;
+  }
+}
+
 /* Soft edges on the gearbox canvas, so zoomed-in parts fade out instead of
    being cut by the canvas rectangle. Only the <canvas> is masked; drei <Html>
    callouts are its siblings and stay fully visible. */

@@ -12,14 +12,21 @@ import * as THREE from "three";
 
 export const MODULE = 1;
 export const PRESSURE_ANGLE = (20 * Math.PI) / 180;
-export const FACE_WIDTH = 4;
+export const FACE_WIDTH = 2;
 export const BEVEL = 0.18;
 
 export const TEETH = { sun: 24, planet: 12, ring: 48 } as const;
 export const CENTRE_DISTANCE = ((TEETH.sun + TEETH.planet) * MODULE) / 2; // 18
 export const RING_OUTER_RADIUS = 28.5;
 export const CARRIER_RADIUS = 21.5;
-export const CARRIER_THICKNESS = 2;
+export const CARRIER_THICKNESS = 1.4;
+
+/** Sun bore: wide enough to see the cross on the centre boss behind it. */
+export const SUN_BORE_RADIUS = 4.6;
+/** Stationary centre boss in the carrier's centre hole; carries the cross. */
+export const CROSS_DISC_RADIUS = 4.25;
+const CARRIER_CENTRE_HOLE = CROSS_DISC_RADIUS + 0.15;
+export const CROSS_DEPTH = 0.5;
 
 /** Planet positions on the carrier (radians). */
 export const PLANET_ANGLES = [0, 0.5, 1, 1.5].map((t) => t * Math.PI);
@@ -157,11 +164,11 @@ export function extrude(shape: THREE.Shape, depth = FACE_WIDTH, bevel = BEVEL): 
 
 export function sunShape(): THREE.Shape {
   const shape = new THREE.Shape(externalOutline(TEETH.sun, PHASE.sun));
-  shape.holes.push(keyedBore(2.4, 1.1, 0.7));
+  shape.holes.push(keyedBore(SUN_BORE_RADIUS, 1.3, 0.8));
   // Six lightening holes, leaving room for the EPH 2:8 engraving below the bore.
   for (let i = 0; i < 6; i++) {
-    const p = polar(7.4, (i * Math.PI) / 3);
-    shape.holes.push(circlePath(1.05, p.x, p.y));
+    const p = polar(8.4, (i * Math.PI) / 3);
+    shape.holes.push(circlePath(0.85, p.x, p.y));
   }
   return shape;
 }
@@ -184,12 +191,39 @@ export const CARRIER_HOLE_ANGLES = [0.25, 0.75, 1.25, 1.75].map((t) => t * Math.
 export function carrierShape(): THREE.Shape {
   const shape = new THREE.Shape();
   shape.absarc(0, 0, CARRIER_RADIUS, 0, Math.PI * 2, false);
-  shape.holes.push(circlePath(3));
+  shape.holes.push(circlePath(CARRIER_CENTRE_HOLE));
   for (const a of CARRIER_HOLE_ANGLES) {
     const p = polar(11.5, a);
     shape.holes.push(circlePath(2.4, p.x, p.y));
   }
   return shape;
+}
+
+/** The stationary centre boss behind the sun bore. */
+export function crossDiscShape(): THREE.Shape {
+  const shape = new THREE.Shape();
+  shape.absarc(0, 0, CROSS_DISC_RADIUS, 0, Math.PI * 2, false);
+  return shape;
+}
+
+/**
+ * Latin cross outline, counter-clockwise, sized to sit inside the sun bore so
+ * it reads from the front through the middle of the gearbox.
+ */
+export function crossOutline(): THREE.Vector2[] {
+  const h = 0.55; // half the bar width
+  const bottom = -3.95;
+  const top = 3.25;
+  const beam = 1.3; // crossbar centre height
+  const arm = 2.45; // crossbar half-length
+  return [
+    [-h, bottom], [h, bottom], [h, beam - h], [arm, beam - h], [arm, beam + h], [h, beam + h],
+    [h, top], [-h, top], [-h, beam + h], [-arm, beam + h], [-arm, beam - h], [-h, beam - h],
+  ].map(([x, y]) => new THREE.Vector2(x, y));
+}
+
+export function crossShape(): THREE.Shape {
+  return new THREE.Shape(crossOutline());
 }
 
 /**

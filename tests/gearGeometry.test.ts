@@ -1,10 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
   CENTRE_DISTANCE,
+  CROSS_DISC_RADIUS,
+  crossOutline,
   externalOutline,
   internalOutline,
   MODULE,
   PLANET_ANGLES,
+  SUN_BORE_RADIUS,
   TEETH,
 } from "@/three/gearGeometry";
 
@@ -52,5 +55,18 @@ describe("planetary gear set", () => {
     const sunTip = (MODULE * TEETH.sun) / 2 + MODULE;
     const planetRoot = (MODULE * TEETH.planet) / 2 - 1.25 * MODULE;
     expect(sunTip + planetRoot).toBeLessThan(CENTRE_DISTANCE);
+  });
+});
+
+describe("centre cross", () => {
+  it("fits on its boss and shows whole through the sun bore", () => {
+    const r = Math.max(...radii(crossOutline()));
+    expect(r).toBeLessThan(CROSS_DISC_RADIUS);
+    expect(r).toBeLessThan(SUN_BORE_RADIUS);
+  });
+
+  it("is upright: the long arm points down", () => {
+    const ys = crossOutline().map((p) => p.y);
+    expect(-Math.min(...ys)).toBeGreaterThan(Math.max(...ys));
   });
 });

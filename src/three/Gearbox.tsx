@@ -1,11 +1,11 @@
 "use client";
 
 import { Text } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import { damp, damp3 } from "maath/easing";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
-import { about } from "@/content/about";
+import { about, type GearPartId } from "@/content/about";
 import { PROJECT_IDS } from "@/content/projects";
 import {
   CAMERA_PRESETS,
@@ -17,7 +17,9 @@ import {
 import { Callout } from "./Callouts";
 import * as G from "./gearGeometry";
 import { useGearboxStore, type FocusTarget } from "./gearboxStore";
+import { sameTarget, useGearboxUi, type InspectTarget } from "./gearboxUi";
 import { createMaterials } from "./materials";
+import { useDragRotate } from "./useDragRotate";
 
 /** Gear units (module 1) → scene units. The assembly is ~1.8 units in radius. */
 export const SCALE = 1 / 16;
@@ -36,6 +38,12 @@ const PLATE_Z = -(G.FACE_WIDTH / 2 + G.CARRIER_THICKNESS / 2 + 0.25);
 /** Axial travel of each part at explode = 1, in gear units. */
 const EXPLODE_TRAVEL = { carrier: -10, planets: 6, sun: 13 };
 const PLANETS = ["engineering", "data", "ai", "build"] as const;
+/** The centre cross sits on the boss's front face. */
+const CROSS_Z = G.CARRIER_THICKNESS / 2 + G.CROSS_DEPTH / 2;
+/** Hover outlines sit just proud of the faces so they don't z-fight. */
+const PROUD: [number, number, number] = [1, 1, 1.08];
+/** Mouse leaving a part: wait this long before closing, so moving between parts doesn't flicker. */
+const UNPICK_DELAY_MS = 140;
 const TAU = Math.PI * 2;
 
 type Geometries = ReturnType<typeof buildGeometries>;
@@ -46,6 +54,8 @@ function buildGeometries() {
     planet: G.planetShape(),
     ring: G.ringShape(),
     carrier: G.carrierShape(),
+    crossDisc: G.crossDiscShape(),
+    cross: G.crossShape(),
   };
   const centreLines = new THREE.BufferGeometry().setFromPoints([
     new THREE.Vector3(-31, 0, FRONT + 0.4),
@@ -69,10 +79,14 @@ function buildGeometries() {
     planet: G.extrude(shapes.planet),
     ring: G.extrude(shapes.ring, G.FACE_WIDTH, 0.25),
     carrier: G.extrude(shapes.carrier, G.CARRIER_THICKNESS, 0.2),
+    crossDisc: G.extrude(shapes.crossDisc, G.CARRIER_THICKNESS, 0.2),
+    cross: G.extrude(shapes.cross, G.CROSS_DEPTH, 0.1),
     sunEdges: G.outlineGeometry(shapes.sun, G.FACE_WIDTH),
     planetEdges: G.outlineGeometry(shapes.planet, G.FACE_WIDTH),
     ringEdges: G.outlineGeometry(shapes.ring, G.FACE_WIDTH),
     carrierEdges: G.outlineGeometry(shapes.carrier, G.CARRIER_THICKNESS),
+    crossDiscEdges: G.outlineGeometry(shapes.crossDisc, G.CARRIER_THICKNESS),
+    crossEdges: G.outlineGeometry(shapes.cross, G.CROSS_DEPTH),
     knurl: G.knurlBandGeometry(),
     pin: new THREE.CylinderGeometry(1.45, 1.45, G.FACE_WIDTH + 0.6, 24).rotateX(Math.PI / 2),
     pinNut: G.hexHeadGeometry(1.15, 0.5),
@@ -117,6 +131,16 @@ const indexLines = PROJECT_IDS.map((_, i) => {
 
 const BOLT_ANGLES = Array.from({ length: 8 }, (_, i) => ((i + 0.5) * TAU) / 8);
 
+/** Which ring segment (project) a point on the ring face is in. Segment 00 starts at 12 o'clock, clockwise. */
+function segmentAt(local: THREE.Vector3) {
+  const span = TAU / PROJECT_IDS.length;
+  const fromTop = (((Math.PI / 2 - Math.atan2(local.y, local.x)) % TAU) + TAU) % TAU;
+  return PROJECT_IDS[Math.floor(fromTop / span)] ?? null;
+}
+
+const isMouse = (e: ThreeEvent<PointerEvent | MouseEvent>) =>
+  !("pointerType" in e.nativeEvent) || e.nativeEvent.pointerType === "mouse";
+
 export function Gearbox({ reducedMotion }: { reducedMotion: boolean }) {
   const geometries = useMemo(() => buildGeometries(), []);
   const materials = useMemo(() => createMaterials(), []);
@@ -131,6 +155,69 @@ export function Gearbox({ reducedMotion }: { reducedMotion: boolean }) {
   useEffect(() => () => inlays.forEach((m) => m.dispose()), [inlays]);
 
   const focus = useGearboxStore((s) => s.focus);
+  const inspect = useGearboxUi((s) => s.inspect);
+  const picked = inspect?.target.kind === "part" ? inspect.target.part : null;
+
+  const rotor = useRef<THREE.Group>(null);
+  const crossGroup = useRef<THREE.Group>(null);
+  const dragging = useDragRotate(rotor, reducedMotion);
+  const gl = useThree((s) => s.gl);
+  const invalidate = useThree((s) => s.invalidate);
+  const unpickTimer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(unpickTimer.current), []);
+
+  // Hover (mouse) or tap (touch) a part to see its details (GearboxInspectCard).
+  const pick = (target: InspectTarget, e: ThreeEvent<PointerEvent | MouseEvent>) => {
+    window.clearTimeout(unpickTimer.current);
+    const ui = useGearboxUi.getState();
+    if (sameTarget(ui.inspect?.target, target)) return;
+    const rect = gl.domElement.getBoundingClientRect();
+    ui.setInspect({ target, x: e.nativeEvent.clientX - rect.left, y: e.nativeEvent.clientY - rect.top });
+    invalidate();
+  };
+  const unpick = (delay: number) => {
+    window.clearTimeout(unpickTimer.current);
+    unpickTimer.current = window.setTimeout(() => {
+      useGearboxUi.getState().setInspect(null);
+      invalidate();
+    }, delay);
+  };
+  const onTap = (target: InspectTarget | null, e: ThreeEvent<MouseEvent>) => {
+    e.stopPropagation();
+    if (isMouse(e) || dragging.current || e.delta > 8 || !target) return;
+    if (sameTarget(useGearboxUi.getState().inspect?.target, target)) unpick(0);
+    else pick(target, e);
+  };
+  // One set of handlers for every inspectable part; the part id rides on userData.
+  const partOf = (e: ThreeEvent<PointerEvent | MouseEvent>): InspectTarget | null => {
+    const part = (e.eventObject.userData as { part?: GearPartId }).part;
+    return part ? { kind: "part", part } : null;
+  };
+  const onPartOver = (e: ThreeEvent<PointerEvent>) => {
+    e.stopPropagation();
+    const target = partOf(e);
+    if (target && isMouse(e) && !dragging.current) pick(target, e);
+  };
+  const onPartOut = (e: ThreeEvent<PointerEvent>) => {
+    if (isMouse(e)) unpick(UNPICK_DELAY_MS);
+  };
+  const onPartClick = (e: ThreeEvent<MouseEvent>) => onTap(partOf(e), e);
+  const partEvents = { onPointerOver: onPartOver, onPointerOut: onPartOut, onClick: onPartClick };
+  // Solid parts with nothing to show still block the parts behind them.
+  const blocker = {
+    onPointerOver: (e: ThreeEvent<PointerEvent>) => e.stopPropagation(),
+    onClick: (e: ThreeEvent<MouseEvent>) => e.stopPropagation(),
+  };
+  const ringTarget = (e: ThreeEvent<PointerEvent | MouseEvent>): InspectTarget | null => {
+    const id = segmentAt(e.object.worldToLocal(e.point.clone()));
+    return id ? { kind: "project", id } : null;
+  };
+  const onRingHover = (e: ThreeEvent<PointerEvent>) => {
+    e.stopPropagation();
+    if (!isMouse(e) || dragging.current) return;
+    const target = ringTarget(e);
+    if (target) pick(target, e);
+  };
 
   const sunGroup = useRef<THREE.Group>(null);
   const sunSpin = useRef<THREE.Group>(null);
@@ -202,6 +289,7 @@ export function Gearbox({ reducedMotion }: { reducedMotion: boolean }) {
     const e = c.explode;
     if (sunGroup.current) sunGroup.current.position.z = e * EXPLODE_TRAVEL.sun;
     if (plateGroup.current) plateGroup.current.position.z = PLATE_Z + e * EXPLODE_TRAVEL.carrier;
+    if (crossGroup.current) crossGroup.current.position.z = PLATE_Z + e * EXPLODE_TRAVEL.carrier;
     for (const group of planetGroups.current) {
       if (group) group.position.z = e * EXPLODE_TRAVEL.planets;
     }
@@ -214,9 +302,12 @@ export function Gearbox({ reducedMotion }: { reducedMotion: boolean }) {
     materials.line.opacity = c.blueprint;
     materials.centreLine.opacity = c.blueprint * 0.7;
 
-    // Project segment inlays.
+    // Project segment inlays: lit by the store (scroll, chat) or by hovering the ring.
+    const inspected = useGearboxUi.getState().inspect?.target;
+    const hoveredProject = inspected?.kind === "project" ? inspected.id : null;
     inlays.forEach((m, i) => {
-      const on = s.highlightProject === PROJECT_IDS[i] ? 1 : 0;
+      const id = PROJECT_IDS[i];
+      const on = s.highlightProject === id || hoveredProject === id ? 1 : 0;
       if (instant) m.opacity = on;
       else damp(m, "opacity", on, 0.2, dt);
       m.emissiveIntensity = m.opacity * 1.4;
@@ -250,127 +341,176 @@ export function Gearbox({ reducedMotion }: { reducedMotion: boolean }) {
 
   return (
     <group scale={SCALE}>
-      {/* Ring gear: fixed. Carries the 7 project segments. */}
-      <group>
-        <mesh ref={asSolid} geometry={geometries.ring} material={materials.ring} />
-        <lineSegments ref={asOutline} geometry={geometries.ringEdges} material={materials.line} />
-        {indexLines.map((line, i) => (
+      {/* The rotor takes the visitor's drag rotation; everything turns with it. */}
+      <group ref={rotor}>
+        {/* Ring gear: fixed. Carries the 7 project segments. */}
+        <group>
           <mesh
-            key={i}
-            geometry={geometries.indexLine}
-            material={materials.indexLine}
-            position={line.position}
-            rotation={[0, 0, line.rotation]}
+            ref={asSolid}
+            geometry={geometries.ring}
+            material={materials.ring}
+            onPointerOver={onRingHover}
+            onPointerMove={onRingHover}
+            onPointerOut={(e) => isMouse(e) && unpick(UNPICK_DELAY_MS)}
+            onClick={(e) => onTap(ringTarget(e), e)}
           />
-        ))}
-        {geometries.segments.map((geometry, i) => (
-          <mesh
-            key={PROJECT_IDS[i]}
-            geometry={geometry}
-            material={inlays[i]}
-            position={[0, 0, FRONT + 0.02]}
-          />
-        ))}
-        {segmentLabels.map((label) => (
-          <Text
-            key={label.id}
-            font={FONT}
-            characters={GLYPHS}
-            fontSize={1.15}
-            color="#9a9fa5"
-            anchorX="center"
-            anchorY="middle"
-            position={label.position}
-            rotation={[0, 0, label.rotation]}
-          >
-            {label.n}
-          </Text>
-        ))}
-        {focus === "ring" ? (
-          <Callout position={[0, 26.4, FRONT]} label={`Ring · The work · ${PROJECT_IDS.length} projects`} />
-        ) : null}
-      </group>
-
-      {/* Carrier assembly: turns at ω/3 and holds the four planets. */}
-      <group ref={carrierAssembly}>
-        <group ref={plateGroup} position={[0, 0, PLATE_Z]}>
-          <mesh ref={asSolid} geometry={geometries.carrier} material={materials.carrier} />
-          <mesh ref={asSolid} geometry={geometries.knurl} material={materials.knurl} />
-          <lineSegments ref={asOutline} geometry={geometries.carrierEdges} material={materials.line} />
-          {BOLT_ANGLES.map((a) => (
+          <lineSegments ref={asOutline} geometry={geometries.ringEdges} material={materials.line} />
+          {indexLines.map((line, i) => (
             <mesh
-              key={a}
-              ref={asSolid}
-              geometry={geometries.bolt}
-              material={materials.bolt}
-              position={[19.2 * Math.cos(a), 19.2 * Math.sin(a), G.CARRIER_THICKNESS / 2]}
-              rotation={[0, 0, a]}
+              key={i}
+              geometry={geometries.indexLine}
+              material={materials.indexLine}
+              position={line.position}
+              rotation={[0, 0, line.rotation]}
             />
           ))}
-          {planetPositions.map(([x, y]) => (
+          {geometries.segments.map((geometry, i) => (
             <mesh
-              key={`pin-${x}-${y}`}
-              ref={asSolid}
-              geometry={geometries.pin}
-              material={materials.bolt}
-              position={[x, y, -PLATE_Z + 0.05]}
+              key={PROJECT_IDS[i]}
+              geometry={geometry}
+              material={inlays[i]}
+              position={[0, 0, FRONT + 0.02]}
             />
           ))}
-        </group>
-
-        {planetPositions.map(([x, y], i) => (
-          <group
-            key={PLANETS[i]}
-            ref={(g) => {
-              planetGroups.current[i] = g;
-            }}
-            position={[x, y, 0]}
-          >
-            <group
-              ref={(g) => {
-                planetSpins.current[i] = g;
-              }}
+          {segmentLabels.map((label) => (
+            <Text
+              key={label.id}
+              font={FONT}
+              characters={GLYPHS}
+              fontSize={1.15}
+              color="#9a9fa5"
+              anchorX="center"
+              anchorY="middle"
+              position={label.position}
+              rotation={[0, 0, label.rotation]}
             >
-              <mesh ref={asSolid} geometry={geometries.planet} material={materials.steel} />
-              <lineSegments ref={asOutline} geometry={geometries.planetEdges} material={materials.line} />
-            </group>
-            <mesh ref={asSolid} geometry={geometries.pinNut} material={materials.bolt} position={[0, 0, FRONT]} />
-            {focus === PLANETS[i] ? <Callout position={[0, 0, FRONT + 0.5]} label={partLabel(PLANETS[i])} /> : null}
-          </group>
-        ))}
-      </group>
+              {label.n}
+            </Text>
+          ))}
+          {focus === "ring" ? (
+            <Callout position={[0, 26.4, FRONT]} label={`Ring · The work · ${PROJECT_IDS.length} projects`} />
+          ) : null}
+        </group>
 
-      {/* Sun gear: brass, engraved EPH 2:8. Faith at the centre. */}
-      <group ref={sunGroup}>
-        <group ref={sunSpin}>
-          <mesh ref={asSolid} geometry={geometries.sun} material={materials.brass} />
-          <lineSegments ref={asOutline} geometry={geometries.sunEdges} material={materials.line} />
-          <Text
-            font={FONT}
-            characters={GLYPHS}
-            fontSize={1.35}
-            letterSpacing={0.06}
-            color="#8c6b32"
-            anchorX="center"
-            anchorY="middle"
-            position={[0, -4.6, FRONT + 0.03]}
-          >
-            EPH 2:8
+        {/* Carrier assembly: turns at ω/3 and holds the four planets. */}
+        <group ref={carrierAssembly}>
+          <group ref={plateGroup} position={[0, 0, PLATE_Z]}>
+            <mesh ref={asSolid} geometry={geometries.carrier} material={materials.carrier} {...blocker} />
+            <mesh ref={asSolid} geometry={geometries.knurl} material={materials.knurl} {...blocker} />
+            <lineSegments ref={asOutline} geometry={geometries.carrierEdges} material={materials.line} />
+            {BOLT_ANGLES.map((a) => (
+              <mesh
+                key={a}
+                ref={asSolid}
+                geometry={geometries.bolt}
+                material={materials.bolt}
+                position={[19.2 * Math.cos(a), 19.2 * Math.sin(a), G.CARRIER_THICKNESS / 2]}
+                rotation={[0, 0, a]}
+              />
+            ))}
+            {planetPositions.map(([x, y]) => (
+              <mesh
+                key={`pin-${x}-${y}`}
+                ref={asSolid}
+                geometry={geometries.pin}
+                material={materials.bolt}
+                position={[x, y, -PLATE_Z + 0.05]}
+              />
+            ))}
+          </group>
+
+          {planetPositions.map(([x, y], i) => (
+            <group
+              key={PLANETS[i]}
+              ref={(g) => {
+                planetGroups.current[i] = g;
+              }}
+              position={[x, y, 0]}
+            >
+              <group
+                ref={(g) => {
+                  planetSpins.current[i] = g;
+                }}
+              >
+                <mesh
+                  ref={asSolid}
+                  geometry={geometries.planet}
+                  material={picked === PLANETS[i] ? materials.steelHover : materials.steel}
+                  userData={{ part: PLANETS[i] }}
+                  {...partEvents}
+                />
+                <lineSegments ref={asOutline} geometry={geometries.planetEdges} material={materials.line} />
+                {picked === PLANETS[i] ? (
+                  <lineSegments geometry={geometries.planetEdges} material={materials.hoverLine} scale={PROUD} />
+                ) : null}
+              </group>
+              <mesh ref={asSolid} geometry={geometries.pinNut} material={materials.bolt} position={[0, 0, FRONT]} />
+              {focus === PLANETS[i] ? <Callout position={[0, 0, FRONT + 0.5]} label={partLabel(PLANETS[i])} /> : null}
+            </group>
+          ))}
+        </group>
+
+        {/* The cross: on a stationary centre boss behind the sun, so it stays upright
+            while everything turns around it. Seen from the front through the sun bore. */}
+        <group ref={crossGroup} position={[0, 0, PLATE_Z]}>
+          <mesh ref={asSolid} geometry={geometries.crossDisc} material={materials.carrier} {...blocker} />
+          <lineSegments ref={asOutline} geometry={geometries.crossDiscEdges} material={materials.line} />
+          <group position={[0, 0, CROSS_Z]}>
+            <mesh
+              ref={asSolid}
+              geometry={geometries.cross}
+              material={picked === "sun" ? materials.brassHover : materials.brass}
+              userData={{ part: "sun" }}
+              {...partEvents}
+            />
+            <lineSegments ref={asOutline} geometry={geometries.crossEdges} material={materials.line} />
+            {picked === "sun" ? (
+              <lineSegments geometry={geometries.crossEdges} material={materials.hoverLine} scale={PROUD} />
+            ) : null}
+          </group>
+        </group>
+
+        {/* Sun gear: brass, engraved EPH 2:8. Faith at the centre. */}
+        <group ref={sunGroup}>
+          <group ref={sunSpin}>
+            <mesh
+              ref={asSolid}
+              geometry={geometries.sun}
+              material={picked === "sun" ? materials.brassHover : materials.brass}
+              userData={{ part: "sun" }}
+              {...partEvents}
+            />
+            <lineSegments ref={asOutline} geometry={geometries.sunEdges} material={materials.line} />
+            {picked === "sun" ? (
+              <lineSegments geometry={geometries.sunEdges} material={materials.hoverLine} scale={PROUD} />
+            ) : null}
+            <Text
+              font={FONT}
+              characters={GLYPHS}
+              fontSize={1.1}
+              letterSpacing={0.06}
+              color="#8c6b32"
+              anchorX="center"
+              anchorY="middle"
+              position={[0, -5.95, FRONT + 0.03]}
+            >
+              EPH 2:8
+            </Text>
+          </group>
+          {focus === "sun" ? <Callout position={[0, 0, FRONT + 0.5]} label={partLabel("sun")} /> : null}
+        </group>
+
+        {/* Blueprint extras: dash-dot centre lines and two dimension callouts. */}
+        <lineSegments ref={centreLineRef} geometry={geometries.centreLines} material={materials.centreLine} />
+        <lineSegments ref={asOutline} geometry={geometries.dims} material={materials.line} />
+        <group ref={asBlueprintOnly} visible={false}>
+          <Text font={FONT} characters={GLYPHS} fontSize={1.5} color="#c9a35e" anchorX="center" anchorY="bottom" position={[0, 30.6, FRONT + 0.4]}>
+            Ø48
+          </Text>
+          <Text font={FONT} characters={GLYPHS} fontSize={1.4} color="#c9a35e" anchorX="left" anchorY="middle" position={[17, 13.2, FRONT + 0.4]}>
+            Z=24
           </Text>
         </group>
-        {focus === "sun" ? <Callout position={[0, 0, FRONT + 0.5]} label={partLabel("sun")} /> : null}
-      </group>
-
-      {/* Blueprint extras: dash-dot centre lines and two dimension callouts. */}
-      <lineSegments ref={centreLineRef} geometry={geometries.centreLines} material={materials.centreLine} />
-      <lineSegments ref={asOutline} geometry={geometries.dims} material={materials.line} />
-      <group ref={asBlueprintOnly} visible={false}>
-        <Text font={FONT} characters={GLYPHS} fontSize={1.5} color="#c9a35e" anchorX="center" anchorY="bottom" position={[0, 30.6, FRONT + 0.4]}>
-          Ø48
-        </Text>
-        <Text font={FONT} characters={GLYPHS} fontSize={1.4} color="#c9a35e" anchorX="left" anchorY="middle" position={[17, 13.2, FRONT + 0.4]}>
-          Z=24
-        </Text>
       </group>
     </group>
   );

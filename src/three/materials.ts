@@ -92,6 +92,25 @@ export function createMaterials() {
       0.1,
     ),
     brass: new THREE.MeshStandardMaterial({ color: COLORS.brass, metalness: 0.9, roughness: 0.3 }),
+    // Hovered / tapped parts: the same programs as steel and brass (only the
+    // emissive uniform differs), so swapping them in costs no shader compile.
+    steelHover: withTemper(
+      new THREE.MeshStandardMaterial({
+        color: COLORS.steel,
+        metalness: 0.85,
+        roughness: 0.38,
+        emissive: COLORS.brassAccent,
+        emissiveIntensity: 0.16,
+      }),
+      0.18,
+    ),
+    brassHover: new THREE.MeshStandardMaterial({
+      color: COLORS.brass,
+      metalness: 0.9,
+      roughness: 0.3,
+      emissive: COLORS.brassAccent,
+      emissiveIntensity: 0.22,
+    }),
     carrier: new THREE.MeshStandardMaterial({
       color: COLORS.graphiteSteel,
       metalness: 0.9,
@@ -122,6 +141,8 @@ export function createMaterials() {
     indexLine: new THREE.MeshBasicMaterial({ color: COLORS.engraving, transparent: true, opacity: 0.7 }),
     /** Blueprint mode: brass line drawing. */
     line: new THREE.LineBasicMaterial({ color: COLORS.brassAccent, transparent: true, opacity: 0 }),
+    /** Outline traced around the hovered part. */
+    hoverLine: new THREE.LineBasicMaterial({ color: "#f1dcae" }),
     centreLine: new THREE.LineDashedMaterial({
       color: "#9a9fa5",
       dashSize: 2.2,

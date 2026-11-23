@@ -30,7 +30,7 @@ await page.waitForFunction(
 );
 await page.addStyleTag({
   content: `html, body { background: transparent !important; }
-    body::after, .blueprint-grid { display: none !important; }
+    body::after, .blueprint-grid, .gearbox-hint, .gearbox-inspect { display: none !important; }
     .gearbox-canvas-fade canvas { mask-image: none !important; }
     #hero img[src*="gearbox-poster"] { visibility: hidden !important; }`,
 });

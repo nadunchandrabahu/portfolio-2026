@@ -1,11 +1,14 @@
-export type SkillDrawer = { label: string; skills: string[] };
+export type SkillDrawerId = "languages" | "ml-ai" | "stats" | "web" | "tools";
+export type SkillDrawer = { id: SkillDrawerId; label: string; skills: string[] };
 
 export const skillDrawers: SkillDrawer[] = [
   {
+    id: "languages",
     label: "Languages",
     skills: ["Python", "R (tidyverse, ggplot2, Quarto)", "SQL", "JavaScript"],
   },
   {
+    id: "ml-ai",
     label: "Machine learning & AI",
     skills: [
       "n8n",
@@ -22,6 +25,7 @@ export const skillDrawers: SkillDrawer[] = [
     ],
   },
   {
+    id: "stats",
     label: "Statistics & analytics",
     skills: [
       "logistic regression",
@@ -34,10 +38,12 @@ export const skillDrawers: SkillDrawer[] = [
     ],
   },
   {
+    id: "web",
     label: "Web & full-stack",
     skills: ["React", "React Native", "Supabase", "Shopify Storefront API", "Cloudflare"],
   },
   {
+    id: "tools",
     label: "Tools",
     skills: ["Git/GitHub", "Google Apps Script", "Google Colab"],
   },
