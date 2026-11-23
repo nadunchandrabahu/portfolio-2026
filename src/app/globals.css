@@ -1,0 +1,116 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens: "Graphite & Brass" (CLAUDE.md 2.3).
+ *
+ * The raw values live on :root so a future "drafting paper" light theme can
+ * redefine them under a selector such as [data-theme="paper"] without
+ * touching components. Each name describes its role in the dark theme:
+ * graphite = page, cast = bands/nav, machined = cards, steel-line = hairlines,
+ * bone = primary text, concrete = secondary text, brass = the single accent.
+ */
+:root {
+  --graphite: #0f1011;
+  --cast: #17191b;
+  --machined: #202327;
+  --steel-line: #2f3337;
+  --bone: #ece7de;
+  --concrete: #9a9fa5;
+  --brass: #c9a35e;
+  --brass-deep: #8c6b32;
+
+  /* Temper tint: 3D metal edge and the inspection-tag hover sheen only.
+     Never a background, never on text. */
+  --temper-straw: #d8b56a;
+  --temper-bronze: #a8673a;
+  --temper-purple: #6b4a8c;
+  --temper-blue: #3d6a9e;
+  --temper-gradient: linear-gradient(
+    90deg,
+    var(--temper-straw),
+    var(--temper-bronze),
+    var(--temper-purple),
+    var(--temper-blue)
+  );
+
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-*: initial;
+  --color-graphite: var(--graphite);
+  --color-cast: var(--cast);
+  --color-machined: var(--machined);
+  --color-steel-line: var(--steel-line);
+  --color-bone: var(--bone);
+  --color-concrete: var(--concrete);
+  --color-brass: var(--brass);
+  --color-brass-deep: var(--brass-deep);
+  --color-temper-straw: var(--temper-straw);
+  --color-temper-bronze: var(--temper-bronze);
+  --color-temper-purple: var(--temper-purple);
+  --color-temper-blue: var(--temper-blue);
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  --font-display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+}
+
+@theme {
+  /* Fluid type scale (CLAUDE.md 2.4), interpolated between 360px and 1920px. */
+  --text-display-xl: clamp(3.5rem, 2.69rem + 3.59vw, 7rem);
+  --text-display-xl--line-height: 1.05;
+  --text-display-l: clamp(2.5rem, 2.15rem + 1.54vw, 4rem);
+  --text-display-l--line-height: 1.05;
+  --text-h2: clamp(2rem, 1.83rem + 0.77vw, 2.75rem);
+  --text-h2--line-height: 1.1;
+  --text-h3: clamp(1.25rem, 1.19rem + 0.26vw, 1.5rem);
+  --text-h3--line-height: 1.25;
+  --text-body: clamp(1rem, 0.97rem + 0.13vw, 1.125rem);
+  --text-body--line-height: 1.6;
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.5;
+  --text-mono-label: 0.75rem;
+  --text-mono-label--line-height: 1.4;
+  --text-mono-label--letter-spacing: 0.08em;
+
+  /* Machined surfaces (CLAUDE.md 2.5) */
+  --radius-machined: 6px;
+  --shadow-machined:
+    inset 0 1px 0 rgb(255 255 255 / 0.04), 0 10px 30px -12px rgb(0 0 0 / 0.6);
+
+  /* Body measure */
+  --container-measure: 68ch;
+
+  /* Motion (CLAUDE.md 2.7) */
+  --ease-reveal: cubic-bezier(0.215, 0.61, 0.355, 1); /* ≈ GSAP power2.out */
+}
+
+@layer base {
+  html {
+    background-color: var(--graphite);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--graphite);
+    color: var(--bone);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--brass);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--brass);
+    color: var(--graphite);
+  }
+}
