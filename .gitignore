@@ -1,0 +1,8 @@
+# Environment variables (secrets stay out of git)
+.env
+.env*
+!.env.example
+
+# Private docs (kept local, matches at the root or in docs/)
+CHATBOT_SETUP.md
+Content.md
