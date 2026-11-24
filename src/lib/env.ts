@@ -43,11 +43,27 @@ export const ServerEnvSchema = z
 export type ServerEnv = z.infer<typeof ServerEnvSchema>;
 
 /**
+ * Vercel's Upstash integration (Marketplace) adds the legacy Vercel KV names,
+ * KV_REST_API_URL and KV_REST_API_TOKEN, or UPSTASH_KV_REST_API_* when it is
+ * connected with the "UPSTASH" prefix. Accept those when the UPSTASH_REDIS_*
+ * names aren't set. (Never the read-only token: the limiter writes.)
+ */
+function withUpstashAliases(source: Record<string, string | undefined>) {
+  return {
+    ...source,
+    UPSTASH_REDIS_REST_URL:
+      source.UPSTASH_REDIS_REST_URL || source.UPSTASH_KV_REST_API_URL || source.KV_REST_API_URL,
+    UPSTASH_REDIS_REST_TOKEN:
+      source.UPSTASH_REDIS_REST_TOKEN || source.UPSTASH_KV_REST_API_TOKEN || source.KV_REST_API_TOKEN,
+  };
+}
+
+/**
  * Parse an env source. Errors name the variables only and never include
  * their values, so they are safe to log.
  */
 export function parseServerEnv(source: Record<string, string | undefined>): ServerEnv {
-  const result = ServerEnvSchema.safeParse(source);
+  const result = ServerEnvSchema.safeParse(withUpstashAliases(source));
   if (!result.success) {
     const problems = result.error.issues
       .map((issue) => `${issue.path.join(".") || "env"}: ${issue.message}`)

@@ -56,4 +56,32 @@ describe("parseServerEnv", () => {
       expect.objectContaining({ message: expect.not.stringContaining(leaky) }),
     );
   });
+
+  it("accepts the Vercel Upstash integration's KV_REST_API_* names", () => {
+    const env = parseServerEnv({
+      CHAT_ENABLED: "true",
+      CHAT_MOCK: "false",
+      N8N_WEBHOOK_URL: "https://n8n.example.com/webhook/x",
+      N8N_WEBHOOK_SECRET: "s".repeat(64),
+      KV_REST_API_URL: "https://example.upstash.io",
+      KV_REST_API_TOKEN: "token",
+      KV_REST_API_READ_ONLY_TOKEN: "read-only",
+    });
+    expect(env.UPSTASH_REDIS_REST_URL).toBe("https://example.upstash.io");
+    expect(env.UPSTASH_REDIS_REST_TOKEN).toBe("token");
+  });
+
+  it("accepts the integration's prefixed UPSTASH_KV_REST_API_* names", () => {
+    const env = parseServerEnv({
+      CHAT_ENABLED: "true",
+      CHAT_MOCK: "false",
+      N8N_WEBHOOK_URL: "https://n8n.example.com/webhook/x",
+      N8N_WEBHOOK_SECRET: "s".repeat(64),
+      UPSTASH_KV_REST_API_URL: "https://prefixed.upstash.io",
+      UPSTASH_KV_REST_API_TOKEN: "prefixed-token",
+      UPSTASH_KV_REST_API_READ_ONLY_TOKEN: "read-only",
+    });
+    expect(env.UPSTASH_REDIS_REST_URL).toBe("https://prefixed.upstash.io");
+    expect(env.UPSTASH_REDIS_REST_TOKEN).toBe("prefixed-token");
+  });
 });
