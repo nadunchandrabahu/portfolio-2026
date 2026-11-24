@@ -16,7 +16,9 @@ export const ServerEnvSchema = z
     CHAT_MOCK: flag,
     N8N_WEBHOOK_URL: optional(z.url({ protocol: /^https?$/ })),
     // `openssl rand -hex 32` gives 64 characters (CHATBOT_SETUP.md step 3.2).
-    N8N_WEBHOOK_SECRET: optional(z.string().min(32)),
+    // Trimmed: a pasted value can pick up a trailing space or newline, which
+    // would make n8n's Header Auth reject every request with 403.
+    N8N_WEBHOOK_SECRET: optional(z.string().trim().min(32)),
     UPSTASH_REDIS_REST_URL: optional(z.url({ protocol: /^https$/ })),
     UPSTASH_REDIS_REST_TOKEN: optional(z.string().min(1)),
   })

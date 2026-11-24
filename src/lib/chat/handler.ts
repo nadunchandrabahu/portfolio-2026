@@ -52,6 +52,49 @@ function isSameOrigin(request: Request): boolean {
   }
 }
 
+/**
+ * n8n's reply shape depends on how the workflow's last nodes are set up: a
+ * one-item array ("All Incoming Items"), the AI Agent's raw `{ output: … }`
+ * (no Sanitise node), or the JSON as a string, sometimes in a code fence.
+ * Unwrap those to the plain reply object. The result is still validated
+ * by parseChatResponse.
+ */
+export function unwrapUpstream(raw: unknown, depth = 0): unknown {
+  if (depth > 4) return raw;
+  if (typeof raw === "string") {
+    const text = raw
+      .trim()
+      .replace(/^```(?:json)?\s*/i, "")
+      .replace(/\s*```$/, "");
+    try {
+      return unwrapUpstream(JSON.parse(text), depth + 1);
+    } catch {
+      return raw;
+    }
+  }
+  if (Array.isArray(raw)) return raw.length === 1 ? unwrapUpstream(raw[0], depth + 1) : raw;
+  if (typeof raw === "object" && raw !== null && !("reply" in raw)) {
+    const wrapped = raw as Record<string, unknown>;
+    for (const key of ["output", "json"]) {
+      if (key in wrapped) return unwrapUpstream(wrapped[key], depth + 1);
+    }
+  }
+  return raw;
+}
+
+/** The outline of an unusable reply, for the logs: types and key names, never values. */
+export function describeShape(raw: unknown): string {
+  if (raw === null) return "null";
+  if (Array.isArray(raw)) return `array(${raw.length})${raw.length ? ` of ${describeShape(raw[0])}` : ""}`;
+  if (typeof raw === "object") {
+    const keys = Object.keys(raw)
+      .slice(0, 8)
+      .map((key) => key.replace(/[^\w-]/g, "").slice(0, 32));
+    return `object{${keys.join(",")}}`;
+  }
+  return typeof raw;
+}
+
 export async function handleChat(request: Request, deps: ChatDeps): Promise<Response> {
   if (await deps.isBot()) return respond(textReply(MESSAGES.forbidden), 403);
   if (!isSameOrigin(request)) return respond(textReply(MESSAGES.forbidden), 403);
@@ -97,9 +140,20 @@ export async function handleChat(request: Request, deps: ChatDeps): Promise<Resp
       deps.log("upstream_status", { status: upstream.status });
       return respond(textReply(MESSAGES.upstream));
     }
-    const reply = parseChatResponse(await upstream.json());
+    const text = await upstream.text();
+    let raw: unknown;
+    try {
+      raw = JSON.parse(text);
+    } catch {
+      deps.log("upstream_not_json", {
+        contentType: (upstream.headers.get("content-type") ?? "none").slice(0, 60),
+        length: text.length,
+      });
+      return respond(textReply(MESSAGES.upstream));
+    }
+    const reply = parseChatResponse(unwrapUpstream(raw));
     if (!reply) {
-      deps.log("upstream_invalid");
+      deps.log("upstream_invalid", { shape: describeShape(raw) });
       return respond(textReply(MESSAGES.upstream));
     }
     return respond(reply);

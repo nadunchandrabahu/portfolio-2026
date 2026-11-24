@@ -130,5 +130,35 @@ describe("handleChat", () => {
       expect(log).toHaveBeenCalled();
       expect(JSON.stringify(log.mock.calls)).not.toContain(valid.message);
     });
+
+    const good = { reply: "Field Shift…", actions: [{ type: "highlightProject", id: "field-shift" }] };
+    it.each([
+      ["a one-item array", [good]],
+      ["the AI Agent's { output }", { output: good }],
+      ["a JSON string", JSON.stringify(good)],
+      ["a fenced JSON string in { output }", { output: "```json\n" + JSON.stringify(good) + "\n```" }],
+      ["an array of { output }", [{ output: good }]],
+    ])("accepts n8n's reply as %s", async (_, payload) => {
+      const fetchMock = vi.fn(async () => Response.json(payload));
+      const { deps } = makeDeps({ envVars: LIVE_ENV, fetch: fetchMock });
+      const res = await read(await handleChat(request(valid), deps));
+      expect(res.body).toEqual({ ...good, suggestions: [] });
+    });
+
+    it("logs the shape (keys, not values) of an unusable reply", async () => {
+      const fetchMock = vi.fn(async () => Response.json([{ text: "secret-ish value" }, {}]));
+      const { deps, log } = makeDeps({ envVars: LIVE_ENV, fetch: fetchMock });
+      await handleChat(request(valid), deps);
+      expect(log).toHaveBeenCalledWith("upstream_invalid", { shape: "array(2) of object{text}" });
+      expect(JSON.stringify(log.mock.calls)).not.toContain("secret-ish value");
+    });
+
+    it("logs a non-JSON reply by content type and length only", async () => {
+      const fetchMock = vi.fn(async () => new Response("Workflow was started", { headers: { "content-type": "text/html" } }));
+      const { deps, log } = makeDeps({ envVars: LIVE_ENV, fetch: fetchMock });
+      const res = await read(await handleChat(request(valid), deps));
+      expect(res.body.reply).toBe(MESSAGES.upstream);
+      expect(log).toHaveBeenCalledWith("upstream_not_json", { contentType: "text/html", length: 20 });
+    });
   });
 });

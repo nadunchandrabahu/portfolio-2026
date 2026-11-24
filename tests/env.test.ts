@@ -71,6 +71,12 @@ describe("parseServerEnv", () => {
     expect(env.UPSTASH_REDIS_REST_TOKEN).toBe("token");
   });
 
+  it("trims whitespace pasted around the webhook secret", () => {
+    const secret = "a".repeat(64);
+    const env = parseServerEnv({ N8N_WEBHOOK_SECRET: ` ${secret}\n` });
+    expect(env.N8N_WEBHOOK_SECRET).toBe(secret);
+  });
+
   it("accepts the integration's prefixed UPSTASH_KV_REST_API_* names", () => {
     const env = parseServerEnv({
       CHAT_ENABLED: "true",
