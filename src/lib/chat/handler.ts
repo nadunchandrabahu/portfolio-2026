@@ -1,4 +1,5 @@
 import "server-only";
+import { createHash } from "node:crypto";
 import type { ServerEnv } from "@/lib/env";
 import { clientIp, type Limiter } from "@/lib/ratelimit";
 import { mockReply } from "./mock";
@@ -82,6 +83,36 @@ export function unwrapUpstream(raw: unknown, depth = 0): unknown {
   return raw;
 }
 
+/**
+ * A short, one-way fingerprint of the secret, so the logs can show whether
+ * the deployed value matches yours without revealing it. Compare with
+ * `printf %s "$SECRET" | sha256sum | cut -c1-8` in your own terminal.
+ */
+export function secretFingerprint(secret: string): string {
+  return createHash("sha256").update(secret).digest("hex").slice(0, 8);
+}
+
+/**
+ * Extra log detail for auth and routing failures (401/403/404) only: which
+ * host was called, the secret's fingerprint and length, and the start of
+ * n8n's error text. Those responses come before the workflow runs, so they
+ * can't contain the visitor's message.
+ */
+async function authDiagnostics(
+  upstream: Response,
+  url: string,
+  secret: string,
+): Promise<Record<string, string | number>> {
+  if (![401, 403, 404].includes(upstream.status)) return {};
+  const body = (await upstream.text().catch(() => "")).replace(/\s+/g, " ").slice(0, 120);
+  return {
+    host: new URL(url).host,
+    secretFingerprint: secretFingerprint(secret),
+    secretLength: secret.length,
+    body,
+  };
+}
+
 /** The outline of an unusable reply, for the logs: types and key names, never values. */
 export function describeShape(raw: unknown): string {
   if (raw === null) return "null";
@@ -137,7 +168,7 @@ export async function handleChat(request: Request, deps: ChatDeps): Promise<Resp
       signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
     });
     if (!upstream.ok) {
-      deps.log("upstream_status", { status: upstream.status });
+      deps.log("upstream_status", { status: upstream.status, ...(await authDiagnostics(upstream, url, secret)) });
       return respond(textReply(MESSAGES.upstream));
     }
     const text = await upstream.text();

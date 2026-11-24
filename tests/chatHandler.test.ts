@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { handleChat, MAX_BODY_BYTES, MESSAGES, type ChatDeps } from "@/lib/chat/handler";
+import { handleChat, MAX_BODY_BYTES, MESSAGES, secretFingerprint, type ChatDeps } from "@/lib/chat/handler";
 import { ChatResponse } from "@/lib/chat/schema";
 import { parseServerEnv } from "@/lib/env";
 import type { Limiter } from "@/lib/ratelimit";
@@ -151,6 +151,21 @@ describe("handleChat", () => {
       await handleChat(request(valid), deps);
       expect(log).toHaveBeenCalledWith("upstream_invalid", { shape: "array(2) of object{text}" });
       expect(JSON.stringify(log.mock.calls)).not.toContain("secret-ish value");
+    });
+
+    it("logs auth failures with the secret's fingerprint, never the secret", async () => {
+      const fetchMock = vi.fn(async () => new Response("Authorization data is wrong!", { status: 403 }));
+      const { deps, log } = makeDeps({ envVars: LIVE_ENV, fetch: fetchMock });
+      await handleChat(request(valid), deps);
+      expect(log).toHaveBeenCalledWith("upstream_status", {
+        status: 403,
+        host: "n8n.example.com",
+        secretFingerprint: secretFingerprint(SECRET),
+        secretLength: 64,
+        body: "Authorization data is wrong!",
+      });
+      expect(secretFingerprint(SECRET)).toMatch(/^[0-9a-f]{8}$/);
+      expect(JSON.stringify(log.mock.calls)).not.toContain(SECRET);
     });
 
     it("logs a non-JSON reply by content type and length only", async () => {
