@@ -1,4 +1,3 @@
-import { GearboxPoster } from "@/components/gearbox/GearboxPoster";
 import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { about } from "@/content/about";
@@ -48,7 +47,16 @@ export function About() {
             The blueprint drawing stands in without the 3D stage. */}
         <div aria-hidden="true" className="hidden lg:block">
           <div data-gearbox-slot="about" className="sticky top-28">
-            <GearboxPoster variant="blueprint" className="gearbox-slot-fallback w-full opacity-90" />
+            {/* eslint-disable-next-line @next/next/no-img-element -- a static SVG; nothing for next/image to optimise */}
+            <img
+              src="/drawings/gearbox-blueprint.svg"
+              alt=""
+              width={620}
+              height={620}
+              loading="lazy"
+              decoding="async"
+              className="gearbox-slot-fallback h-auto w-full opacity-90"
+            />
           </div>
         </div>
       </div>

@@ -2,6 +2,10 @@ import { z } from "zod";
 import { PROJECT_IDS } from "@/content/projects";
 import { SECTION_IDS } from "@/content/site";
 
+// No JIT-compiled validators: zod probes for that with `Function("")`, which
+// the site's CSP (no 'unsafe-eval') reports as a violation.
+z.config({ jitless: true });
+
 /**
  * The chat contract (CLAUDE.md 8.3), shared by the /api/chat route and the
  * browser. Ids come from the content files, so they can't drift.

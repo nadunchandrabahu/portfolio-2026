@@ -2,6 +2,7 @@ import { ChatLauncher } from "@/components/chat/ChatLauncher";
 import { Hero } from "@/components/hero/Hero";
 import { Footer } from "@/components/layout/Footer";
 import { Nav } from "@/components/layout/Nav";
+import { PersonJsonLd } from "@/components/layout/PersonJsonLd";
 import { RevealObserver } from "@/components/layout/RevealObserver";
 import { About } from "@/components/sections/About";
 import { Contact } from "@/components/sections/Contact";
@@ -34,6 +35,7 @@ export default function Home() {
       <Footer />
       <ChatLauncher />
       <RevealObserver />
+      <PersonJsonLd />
     </>
   );
 }

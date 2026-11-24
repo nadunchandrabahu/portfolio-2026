@@ -1,4 +1,3 @@
-import { GearboxPoster } from "@/components/gearbox/GearboxPoster";
 import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { FeaturedProject } from "@/components/work/FeaturedProject";
@@ -39,7 +38,16 @@ export function Work() {
         <aside aria-hidden="true" className="hidden xl:block">
           <div className="sticky top-28">
             <div data-gearbox-slot="work" className="relative aspect-square w-full">
-              <GearboxPoster className="gearbox-slot-fallback h-full w-full opacity-80" />
+              {/* eslint-disable-next-line @next/next/no-img-element -- a static SVG; nothing for next/image to optimise */}
+              <img
+              src="/drawings/gearbox-machined.svg"
+              alt=""
+              width={620}
+              height={620}
+              loading="lazy"
+              decoding="async"
+              className="gearbox-slot-fallback h-full w-full opacity-80"
+            />
             </div>
             <p className="eyebrow mt-4 text-center text-concrete">Ring · 00–06 · one per project</p>
           </div>

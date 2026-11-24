@@ -21,6 +21,23 @@ const cells = Array.from({ length: COLS * ROWS }, (_, i) => {
   return { c, r, v: value(c, r) };
 });
 
+// One <path> per shade instead of a <rect> per tile (10 paths, not 140
+// elements): same picture, a much lighter DOM to parse and hydrate.
+const LEVELS = 8;
+const shades = (() => {
+  const groups = new Map<string, { fill: string; opacity: number; d: string }>();
+  for (const { c, r, v } of cells) {
+    const fill = v > 0.62 ? "var(--brass-deep)" : "var(--steel-line)";
+    const level = Math.round(v * (LEVELS - 1)) / (LEVELS - 1);
+    const key = `${fill}|${level}`;
+    const group = groups.get(key) ?? { fill, opacity: 0.25 + level * 0.75, d: "" };
+    const inner = SIZE - 1.2;
+    group.d += `M${c * SIZE + 0.6} ${r * SIZE + 0.6}h${inner}v${inner}h-${inner}Z`;
+    groups.set(key, group);
+  }
+  return [...groups.values()];
+})();
+
 // Three highlighted tiles (one per crop) along a single band.
 const marked = new Set(["3,6", "7,3", "11,5"]);
 
@@ -30,16 +47,8 @@ export function FieldTiles({ className = "" }: { className?: string }) {
   return (
     <figure className={className}>
       <svg viewBox={`-6 -6 ${w + 12} ${h + 12}`} aria-hidden="true" className="h-auto w-full">
-        {cells.map(({ c, r, v }) => (
-          <rect
-            key={`${c},${r}`}
-            x={c * SIZE + 0.6}
-            y={r * SIZE + 0.6}
-            width={SIZE - 1.2}
-            height={SIZE - 1.2}
-            fill={v > 0.62 ? "var(--brass-deep)" : "var(--steel-line)"}
-            opacity={0.25 + v * 0.75}
-          />
+        {shades.map((shade) => (
+          <path key={`${shade.fill}${shade.opacity}`} d={shade.d} fill={shade.fill} opacity={shade.opacity} />
         ))}
         {[...marked].map((key) => {
           const [c = 0, r = 0] = key.split(",").map(Number);

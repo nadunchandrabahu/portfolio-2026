@@ -698,6 +698,20 @@ html[data-gearbox-stage] .gearbox-slot-optional {
   mask-composite: intersect;
 }
 
+/* Reduced motion, as a safety net under the per-component guards: no
+   movement anywhere. State changes still happen, just instantly. The 3D is
+   handled in code (static view, no scroll choreography, no spin). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* Mobile sheet menu (popover). */
 .sheet-menu::backdrop {
   background: rgb(15 16 17 / 0.6);

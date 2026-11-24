@@ -455,7 +455,7 @@ Add `scripts/build-knowledge.ts`, run at `prebuild`. It compiles `src/content/*.
 
 - **Secrets:** `N8N_WEBHOOK_URL`, `N8N_WEBHOOK_SECRET`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` are server-only env vars in Vercel. Add `import 'server-only'` to any module that reads them. Commit a `.env.example` with names only; `.env*` stays in `.gitignore`.
 - **One outbound integration:** only `/api/chat` calls anything external. There are no client-side calls to GitHub, Supabase, model providers or n8n. If GitHub stats are ever wanted, fetch them at build time.
-- **Security headers** (set in `next.config.ts` `headers()`, or in `proxy.ts` for a nonce-based CSP following the current Next.js CSP guide):
+- **Security headers** (set in `next.config.ts` `headers()`). **Decision (Phase 6):** the CSP is static, not nonce-based. In Next.js 16 nonces force every page view to render on the server (no static prerendering), so `script-src` is `'self' 'unsafe-inline' blob:` instead of `'nonce-…' 'strict-dynamic'`; everything else below stands. `blob:` is for three.js text workers (troika). The site renders no user content as HTML. The policy as originally specified:
   - `Content-Security-Policy`: `default-src 'self'; script-src 'self' 'nonce-…' 'strict-dynamic'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' <vercel analytics/BotID endpoints as the docs require>; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests`
   - `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`
   - `X-Content-Type-Options: nosniff` · `Referrer-Policy: strict-origin-when-cross-origin` · `X-Frame-Options: DENY`
@@ -563,3 +563,4 @@ Add `scripts/build-knowledge.ts`, run at `prebuild`. It compiles `src/content/*.
 9. Preferred Bible translation for Ephesians 2:8.
 10. Optional photos for Off the keyboard and project thumbnails.
 11. Optional: your own SolidWorks/Blender gearbox GLB (7.6).
+12. Production domain: set `SITE_URL` in Vercel (metadata, canonical URL, sitemap, robots, JSON-LD). Until then the Vercel production URL is used.

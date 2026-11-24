@@ -40,10 +40,18 @@ export const plexSansItalic = IBM_Plex_Sans({
   preload: false,
 });
 
-/** Mono: the instrument voice for labels, tags and readouts. */
+/**
+ * Mono: the instrument voice for labels, tags and readouts. Not preloaded, so
+ * its fallback must be a real monospace: next/font's default fallback is a
+ * metric-adjusted Arial (proportional), which made mono lines wrap
+ * differently until the font arrived (a visible layout shift in the hero).
+ * Monospace system fonts have near-identical advances, so nothing reflows.
+ */
 export const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-jetbrains-mono",
   display: "swap",
   preload: false,
+  adjustFontFallback: false,
+  fallback: ["ui-monospace", "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", "monospace"],
 });

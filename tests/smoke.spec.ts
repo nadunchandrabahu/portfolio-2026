@@ -127,6 +127,44 @@ test.describe("scroll stage", () => {
   });
 });
 
+test.describe("security and SEO", () => {
+  test("sends the security headers", async ({ request }) => {
+    const headers = (await request.get("/")).headers();
+    const csp = headers["content-security-policy"] ?? "";
+    for (const directive of [
+      "default-src 'self'",
+      "object-src 'none'",
+      "frame-ancestors 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "connect-src 'self'",
+    ]) {
+      expect(csp).toContain(directive);
+    }
+    expect(csp).not.toContain("unsafe-eval");
+    expect(headers["strict-transport-security"]).toContain("max-age=63072000");
+    expect(headers["x-content-type-options"]).toBe("nosniff");
+    expect(headers["x-frame-options"]).toBe("DENY");
+    expect(headers["referrer-policy"]).toBe("strict-origin-when-cross-origin");
+    expect(headers["permissions-policy"]).toContain("camera=()");
+    expect(headers["cross-origin-opener-policy"]).toBe("same-origin");
+    expect(headers["x-powered-by"]).toBeUndefined();
+  });
+
+  test("robots keeps crawlers off the API, and the sitemap lists the page", async ({ request }) => {
+    expect(await (await request.get("/robots.txt")).text()).toContain("Disallow: /api/");
+    expect(await (await request.get("/sitemap.xml")).text()).toContain("<loc>");
+  });
+
+  test("has a share image and Person structured data", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.locator('meta[property="og:image"]')).toHaveCount(1);
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute("content", "summary_large_image");
+    const ld = JSON.parse((await page.locator('script[type="application/ld+json"]').textContent()) ?? "{}");
+    expect(ld).toMatchObject({ "@type": "Person", name: "Nadun Chandrabahu" });
+  });
+});
+
 test.describe("chat", () => {
   test("the route only takes same-origin POSTs", async ({ request }) => {
     expect((await request.get("/api/chat")).status()).toBe(405);
@@ -168,6 +206,37 @@ test.describe("chat", () => {
     await page.keyboard.press("Escape");
     await expect(dialog).toBeHidden();
     await expect(ask).toBeFocused();
+  });
+});
+
+test.describe("reduced motion", () => {
+  test.use({ reducedMotion: "reduce" });
+
+  test("keeps the gearbox static in the hero, shows content at once, animates nothing", async ({ page }) => {
+    await page.goto("/", { waitUntil: "networkidle" });
+    await page.mouse.move(200, 200);
+    await page.mouse.move(400, 300);
+    await page.waitForTimeout(3000);
+
+    // No scroll choreography: never the fixed stage.
+    await expect(page.locator(".gearbox-stage")).toHaveCount(0);
+    await expect(page.locator("html")).not.toHaveAttribute("data-gearbox-stage", /.*/);
+
+    // Walk the page: every revealed block is fully visible, no fade-in.
+    for (let y = 0; y < 14000; y += 900) {
+      await page.evaluate((v) => window.scrollTo(0, v), y);
+    }
+    const hidden = await page
+      .locator("[data-reveal]")
+      .evaluateAll((els) => els.filter((el) => Number(getComputedStyle(el).opacity) < 1).length);
+    expect(hidden).toBe(0);
+
+    // Nothing left running (breathing lamp, ticks, reveals, sheens).
+    await page.waitForTimeout(300);
+    const running = await page.evaluate(
+      () => document.getAnimations().filter((a) => a.playState === "running").length,
+    );
+    expect(running).toBe(0);
   });
 });
 
