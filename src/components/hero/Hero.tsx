@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { AskWorkshopButton } from "@/components/chat/ChatLauncher";
 import { HeroGearbox } from "@/components/gearbox/HeroGearbox";
 import { GithubIcon, LinkedinIcon } from "@/components/ui/BrandIcons";
 import { EmailIconLink } from "@/components/ui/Email";
@@ -61,7 +62,7 @@ export function Hero() {
             >
               View work
             </a>
-            {/* "Ask the workshop" joins here in phase 5 (site.features.chat). */}
+            <AskWorkshopButton variant="hero" />
             <div className="flex items-center gap-2 sm:ml-2">
               <a href={site.links.github} rel="noopener noreferrer" target="_blank" className={iconLink}>
                 <GithubIcon />

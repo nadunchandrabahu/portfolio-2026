@@ -4,6 +4,7 @@ import { Menu, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { sections, site, type SectionId } from "@/content/site";
 import { SHOW_PLACEHOLDERS } from "@/content/types";
+import { AskWorkshopButton } from "@/components/chat/ChatLauncher";
 import { KnurlDivider } from "./KnurlDivider";
 
 const navItems = sections.filter((s) => s.nav);
@@ -80,6 +81,9 @@ export function Nav() {
               </a>
             </li>
           ) : null}
+          <li className="ml-3">
+            <AskWorkshopButton variant="nav" />
+          </li>
         </ul>
 
         <button

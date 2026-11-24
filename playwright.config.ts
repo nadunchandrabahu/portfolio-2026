@@ -21,6 +21,8 @@ export default defineConfig({
     command: `npm run start -- --port ${PORT}`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
+    // Chat in mock mode: canned replies, no n8n or Upstash.
+    env: { CHAT_ENABLED: "true", CHAT_MOCK: "true" },
     timeout: 60_000,
   },
 });

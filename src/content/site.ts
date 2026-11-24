@@ -97,8 +97,12 @@ export const site = {
     credit: "Built in Sydney with Next.js and three.js",
   },
 
-  /** The chat assistant arrives in phase 5. Its buttons stay hidden until then. */
-  features: { chat: false },
+  /**
+   * Shows the "Ask the workshop" buttons. The server side has its own kill
+   * switch (CHAT_ENABLED): with it off, the panel answers with a polite
+   * "offline, email Nadun" reply.
+   */
+  features: { chat: true },
 };
 
 export const resumePending: Pending | null = site.resume.available

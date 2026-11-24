@@ -74,7 +74,8 @@ const lerpRect = (a: Rect, b: Rect, t: number): Rect => ({
 });
 
 /** The slot's box in viewport px, or null if it isn't laid out at this breakpoint. */
-function measureSlot(name: SectionId): Rect | null {
+/** Section slots, plus "chat": the desktop viewer while the chat has control. */
+function measureSlot(name: SectionId | "chat"): Rect | null {
   const el = document.querySelector(`[data-gearbox-slot="${name}"]`);
   if (!el) return null;
   const r = el.getBoundingClientRect();
@@ -97,6 +98,8 @@ export default function StageDirector() {
     opacity: 0,
     interactive: false,
     sleeping: false,
+    /** Which slot the gearbox is heading for; a change starts a flight. */
+    slotKey: null as SectionId | "chat" | null,
   });
 
   useEffect(() => {
@@ -112,10 +115,6 @@ export default function StageDirector() {
 
     const enter = (id: SectionId) => {
       if (d.stage === id) return;
-      const shown = d.shown;
-      // Fly from where it is now, unless it was faded out (then appear in place).
-      d.from = shown && d.opacity > 0.05 ? { ...shown, y: shown.y + window.scrollY } : null;
-      d.startedAt = performance.now();
       d.stage = id;
       document.documentElement.dataset.gearboxStage = id;
       store().apply(STAGES[id].targets, "scroll");
@@ -137,6 +136,17 @@ export default function StageDirector() {
       if (d.stage !== "about") return;
       store().apply({ focus: part ?? "overview" }, "scroll");
     };
+
+    // The chat taking or releasing control moves the gearbox to or from its
+    // viewer. On release, the active section's state applies again.
+    const unsubscribe = useGearboxStore.subscribe((s, prev) => {
+      if (s.controlledBy === prev.controlledBy) return;
+      wake();
+      if (s.controlledBy === "scroll" && d.stage) {
+        store().apply(STAGES[d.stage].targets, "scroll");
+        updateHighlight();
+      }
+    });
 
     const ctx = gsap.context(() => {
       for (const id of SECTION_IDS) {
@@ -206,6 +216,7 @@ export default function StageDirector() {
     enter(startId);
 
     return () => {
+      unsubscribe();
       ctx.revert();
       resize.disconnect();
       cancelAnimationFrame(raf);
@@ -221,7 +232,16 @@ export default function StageDirector() {
     const dt = Math.min(rawDelta, 1 / 20);
     const { camera, size, gl } = state;
     const stage = STAGES[d.stage];
-    const target = stage.slot ? measureSlot(stage.slot) : null;
+    const chatSlot = useGearboxStore.getState().controlledBy === "chat" ? measureSlot("chat") : null;
+    const slotKey = chatSlot ? "chat" : stage.slot;
+    if (slotKey !== d.slotKey) {
+      // Fly from where it is now, unless it was faded out (then appear in place).
+      const shown = d.shown;
+      d.from = shown && d.opacity > 0.05 ? { ...shown, y: shown.y + window.scrollY } : null;
+      d.startedAt = performance.now();
+      d.slotKey = slotKey;
+    }
+    const target = chatSlot ?? (stage.slot ? measureSlot(stage.slot) : null);
 
     if (target) {
       const t = d.from ? Math.min(1, (performance.now() - d.startedAt) / FLIGHT_MS) : 1;

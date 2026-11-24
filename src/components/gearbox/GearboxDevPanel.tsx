@@ -40,7 +40,7 @@ export default function GearboxDevPanel() {
   };
 
   return (
-    <div className="fixed top-20 right-4 z-[80] w-64 rounded-machined border border-dashed border-brass/60 bg-cast/95 font-mono text-[11px] text-concrete">
+    <div className="fixed top-32 right-4 z-[80] w-64 lg:top-20 rounded-machined border border-dashed border-brass/60 bg-cast/95 font-mono text-[11px] text-concrete">
       <button
         type="button"
         onClick={toggle}

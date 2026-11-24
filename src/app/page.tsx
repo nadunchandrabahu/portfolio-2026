@@ -1,3 +1,4 @@
+import { ChatLauncher } from "@/components/chat/ChatLauncher";
 import { Hero } from "@/components/hero/Hero";
 import { Footer } from "@/components/layout/Footer";
 import { Nav } from "@/components/layout/Nav";
@@ -31,6 +32,7 @@ export default function Home() {
         <Contact />
       </main>
       <Footer />
+      <ChatLauncher />
       <RevealObserver />
     </>
   );

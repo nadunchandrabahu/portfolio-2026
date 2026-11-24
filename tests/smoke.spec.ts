@@ -127,6 +127,50 @@ test.describe("scroll stage", () => {
   });
 });
 
+test.describe("chat", () => {
+  test("the route only takes same-origin POSTs", async ({ request }) => {
+    expect((await request.get("/api/chat")).status()).toBe(405);
+    const noOrigin = await request.post("/api/chat", {
+      data: { sessionId: "4f8e2b1a-3c5d-4e6f-8a9b-0c1d2e3f4a5b", message: "hi" },
+    });
+    expect(noOrigin.status()).toBe(403);
+  });
+
+  test("the knowledge file is public site content only", async ({ request }) => {
+    const res = await request.get("/knowledge.md");
+    expect(res.status()).toBe(200);
+    expect(res.headers()["content-type"]).toContain("text/markdown");
+    const text = await res.text();
+    expect(text).toContain("Field Shift");
+    expect(text).not.toMatch(/TODO|Certificate slot/);
+  });
+
+  test("a suggestion chip gets a mock reply that moves the gearbox", async ({ page, isMobile }) => {
+    await page.goto("/", { waitUntil: "networkidle" });
+    const ask = isMobile
+      ? page.getByRole("button", { name: "Ask the workshop" }).last()
+      : page.getByRole("navigation", { name: "Primary" }).getByRole("button", { name: "Ask the workshop" });
+    await ask.click();
+
+    const dialog = page.getByRole("dialog", { name: "Workshop assistant" });
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByLabel("Your question")).toBeFocused();
+
+    await dialog.getByRole("button", { name: "Take the gearbox apart" }).click();
+    // The reply (not the screen-reader announcement, which repeats it).
+    await expect(dialog.locator("p", { hasText: "Here it is in exploded view." }).first()).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(dialog.getByText("→ focus: overview · explode: 1 · spin: 8 rpm")).toBeVisible();
+    // The chat now drives the gearbox, and says so.
+    await expect(page.getByRole("button", { name: "Release" })).toBeVisible();
+
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+    await expect(ask).toBeFocused();
+  });
+});
+
 test.describe("mobile menu", () => {
   test.skip(({ viewport }) => (viewport?.width ?? 0) >= 1024, "desktop shows inline links");
 
