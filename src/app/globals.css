@@ -545,6 +545,11 @@ html[data-gearbox-hover] {
   cursor: grab;
 }
 
+/* Ring segments are links to their project cards. */
+html[data-gearbox-hover="link"] {
+  cursor: pointer;
+}
+
 html[data-gearbox-dragging],
 html[data-gearbox-dragging] * {
   cursor: grabbing !important;
@@ -645,19 +650,20 @@ html[data-gearbox-stage] .gearbox-slot-optional {
   }
 }
 
-/* A project the chat pointed at: a brass outline for 2s. */
-.chat-pulse {
+/* A project the chat (or a click on its ring segment) pointed at: a brass
+   outline for 2s (src/lib/revealProject.ts). */
+.project-pulse {
   outline: 2px solid var(--brass);
   outline-offset: 4px;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .chat-pulse {
-    animation: chat-pulse 2s var(--ease-reveal) forwards;
+  .project-pulse {
+    animation: project-pulse 2s var(--ease-reveal) forwards;
   }
 }
 
-@keyframes chat-pulse {
+@keyframes project-pulse {
   0% {
     outline-color: transparent;
     outline-offset: 12px;

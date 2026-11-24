@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { about, type GearPartId } from "@/content/about";
 import { PROJECT_IDS } from "@/content/projects";
+import { revealProjectCard } from "@/lib/revealProject";
 import {
   CAMERA_PRESETS,
   EXPLODED_DIRECTION,
@@ -148,9 +149,9 @@ function segmentAt(local: THREE.Vector3) {
 const isMouse = (e: ThreeEvent<PointerEvent | MouseEvent>) =>
   !("pointerType" in e.nativeEvent) || e.nativeEvent.pointerType === "mouse";
 
-/** Grab cursor while the pointer is over the gearbox (see globals.css). */
-function setHover(on: boolean) {
-  if (on) document.documentElement.dataset.gearboxHover = "";
+/** Grab cursor while the pointer is over the gearbox, pointer over ring segments (see globals.css). */
+function setHover(on: boolean, link = false) {
+  if (on) document.documentElement.dataset.gearboxHover = link ? "link" : "";
   else delete document.documentElement.dataset.gearboxHover;
 }
 
@@ -285,10 +286,24 @@ export function Gearbox({ reducedMotion }: { reducedMotion: boolean }) {
   };
   const onRingHover = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation();
-    setHover(true);
+    setHover(true, true);
     if (!isMouse(e) || dragging.current || e.buttons !== 0) return;
     const target = ringTarget(e);
     if (target) pick(target, e, HOVER_DELAY_MS);
+  };
+  // Each ring segment links to its project card in Selected work. A mouse
+  // click goes straight there; on touch the first tap shows the details card
+  // and a second tap on the same segment goes there. Hovering never scrolls
+  // the page (no scroll-jacking): it only shows the card.
+  const onRingClick = (e: ThreeEvent<MouseEvent>) => {
+    e.stopPropagation();
+    if (dragging.current || e.delta > 8) return;
+    const target = ringTarget(e);
+    if (target?.kind !== "project") return;
+    if (isMouse(e) || sameTarget(useGearboxUi.getState().inspect?.target, target)) {
+      unpick(0);
+      revealProjectCard(target.id, reducedMotion);
+    } else pick(target, e);
   };
 
   const sunGroup = useRef<THREE.Group>(null);
@@ -424,7 +439,7 @@ export function Gearbox({ reducedMotion }: { reducedMotion: boolean }) {
             onPointerOver={onRingHover}
             onPointerMove={onRingHover}
             onPointerOut={onPartOut}
-            onClick={(e) => onTap(ringTarget(e), e)}
+            onClick={onRingClick}
             {...grip}
           />
           <lineSegments ref={asOutline} geometry={geometries.ringEdges} material={materials.line} />

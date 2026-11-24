@@ -96,6 +96,14 @@ export default function GearboxInspectCard() {
           </ul>
         </div>
       ))}
+
+      {inspect.target.kind === "project" ? (
+        // The segment is a link to the project card (Gearbox onRingClick).
+        <p className="mt-3 font-mono text-[11px] tracking-[0.08em] text-brass uppercase">
+          <span className="[@media(hover:none)]:hidden">Click to view the project ↓</span>
+          <span className="hidden [@media(hover:none)]:inline">Tap again to view the project ↓</span>
+        </p>
+      ) : null}
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import type { ProjectId } from "@/content/projects";
 import type { SectionId } from "@/content/site";
+import { revealProjectCard } from "@/lib/revealProject";
 import { useGearboxStore } from "@/three/gearboxStore";
 import { STEP_MS, type ExecutorDeps } from "./executor";
 
@@ -51,15 +52,9 @@ export function domDeps(reducedMotion: boolean): ExecutorDeps {
       document.getElementById(id)?.scrollIntoView({ behavior, block: "start" });
     },
     showProject(id: ProjectId) {
-      const card = document.querySelector<HTMLElement>(`[data-project-id="${id}"]`);
-      if (!card) return;
-      markScroll();
-      card.scrollIntoView({ behavior, block: "center" });
-      card.classList.remove("chat-pulse");
-      // Restart the animation if the same card is shown twice in a row.
-      void card.offsetWidth;
-      card.classList.add("chat-pulse");
-      window.setTimeout(() => card.classList.remove("chat-pulse"), 2000);
+      // Longer than a plain scroll: revealProjectCard may re-centre once or twice.
+      markScroll(4000);
+      revealProjectCard(id, reducedMotion);
     },
     sleep,
   };
