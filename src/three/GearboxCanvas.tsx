@@ -8,7 +8,7 @@ import {
   PerformanceMonitor,
 } from "@react-three/drei";
 import { Canvas, useThree } from "@react-three/fiber";
-import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { ASSEMBLY_RADIUS, Gearbox } from "./Gearbox";
 import { useGearboxStore } from "./gearboxStore";
 import { useGearboxUi } from "./gearboxUi";
@@ -22,6 +22,13 @@ export type GearboxCanvasProps = {
   reducedMotion: boolean;
   /** Called once the first frame with the gearbox has rendered. */
   onReady: () => void;
+  /**
+   * Desktop scroll stage: the canvas is fixed over the whole page with
+   * pointer-events off, so events come from the page body, the director
+   * (children) owns the camera aspect, and there is no postprocessing.
+   */
+  stage?: boolean;
+  children?: ReactNode;
 };
 
 /** Studio lighting from Lightformers: no HDR download, no CDN (CLAUDE.md 7.3). */
@@ -90,10 +97,11 @@ function InvalidateOnStore() {
   return null;
 }
 
-export default function GearboxCanvas({ lowPower, reducedMotion, onReady }: GearboxCanvasProps) {
+export default function GearboxCanvas({ lowPower, reducedMotion, onReady, stage = false, children }: GearboxCanvasProps) {
   const container = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(true);
-  const [effects, setEffects] = useState(!lowPower);
+  // Postprocessing passes are full-canvas; on the full-viewport stage they'd cost too much.
+  const [effects, setEffects] = useState(!lowPower && !stage);
   const [warm, setWarm] = useState(false);
   const onWarm = useCallback(() => setWarm(true), []);
   const maxDpr = lowPower ? 1.5 : 2;
@@ -116,9 +124,11 @@ export default function GearboxCanvas({ lowPower, reducedMotion, onReady }: Gear
         frameloop={frameloop}
         dpr={[1, maxDpr]}
         gl={{ antialias: !effects, alpha: true, powerPreference: "high-performance" }}
-        camera={{ fov: 30, near: 0.1, far: 60, position: [3, 2, 6] }}
-        // Drag to rotate (useDragRotate). pan-y keeps vertical swipes scrolling the page.
-        style={{ background: "transparent", touchAction: "pan-y", cursor: "grab", userSelect: "none" }}
+        camera={{ fov: 30, near: 0.1, far: 60, position: [3, 2, 6], manual: stage }}
+        eventSource={stage ? document.body : undefined}
+        eventPrefix={stage ? "client" : "offset"}
+        // Hero-only mode: drag to rotate (useDragRotate); pan-y keeps vertical swipes scrolling the page.
+        style={stage ? { background: "transparent" } : { background: "transparent", touchAction: "pan-y", userSelect: "none" }}
         onCreated={({ gl }) => {
           // getProgramParameter(LINK_STATUS) stalls until each shader links.
           gl.debug.checkShaderErrors = process.env.NODE_ENV !== "production";
@@ -144,6 +154,7 @@ export default function GearboxCanvas({ lowPower, reducedMotion, onReady }: Gear
           />
           {warm ? <ReadySignal onReady={onReady} /> : <Warmup onWarm={onWarm} />}
         </Suspense>
+        {children}
         {effects && warm ? (
           <Suspense fallback={null}>
             <Effects />

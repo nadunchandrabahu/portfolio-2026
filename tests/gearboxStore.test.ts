@@ -15,6 +15,11 @@ describe("gearbox store", () => {
     expect(sanitize({ explode: -1, rpm: -5 })).toEqual({ explode: 0, rpm: 0 });
   });
 
+  it("drops unknown callout modes", () => {
+    expect(sanitize({ callouts: "parts" })).toEqual({ callouts: "parts" });
+    expect(sanitize({ callouts: "everything" as never })).toEqual({});
+  });
+
   it("drops non-finite numbers", () => {
     expect(sanitize({ explode: Number.NaN, rpm: Number.POSITIVE_INFINITY })).toEqual({});
   });

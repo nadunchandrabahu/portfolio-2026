@@ -8,7 +8,13 @@ import { isPending } from "@/content/types";
 export function HandsOn() {
   return (
     <Section id="hands-on">
-      <SectionHeader id="hands-on" />
+      <SectionHeader
+        id="hands-on"
+        aside={
+          // The gearbox reassembles here as a blueprint drawing (StageDirector).
+          <div aria-hidden="true" data-gearbox-slot="hands-on" className="gearbox-slot-optional mt-4 size-40 shrink-0 lg:-mb-14" />
+        }
+      />
       <ul className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
         {handsOn.tiles.map((tile, i) => (
           <li key={tile.label} data-reveal style={{ "--reveal-index": i } as React.CSSProperties}>

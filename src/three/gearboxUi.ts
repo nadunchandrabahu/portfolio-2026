@@ -15,6 +15,8 @@ export type Inspect = {
   /** Pointer position in px, relative to the canvas, when the part was picked. */
   x: number;
   y: number;
+  /** The gearbox's on-screen box (viewport px), so the card can sit beside it, not on it. */
+  bounds: { left: number; top: number; right: number; bottom: number };
 };
 
 type GearboxUiState = {

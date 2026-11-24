@@ -10,6 +10,12 @@ import type { ProjectId } from "@/content/projects";
 export type FocusTarget = "overview" | "sun" | "engineering" | "data" | "ai" | "build" | "ring";
 export type GearboxMode = "machined" | "blueprint";
 export type ControlSource = "scroll" | "chat";
+/**
+ * Part labels: "focus" labels only the focused part; "parts" adds numbered
+ * balloons (P-01...) to every part, as on an assembly drawing; "none" hides them.
+ */
+export type CalloutMode = "focus" | "parts" | "none";
+const CALLOUT_MODES: readonly CalloutMode[] = ["focus", "parts", "none"];
 
 export const IDLE_RPM = 6;
 export const MAX_RPM = 60;
@@ -22,6 +28,7 @@ export type GearboxTargets = {
   /** Sun-gear speed. The carrier and planets follow from the gear ratios. */
   rpm: number;
   highlightProject: ProjectId | null;
+  callouts: CalloutMode;
 };
 
 export type GearboxState = GearboxTargets & {
@@ -37,6 +44,7 @@ export const DEFAULT_TARGETS: GearboxTargets = {
   mode: "machined",
   rpm: IDLE_RPM,
   highlightProject: null,
+  callouts: "focus",
 };
 
 const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n));
@@ -47,6 +55,9 @@ export function sanitize(partial: Partial<GearboxTargets>): Partial<GearboxTarge
   if (partial.focus !== undefined) out.focus = partial.focus;
   if (partial.mode !== undefined) out.mode = partial.mode;
   if (partial.highlightProject !== undefined) out.highlightProject = partial.highlightProject;
+  if (partial.callouts !== undefined && CALLOUT_MODES.includes(partial.callouts)) {
+    out.callouts = partial.callouts;
+  }
   if (partial.explode !== undefined && Number.isFinite(partial.explode)) {
     out.explode = clamp(partial.explode, 0, 1);
   }

@@ -15,10 +15,11 @@ function detailFor(target: InspectTarget): GearDetail | null {
 /**
  * Pops out the details of the gearbox part being hovered (or tapped): the
  * skills that planet stands for, the verse for the sun and cross, or the
- * project for a ring segment. Positioned beside the pointer, on whichever side
- * has room, and kept inside the viewport. Decorative: the same content is in
- * the About and Toolbox sections, so it sits inside the aria-hidden canvas
- * wrapper and takes no pointer events.
+ * project for a ring segment. Positioned beside the gearbox (or the pointer
+ * when there's no room), at the pointer's height, and kept inside the
+ * viewport. Decorative: the same content is in the About and Toolbox
+ * sections, so it sits inside the aria-hidden canvas wrapper and takes no
+ * pointer events.
  */
 export default function GearboxInspectCard() {
   const inspect = useGearboxUi((s) => s.inspect);
@@ -34,10 +35,16 @@ export default function GearboxInspectCard() {
     const h = el.offsetHeight;
     const vw = document.documentElement.clientWidth;
 
-    // Prefer the side of the pointer with more room (the gearbox is on the
-    // right of the page on desktop, so usually the left).
+    // Sit beside the gearbox, not on it, so it never covers what you're about
+    // to grab: left of it if there's room (it's on the right of the page on
+    // desktop), else right. With no room either side (phones), sit beside
+    // the pointer on whichever side has more space.
+    const b = inspect.bounds;
     const pointerX = box.left + inspect.x;
-    const left = pointerX > vw / 2 ? pointerX - GAP - w : pointerX + GAP;
+    let left: number;
+    if (b.left - GAP - w >= EDGE) left = b.left - GAP - w;
+    else if (b.right + GAP + w <= vw - EDGE) left = b.right + GAP;
+    else left = pointerX > vw / 2 ? pointerX - GAP - w : pointerX + GAP;
     const clampedLeft = Math.min(Math.max(left, EDGE), vw - EDGE - w);
     const top = Math.min(Math.max(inspect.y - h / 2, EDGE), Math.max(EDGE, box.height - h - EDGE));
 

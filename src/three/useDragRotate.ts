@@ -1,7 +1,7 @@
 "use client";
 
 import { useFrame, useThree } from "@react-three/fiber";
-import { useEffect, useRef, type RefObject } from "react";
+import { useCallback, useEffect, useRef, type RefObject } from "react";
 import * as THREE from "three";
 import { useGearboxUi } from "./gearboxUi";
 
@@ -26,95 +26,99 @@ function turn(group: THREE.Object3D, camera: THREE.Camera, dx: number, dy: numbe
   group.quaternion.normalize();
 }
 
+/** Page-wide cursor and selection state while dragging (see globals.css). */
+function setDragging(on: boolean) {
+  if (on) document.documentElement.dataset.gearboxDragging = "";
+  else delete document.documentElement.dataset.gearboxDragging;
+}
+
 /**
  * Trackball-style drag rotation for the whole gearbox: turn it any way, a full
  * 360° about any axis. Drags rotate about the camera's own up and right axes,
  * so the model always follows the pointer. A flick keeps spinning briefly
- * (not under reduced motion); double-click, or gearboxUi.resetView(), swings
- * it back to the default view.
+ * (not under reduced motion); gearboxUi.resetView() swings it back.
  *
- * Touch uses `touch-action: pan-y`: a vertical swipe still scrolls the page,
- * a sideways (or diagonal) swipe turns the gearbox.
+ * A drag starts from a gearbox mesh (call `beginDrag` from its onPointerDown)
+ * and then follows the pointer on the window. That works whether the canvas
+ * takes pointer events itself (hero-only mode) or sits over the page with
+ * pointer-events off (the fixed scroll stage). On touch, the hero canvas has
+ * `touch-action: pan-y`, so vertical swipes still scroll the page.
  */
 export function useDragRotate(rotor: RefObject<THREE.Group | null>, reducedMotion: boolean) {
-  const gl = useThree((s) => s.gl);
   const camera = useThree((s) => s.camera);
   const invalidate = useThree((s) => s.invalidate);
   const dragging = useRef(false);
   const motion = useRef({ vx: 0, vy: 0, resetting: false });
-  useEffect(() => {
-    // touch-action, cursor and user-select are set on the Canvas wrapper (GearboxCanvas).
-    const el = gl.domElement;
-    const m = motion.current;
-    let pointer: number | null = null;
-    let startX = 0;
-    let startY = 0;
-    let lastX = 0;
-    let lastY = 0;
-    let lastT = 0;
+  const endSession = useRef<(() => void) | null>(null);
 
-    const onDown = (e: PointerEvent) => {
-      if (pointer !== null || (e.pointerType === "mouse" && e.button !== 0)) return;
-      pointer = e.pointerId;
-      startX = lastX = e.clientX;
-      startY = lastY = e.clientY;
-      lastT = e.timeStamp;
+  const beginDrag = useCallback(
+    (down: PointerEvent) => {
+      if (down.pointerType === "mouse" && down.button !== 0) return;
+      endSession.current?.();
+      const m = motion.current;
       m.vx = m.vy = 0;
       m.resetting = false;
-    };
-    const onMove = (e: PointerEvent) => {
-      if (e.pointerId !== pointer) return;
-      if (!dragging.current) {
-        if (Math.hypot(e.clientX - startX, e.clientY - startY) < DRAG_THRESHOLD) return;
-        dragging.current = true;
-        const canvas = e.currentTarget as HTMLElement;
-        canvas.setPointerCapture(e.pointerId);
-        canvas.style.cursor = "grabbing";
-        useGearboxUi.getState().setInspect(null);
-      }
-      const dx = e.clientX - lastX;
-      const dy = e.clientY - lastY;
-      const dt = Math.max(1, e.timeStamp - lastT) / 1000;
-      if (rotor.current) turn(rotor.current, camera, dx, dy);
-      // Smoothed velocity in px/s for the flick.
-      m.vx = m.vx * 0.5 + (dx / dt) * 0.5;
-      m.vy = m.vy * 0.5 + (dy / dt) * 0.5;
-      lastX = e.clientX;
-      lastY = e.clientY;
-      lastT = e.timeStamp;
-      invalidate();
-    };
-    const onUp = (e: PointerEvent) => {
-      if (e.pointerId !== pointer) return;
-      pointer = null;
-      const canvas = e.currentTarget as HTMLElement;
-      if (canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId);
-      canvas.style.cursor = "";
-      // A pause before letting go means no flick.
-      if (reducedMotion || e.type === "pointercancel" || e.timeStamp - lastT > 80) m.vx = m.vy = 0;
-      // Let R3F see this pointerup (and skip its click) before clearing the flag.
-      requestAnimationFrame(() => {
-        dragging.current = false;
-      });
-      invalidate();
-    };
-    const onDoubleClick = () => useGearboxUi.getState().resetView();
+      let lastX = down.clientX;
+      let lastY = down.clientY;
+      let lastT = down.timeStamp;
 
-    el.addEventListener("pointerdown", onDown);
-    el.addEventListener("pointermove", onMove);
-    el.addEventListener("pointerup", onUp);
-    el.addEventListener("pointercancel", onUp);
-    el.addEventListener("dblclick", onDoubleClick);
-    return () => {
-      el.removeEventListener("pointerdown", onDown);
-      el.removeEventListener("pointermove", onMove);
-      el.removeEventListener("pointerup", onUp);
-      el.removeEventListener("pointercancel", onUp);
-      el.removeEventListener("dblclick", onDoubleClick);
-    };
-  }, [gl, camera, rotor, invalidate, reducedMotion]);
+      const onMove = (e: PointerEvent) => {
+        if (e.pointerId !== down.pointerId) return;
+        if (!dragging.current) {
+          if (Math.hypot(e.clientX - down.clientX, e.clientY - down.clientY) < DRAG_THRESHOLD) return;
+          dragging.current = true;
+          setDragging(true);
+          useGearboxUi.getState().setInspect(null);
+        }
+        const dx = e.clientX - lastX;
+        const dy = e.clientY - lastY;
+        const dt = Math.max(1, e.timeStamp - lastT) / 1000;
+        if (rotor.current) turn(rotor.current, camera, dx, dy);
+        // Smoothed velocity in px/s for the flick.
+        m.vx = m.vx * 0.5 + (dx / dt) * 0.5;
+        m.vy = m.vy * 0.5 + (dy / dt) * 0.5;
+        lastX = e.clientX;
+        lastY = e.clientY;
+        lastT = e.timeStamp;
+        invalidate();
+      };
+      const onUp = (e: PointerEvent) => {
+        if (e.pointerId !== down.pointerId) return;
+        // A pause before letting go means no flick.
+        if (reducedMotion || e.type === "pointercancel" || e.timeStamp - lastT > 80) m.vx = m.vy = 0;
+        cleanup();
+        // Let R3F see this pointerup (and skip its click) before clearing the flag.
+        requestAnimationFrame(() => {
+          dragging.current = false;
+        });
+        invalidate();
+      };
+      // On the scroll stage the press lands on the page under the canvas (the
+      // hero poster image, text): stop the browser starting an image drag or a
+      // text selection, either of which would cancel the pointer stream.
+      const block = (e: Event) => e.preventDefault();
+      const cleanup = () => {
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerup", onUp);
+        window.removeEventListener("pointercancel", onUp);
+        window.removeEventListener("dragstart", block, true);
+        window.removeEventListener("selectstart", block, true);
+        setDragging(false);
+        endSession.current = null;
+      };
+      window.addEventListener("dragstart", block, true);
+      window.addEventListener("selectstart", block, true);
+      window.addEventListener("pointermove", onMove);
+      window.addEventListener("pointerup", onUp);
+      window.addEventListener("pointercancel", onUp);
+      endSession.current = cleanup;
+    },
+    [rotor, camera, invalidate, reducedMotion],
+  );
 
-  // Reset requests (double-click, dev panel).
+  useEffect(() => () => endSession.current?.(), []);
+
+  // Reset requests (double-click, dev panel, stage changes).
   useEffect(
     () =>
       useGearboxUi.subscribe((s, prev) => {
@@ -151,5 +155,5 @@ export function useDragRotate(rotor: RefObject<THREE.Group | null>, reducedMotio
     }
   });
 
-  return dragging;
+  return { dragging, beginDrag };
 }

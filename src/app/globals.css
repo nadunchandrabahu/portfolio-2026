@@ -526,6 +526,57 @@
   }
 }
 
+/* Balloon callouts: every part numbered at once, as on an assembly drawing. */
+.gearbox-callout--balloon .gearbox-callout__leader {
+  width: 26px;
+}
+
+.gearbox-callout--balloon .gearbox-callout__label {
+  right: 22px;
+  top: -30px;
+  padding: 2px 6px;
+  border: 1px solid var(--brass);
+  border-radius: 999px;
+  font-size: 0.6875rem;
+}
+
+/* Cursor over the gearbox and while dragging it (useDragRotate, Gearbox). */
+html[data-gearbox-hover] {
+  cursor: grab;
+}
+
+html[data-gearbox-dragging],
+html[data-gearbox-dragging] * {
+  cursor: grabbing !important;
+  user-select: none !important;
+}
+
+/* Fixed scroll stage (StageDirector): the canvas is masked to the gearbox's
+   current slot, with soft edges. Mask size and position follow the slot. */
+.gearbox-stage canvas {
+  mask-image:
+    linear-gradient(to right, transparent 0, #000 10%, #000 90%, transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 10%, #000 90%, transparent 100%);
+  mask-composite: intersect;
+  mask-repeat: no-repeat;
+  mask-size: 0 0;
+}
+
+/* Once the stage canvas is up, slot fallbacks (the About blueprint drawing)
+   hide but keep their size, since the slot is measured from them. */
+html[data-gearbox-stage] [data-gearbox-slot] .gearbox-slot-fallback {
+  visibility: hidden;
+}
+
+/* Slots with no fallback only take up space while the stage is running. */
+.gearbox-slot-optional {
+  display: none;
+}
+
+html[data-gearbox-stage] .gearbox-slot-optional {
+  display: block;
+}
+
 /* Hover/tap details card beside the gearbox (GearboxInspectCard). */
 @media (prefers-reduced-motion: no-preference) {
   .gearbox-inspect {

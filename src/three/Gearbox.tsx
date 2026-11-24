@@ -44,6 +44,8 @@ const CROSS_Z = G.CARRIER_THICKNESS / 2 + G.CROSS_DEPTH / 2;
 const PROUD: [number, number, number] = [1, 1, 1.08];
 /** Mouse leaving a part: wait this long before closing, so moving between parts doesn't flicker. */
 const UNPICK_DELAY_MS = 140;
+/** Hover intent: how long the pointer rests on a part before its card opens. */
+const HOVER_DELAY_MS = 350;
 const TAU = Math.PI * 2;
 
 type Geometries = ReturnType<typeof buildGeometries>;
@@ -108,6 +110,11 @@ function disposeGeometries(geometries: Geometries) {
 const planetPositions = G.PLANET_ANGLES.map(
   (a) => [G.CENTRE_DISTANCE * Math.cos(a), G.CENTRE_DISTANCE * Math.sin(a)] as const,
 );
+/** Each planet's story part and its place on the carrier (PLANET_ANGLES order). */
+const planets = PLANETS.map((part, i) => {
+  const angle = G.PLANET_ANGLES[i] ?? 0;
+  return { part, x: G.CENTRE_DISTANCE * Math.cos(angle), y: G.CENTRE_DISTANCE * Math.sin(angle) };
+});
 
 const segmentLabels = PROJECT_IDS.map((id, i) => {
   const span = TAU / PROJECT_IDS.length;
@@ -141,6 +148,12 @@ function segmentAt(local: THREE.Vector3) {
 const isMouse = (e: ThreeEvent<PointerEvent | MouseEvent>) =>
   !("pointerType" in e.nativeEvent) || e.nativeEvent.pointerType === "mouse";
 
+/** Grab cursor while the pointer is over the gearbox (see globals.css). */
+function setHover(on: boolean) {
+  if (on) document.documentElement.dataset.gearboxHover = "";
+  else delete document.documentElement.dataset.gearboxHover;
+}
+
 export function Gearbox({ reducedMotion }: { reducedMotion: boolean }) {
   const geometries = useMemo(() => buildGeometries(), []);
   const materials = useMemo(() => createMaterials(), []);
@@ -155,28 +168,67 @@ export function Gearbox({ reducedMotion }: { reducedMotion: boolean }) {
   useEffect(() => () => inlays.forEach((m) => m.dispose()), [inlays]);
 
   const focus = useGearboxStore((s) => s.focus);
+  const callouts = useGearboxStore((s) => s.callouts);
+  // Full label on the focused part; numbered balloons on every part in "parts"
+  // mode while nothing in particular is focused.
+  const labelFor = (part: FocusTarget) => callouts !== "none" && focus === part;
+  const balloons = callouts === "parts" && (focus === "overview" || focus === "ring");
   const inspect = useGearboxUi((s) => s.inspect);
   const picked = inspect?.target.kind === "part" ? inspect.target.part : null;
 
   const rotor = useRef<THREE.Group>(null);
   const crossGroup = useRef<THREE.Group>(null);
-  const dragging = useDragRotate(rotor, reducedMotion);
+  const { dragging, beginDrag } = useDragRotate(rotor, reducedMotion);
   const gl = useThree((s) => s.gl);
   const invalidate = useThree((s) => s.invalidate);
   const unpickTimer = useRef<number | undefined>(undefined);
-  useEffect(() => () => window.clearTimeout(unpickTimer.current), []);
+  useEffect(
+    () => () => {
+      window.clearTimeout(unpickTimer.current);
+      setHover(false);
+    },
+    [],
+  );
 
   // Hover (mouse) or tap (touch) a part to see its details (GearboxInspectCard).
-  const pick = (target: InspectTarget, e: ThreeEvent<PointerEvent | MouseEvent>) => {
-    window.clearTimeout(unpickTimer.current);
+  // A hover waits a moment before the card opens, so sweeping across the
+  // gearbox (or reaching for it to drag) doesn't flash cards over it. Once a
+  // card is open, moving to another part switches straight away.
+  const pending = useRef<InspectTarget | null>(null);
+  const pick = (target: InspectTarget, e: ThreeEvent<PointerEvent | MouseEvent>, delay = 0) => {
     const ui = useGearboxUi.getState();
-    if (sameTarget(ui.inspect?.target, target)) return;
+    if (sameTarget(ui.inspect?.target, target)) {
+      window.clearTimeout(unpickTimer.current);
+      pending.current = null;
+      return;
+    }
+    if (delay && sameTarget(pending.current, target)) return;
+    window.clearTimeout(unpickTimer.current);
     const rect = gl.domElement.getBoundingClientRect();
-    ui.setInspect({ target, x: e.nativeEvent.clientX - rect.left, y: e.nativeEvent.clientY - rect.top });
-    invalidate();
+    // On the scroll stage the gearbox fills its section's slot; otherwise the canvas.
+    const stage = document.documentElement.dataset.gearboxStage;
+    const slot = stage ? document.querySelector(`[data-gearbox-slot="${stage}"]`) : null;
+    const b = (slot ?? gl.domElement).getBoundingClientRect();
+    const show = () => {
+      pending.current = null;
+      useGearboxUi.getState().setInspect({
+        target,
+        x: e.nativeEvent.clientX - rect.left,
+        y: e.nativeEvent.clientY - rect.top,
+        bounds: { left: b.left, top: b.top, right: b.right, bottom: b.bottom },
+      });
+      invalidate();
+    };
+    if (!delay || ui.inspect) {
+      show();
+      return;
+    }
+    pending.current = target;
+    unpickTimer.current = window.setTimeout(show, delay);
   };
   const unpick = (delay: number) => {
     window.clearTimeout(unpickTimer.current);
+    pending.current = null;
     unpickTimer.current = window.setTimeout(() => {
       useGearboxUi.getState().setInspect(null);
       invalidate();
@@ -193,19 +245,38 @@ export function Gearbox({ reducedMotion }: { reducedMotion: boolean }) {
     const part = (e.eventObject.userData as { part?: GearPartId }).part;
     return part ? { kind: "part", part } : null;
   };
+  // Every solid part: grab cursor, drag to rotate, double-click to reset the view.
+  const grip = {
+    onPointerDown: (e: ThreeEvent<PointerEvent>) => {
+      e.stopPropagation();
+      if (isMouse(e)) unpick(0);
+      beginDrag(e.nativeEvent);
+    },
+    onDoubleClick: (e: ThreeEvent<MouseEvent>) => {
+      e.stopPropagation();
+      useGearboxUi.getState().resetView();
+    },
+  };
   const onPartOver = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation();
+    setHover(true);
     const target = partOf(e);
-    if (target && isMouse(e) && !dragging.current) pick(target, e);
+    if (target && isMouse(e) && !dragging.current && e.buttons === 0) pick(target, e, HOVER_DELAY_MS);
   };
   const onPartOut = (e: ThreeEvent<PointerEvent>) => {
+    setHover(false);
     if (isMouse(e)) unpick(UNPICK_DELAY_MS);
   };
   const onPartClick = (e: ThreeEvent<MouseEvent>) => onTap(partOf(e), e);
-  const partEvents = { onPointerOver: onPartOver, onPointerOut: onPartOut, onClick: onPartClick };
+  const partEvents = { ...grip, onPointerOver: onPartOver, onPointerOut: onPartOut, onClick: onPartClick };
   // Solid parts with nothing to show still block the parts behind them.
   const blocker = {
-    onPointerOver: (e: ThreeEvent<PointerEvent>) => e.stopPropagation(),
+    ...grip,
+    onPointerOver: (e: ThreeEvent<PointerEvent>) => {
+      e.stopPropagation();
+      setHover(true);
+    },
+    onPointerOut: () => setHover(false),
     onClick: (e: ThreeEvent<MouseEvent>) => e.stopPropagation(),
   };
   const ringTarget = (e: ThreeEvent<PointerEvent | MouseEvent>): InspectTarget | null => {
@@ -214,9 +285,10 @@ export function Gearbox({ reducedMotion }: { reducedMotion: boolean }) {
   };
   const onRingHover = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation();
-    if (!isMouse(e) || dragging.current) return;
+    setHover(true);
+    if (!isMouse(e) || dragging.current || e.buttons !== 0) return;
     const target = ringTarget(e);
-    if (target) pick(target, e);
+    if (target) pick(target, e, HOVER_DELAY_MS);
   };
 
   const sunGroup = useRef<THREE.Group>(null);
@@ -351,8 +423,9 @@ export function Gearbox({ reducedMotion }: { reducedMotion: boolean }) {
             material={materials.ring}
             onPointerOver={onRingHover}
             onPointerMove={onRingHover}
-            onPointerOut={(e) => isMouse(e) && unpick(UNPICK_DELAY_MS)}
+            onPointerOut={onPartOut}
             onClick={(e) => onTap(ringTarget(e), e)}
+            {...grip}
           />
           <lineSegments ref={asOutline} geometry={geometries.ringEdges} material={materials.line} />
           {indexLines.map((line, i) => (
@@ -387,7 +460,7 @@ export function Gearbox({ reducedMotion }: { reducedMotion: boolean }) {
               {label.n}
             </Text>
           ))}
-          {focus === "ring" ? (
+          {labelFor("ring") ? (
             <Callout position={[0, 26.4, FRONT]} label={`Ring · The work · ${PROJECT_IDS.length} projects`} />
           ) : null}
         </group>
@@ -419,9 +492,9 @@ export function Gearbox({ reducedMotion }: { reducedMotion: boolean }) {
             ))}
           </group>
 
-          {planetPositions.map(([x, y], i) => (
+          {planets.map(({ part, x, y }, i) => (
             <group
-              key={PLANETS[i]}
+              key={part}
               ref={(g) => {
                 planetGroups.current[i] = g;
               }}
@@ -435,17 +508,21 @@ export function Gearbox({ reducedMotion }: { reducedMotion: boolean }) {
                 <mesh
                   ref={asSolid}
                   geometry={geometries.planet}
-                  material={picked === PLANETS[i] ? materials.steelHover : materials.steel}
-                  userData={{ part: PLANETS[i] }}
+                  material={picked === part ? materials.steelHover : materials.steel}
+                  userData={{ part: part }}
                   {...partEvents}
                 />
                 <lineSegments ref={asOutline} geometry={geometries.planetEdges} material={materials.line} />
-                {picked === PLANETS[i] ? (
+                {picked === part ? (
                   <lineSegments geometry={geometries.planetEdges} material={materials.hoverLine} scale={PROUD} />
                 ) : null}
               </group>
               <mesh ref={asSolid} geometry={geometries.pinNut} material={materials.bolt} position={[0, 0, FRONT]} />
-              {focus === PLANETS[i] ? <Callout position={[0, 0, FRONT + 0.5]} label={partLabel(PLANETS[i])} /> : null}
+              {labelFor(part) ? (
+                <Callout position={[0, 0, FRONT + 0.5]} label={partLabel(part)} />
+              ) : balloons ? (
+                <Callout position={[0, 0, FRONT + 0.5]} label={partCode(part)} balloon />
+              ) : null}
             </group>
           ))}
         </group>
@@ -497,7 +574,11 @@ export function Gearbox({ reducedMotion }: { reducedMotion: boolean }) {
               EPH 2:8
             </Text>
           </group>
-          {focus === "sun" ? <Callout position={[0, 0, FRONT + 0.5]} label={partLabel("sun")} /> : null}
+          {labelFor("sun") ? (
+            <Callout position={[0, 0, FRONT + 0.5]} label={partLabel("sun")} />
+          ) : balloons ? (
+            <Callout position={[0, 0, FRONT + 0.5]} label={partCode("sun")} balloon />
+          ) : null}
         </group>
 
         {/* Blueprint extras: dash-dot centre lines and two dimension callouts. */}
@@ -517,7 +598,12 @@ export function Gearbox({ reducedMotion }: { reducedMotion: boolean }) {
 }
 
 /** Callout text comes from the About "How the parts fit" list (one source of truth). */
-function partLabel(part: Exclude<FocusTarget, "overview" | "ring">): string {
+function partLabel(part: GearPartId): string {
   const row = about.parts.find((p) => p.part === part);
   return row ? `${row.code} · ${row.name}` : part;
+}
+
+/** Balloon text: just the part number, as on an assembly drawing. */
+function partCode(part: GearPartId): string {
+  return about.parts.find((p) => p.part === part)?.code ?? part;
 }

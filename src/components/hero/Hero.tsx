@@ -19,8 +19,9 @@ export function Hero() {
       <div aria-hidden="true" className="blueprint-grid absolute inset-0" />
 
       <div className="relative mx-auto grid max-w-7xl items-center gap-y-8 px-4 pt-6 pb-20 sm:px-6 lg:grid-cols-[55fr_45fr] lg:gap-x-8 lg:px-8 lg:pt-16 lg:pb-28">
-        {/* Gearbox: above the text on mobile, right column (bleeding off) on desktop. */}
-        <div className="relative -mx-4 h-[60vw] max-h-[30rem] sm:mx-0 lg:order-2 lg:-mr-[max(2rem,calc((100vw-80rem)/2+2rem))] lg:h-auto lg:max-h-none">
+        {/* Gearbox: above the text on mobile, right column (bleeding off) on desktop.
+            Also the hero slot for the desktop scroll stage (StageDirector). */}
+        <div data-gearbox-slot="hero" className="relative -mx-4 h-[60vw] max-h-[30rem] sm:mx-0 lg:order-2 lg:-mr-[max(2rem,calc((100vw-80rem)/2+2rem))] lg:h-auto lg:max-h-none">
           {/* The poster is a render of the 3D gearbox (scripts/render-poster.mjs). It is the
               LCP image and the no-WebGL fallback; the live canvas fades in over it. */}
           <HeroGearbox
@@ -32,6 +33,7 @@ export function Hero() {
                 height={1200}
                 preload
                 fetchPriority="high"
+                draggable={false}
                 sizes="(min-width: 1024px) 45vw, 60vw"
                 className="mx-auto h-full w-auto lg:h-auto lg:w-full"
               />
