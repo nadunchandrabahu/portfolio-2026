@@ -1,6 +1,6 @@
-import Image from "next/image";
 import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
+import { Photo } from "@/components/ui/Photo";
 import { Todo } from "@/components/ui/Todo";
 import { handsOn } from "@/content/handsOn";
 import { isPending } from "@/content/types";
@@ -18,15 +18,9 @@ export function HandsOn() {
       <ul className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
         {handsOn.tiles.map((tile, i) => (
           <li key={tile.label} data-reveal style={{ "--reveal-index": i } as React.CSSProperties}>
-            <div className="machined-card lift-card flex h-full flex-col overflow-hidden">
+            <div className="photo-host machined-card lift-card flex h-full flex-col overflow-hidden">
               {tile.image ? (
-                <Image
-                  src={tile.image.src}
-                  alt={tile.image.alt}
-                  width={800}
-                  height={600}
-                  className="aspect-[4/3] w-full object-cover grayscale"
-                />
+                <Photo photo={tile.image} sizes="(min-width: 1280px) 22vw, (min-width: 640px) 46vw, 100vw" className="aspect-[4/3]" />
               ) : null}
               <div className="flex flex-1 flex-col gap-3 p-6">
                 <p className="eyebrow text-brass">{tile.label}</p>

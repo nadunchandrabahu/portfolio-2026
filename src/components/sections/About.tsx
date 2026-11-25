@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { about } from "@/content/about";
@@ -8,12 +9,23 @@ export function About() {
       <SectionHeader id="about" />
       <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] lg:gap-16">
         <div>
-          <div className="max-w-measure space-y-5 text-bone">
-            {about.paragraphs.map((p) => (
-              <p key={p.slice(0, 32)} data-reveal>
-                {p}
-              </p>
-            ))}
+          <div className="sm:grid sm:grid-cols-[7.5rem_minmax(0,1fr)] sm:gap-x-8">
+            <Image
+              src={about.portrait.src}
+              alt={about.portrait.alt}
+              width={about.portrait.width}
+              height={about.portrait.height}
+              sizes="120px"
+              data-reveal
+              className="mb-6 size-24 rounded-machined border border-steel-line object-cover shadow-machined sm:mb-0 sm:size-30"
+            />
+            <div className="max-w-measure space-y-5 text-bone">
+              {about.paragraphs.map((p) => (
+                <p key={p.slice(0, 32)} data-reveal>
+                  {p}
+                </p>
+              ))}
+            </div>
           </div>
 
           <h3 className="eyebrow mt-14 text-concrete" data-reveal>

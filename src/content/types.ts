@@ -17,3 +17,10 @@ export const confirmed = <T>(values: readonly (T | Pending)[]): T[] =>
 export const SHOW_PLACEHOLDERS = process.env.NODE_ENV !== "production";
 
 export type ExternalLink = { label: string; href: string };
+
+/**
+ * A local image under /public/images. `alt: ""` marks a decorative (stock)
+ * image that screen readers skip; real photos and screenshots get a
+ * description. `position` is a CSS object-position for the crop.
+ */
+export type Photo = { src: string; alt: string; position?: string };

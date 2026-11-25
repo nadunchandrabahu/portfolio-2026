@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { Photo } from "@/components/ui/Photo";
 import type { Project } from "@/content/projects";
 import { InspectionTag } from "./InspectionTag";
 import { ProjectBody, projectTitleId } from "./ProjectBody";
@@ -15,12 +15,11 @@ export function ProjectCard({ project }: { project: Project }) {
       }`}
     >
       {project.image ? (
-        <Image
-          src={project.image.src}
-          alt={project.image.alt}
-          width={1280}
-          height={720}
-          className="aspect-video w-full object-cover"
+        <Photo
+          photo={project.image}
+          sizes="(min-width: 1280px) 34vw, (min-width: 768px) 46vw, 100vw"
+          // The secondary card stays compact (CLAUDE.md 5.2): a letterbox strip.
+          className={secondary ? "aspect-[3/1]" : "aspect-video"}
         />
       ) : null}
       <div className="flex flex-1 flex-col p-6 sm:p-7">

@@ -1,11 +1,11 @@
-import { pending, type Pending } from "./types";
+import { pending, type Pending, type Photo } from "./types";
 
 // TODO(nadun): all four tiles need your sign-off (CLAUDE.md 5.4).
 export type HandsOnTile = {
   label: string;
   title: string;
   lines: (string | Pending)[];
-  image?: { src: string; alt: string };
+  image?: Photo;
 };
 
 export const handsOn: { tiles: HandsOnTile[]; closing: string } = {

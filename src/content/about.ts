@@ -1,6 +1,8 @@
 export type GearPartId = "engineering" | "data" | "ai" | "build" | "sun";
 
 export const about = {
+  /** Shown beside the About copy, and as the image in the Person structured data. */
+  portrait: { src: "/images/profile.jpg", alt: "Portrait of Nadun Chandrabahu", width: 350, height: 350 },
   paragraphs: [
     "I'm a data scientist in Sydney with a Master of Data Science from Macquarie University. My work runs from classical statistical modelling on large datasets to the newer end of machine learning: fine-tuning language models, evaluating autonomous AI agents, and building tools that actually get used.",
     "I came to data science from mechanical engineering, which is where the comfort with maths and the habit of measuring things carefully come from. I like problems where the data is messy and the answer matters, and I tend to build something to solve them rather than leave them on a slide.",

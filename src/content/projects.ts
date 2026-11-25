@@ -1,4 +1,4 @@
-import { pending, type ExternalLink, type Pending } from "./types";
+import { pending, type ExternalLink, type Pending, type Photo } from "./types";
 
 export const PROJECT_IDS = [
   "field-shift",
@@ -26,7 +26,7 @@ export type Project = {
   links: (ExternalLink | Pending)[];
   /** Shown when there are no public links. */
   noLinksNote?: string;
-  image?: { src: string; alt: string };
+  image?: Photo;
 };
 
 export const projects: Project[] = [
@@ -48,6 +48,11 @@ export const projects: Project[] = [
     // TODO(nadun): confirm the front-end stack.
     tech: ["Python", "harmonic regression", "MODIS (Terra/Aqua)", "ECOSTRESS", "NASA POWER", "Netlify"],
     result: "30 yrs of NASA data → sowing windows · 3 crops × 3 cities",
+    image: {
+      src: "/images/projects/field-shift.jpg",
+      alt: "Group photo of participants at NASA's International Space Apps Challenge",
+      position: "50% 40%",
+    },
     links: [
       // TODO(nadun): confirm the prototype URL; one earlier note had nasafieldship.netlify.app.
       { label: "Live prototype", href: "https://nasafieldshift.netlify.app" },
@@ -65,6 +70,7 @@ export const projects: Project[] = [
     ],
     tech: ["Python", "Hugging Face Transformers", "BERT", "BioBERT", "GPT-4.1", "Google Colab"],
     result: "baseline established → GPT-4.1 nano ~48.7% accuracy",
+    image: { src: "/images/projects/clinical-nlp.jpg", alt: "", position: "50% 45%" },
     links: [pending("GitHub URL for the clinical NLP project")],
   },
   {
@@ -78,6 +84,11 @@ export const projects: Project[] = [
     ],
     tech: ["PyTorch", "Meta MMS", "Google Colab TPU", "embeddings", "transfer learning"],
     result: "confidence 0.89 → 0.991",
+    image: {
+      src: "/images/projects/language-id.jpg",
+      alt: "Hack 2025 participants in Sydney, with Global Recordings Network on the screen behind them",
+      position: "50% 35%",
+    },
     links: [pending("GitHub URL for the language ID project")],
   },
   {
@@ -91,6 +102,7 @@ export const projects: Project[] = [
     ],
     tech: ["R", "tidyverse", "ggplot2", "Quarto", "logistic regression"],
     result: "75 fields → 13-predictor model, 420,000+ loans",
+    image: { src: "/images/projects/mortgage-defaults.jpg", alt: "" },
     links: [pending("GitHub URL for the mortgage defaults project")],
   },
   {
@@ -104,6 +116,11 @@ export const projects: Project[] = [
     ],
     tech: ["React", "Shopify Storefront API", "Cloudflare"],
     result: "live in pre-launch · ~200 visitors/week",
+    image: {
+      src: "/images/projects/pickl-hq.jpg",
+      alt: "The PICKL HQ home page: \"Gear worth playing for.\" with a Shop the range button",
+      position: "0% 50%",
+    },
     links: [{ label: "Live site", href: "https://picklhq.com" }],
   },
   {
@@ -117,6 +134,7 @@ export const projects: Project[] = [
     ],
     tech: ["React Native", "Expo", "Supabase", "EAS"],
     result: "complete build · in testing",
+    image: { src: "/images/projects/grow365.jpg", alt: "", position: "30% 50%" },
     links: [],
     noLinksNote: "Private build, no public link yet",
   },
@@ -130,6 +148,7 @@ export const projects: Project[] = [
       "An academic survey on Multi-Instance Learning, a weakly-supervised approach where models learn from group-level labels instead of labelled individual points. It maps the main families of methods and reviews published object-detection work including WSDDN and MIL-SERBoost.",
     ],
     tech: ["research", "technical writing"],
+    image: { src: "/images/projects/mil-survey.jpg", alt: "" },
     links: [pending("GitHub URL for the MIL survey")],
   },
 ];

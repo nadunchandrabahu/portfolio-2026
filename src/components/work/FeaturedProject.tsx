@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { Photo } from "@/components/ui/Photo";
 import type { Project } from "@/content/projects";
 import { FieldTiles } from "./FieldTiles";
 import { InspectionTag } from "./InspectionTag";
@@ -23,18 +23,23 @@ export function FeaturedProject({ project }: { project: Project }) {
           <ProjectLinks project={project} />
         </div>
       </div>
-      <div className="flex items-center border-t border-steel-line bg-cast p-6 sm:p-8 lg:border-t-0 lg:border-l lg:p-10">
+      {/* Visual column: the project photo edge to edge at the top (kept wide, so
+          a group photo isn't cropped to its middle), then the field-tile
+          drawing. On phones the photo alone stands in for both, at the top of
+          the card like the other project cards. */}
+      <div
+        className={`flex flex-col bg-cast lg:order-none lg:border-t-0 lg:border-l lg:border-steel-line ${
+          project.image ? "order-first" : "border-t border-steel-line"
+        }`}
+      >
         {project.image ? (
-          <Image
-            src={project.image.src}
-            alt={project.image.alt}
-            width={1280}
-            height={960}
-            className="h-auto w-full rounded-sm"
-          />
-        ) : (
+          <Photo photo={project.image} sizes="(min-width: 1024px) 40vw, 100vw" className="aspect-[4/3]" />
+        ) : null}
+        <div
+          className={`flex-1 items-center p-6 sm:p-8 lg:p-10 ${project.image ? "hidden lg:flex" : "flex"}`}
+        >
           <FieldTiles className="w-full" />
-        )}
+        </div>
       </div>
     </article>
   );

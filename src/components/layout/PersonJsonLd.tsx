@@ -1,3 +1,4 @@
+import { about } from "@/content/about";
 import { degrees } from "@/content/education";
 import { site } from "@/content/site";
 import { SITE_URL } from "@/lib/siteUrl";
@@ -17,6 +18,7 @@ export function PersonJsonLd() {
     name: site.name,
     jobTitle: site.role,
     url: `${SITE_URL}/`,
+    image: `${SITE_URL}${about.portrait.src}`,
     address: { "@type": "PostalAddress", addressLocality: "Sydney", addressCountry: "AU" },
     sameAs: [site.links.linkedin, site.links.github],
     alumniOf,

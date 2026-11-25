@@ -680,6 +680,55 @@ html[data-gearbox-stage] .gearbox-slot-optional {
   }
 }
 
+/* Card photos (Photo.tsx): toned to graphite and brass at rest, so the mixed
+   set of photos, screenshots and stock images reads as one; full colour when
+   the card is hovered or focused. */
+.photo-frame {
+  position: relative;
+  overflow: hidden;
+  background: var(--machined);
+}
+
+.photo-frame img {
+  filter: grayscale(1) contrast(1.06) brightness(0.8);
+  transition:
+    filter 500ms var(--ease-reveal),
+    scale 700ms var(--ease-reveal);
+}
+
+/* Brass tone. */
+.photo-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: var(--brass);
+  mix-blend-mode: color;
+  opacity: 0.14;
+  transition: opacity 500ms var(--ease-reveal);
+}
+
+/* Settles the photo into the card: a soft fade at the foot and a hairline. */
+.photo-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(to top, color-mix(in oklab, var(--graphite) 40%, transparent), transparent 45%);
+  box-shadow: inset 0 -1px 0 var(--steel-line);
+}
+
+:is(.project-card, .photo-host):is(:hover, :focus-within) .photo-frame img {
+  filter: none;
+  scale: 1.02;
+}
+
+:is(.project-card, .photo-host):is(:hover, :focus-within) .photo-frame::before {
+  opacity: 0;
+}
+
 /* Hover/tap details card beside the gearbox (GearboxInspectCard). */
 @media (prefers-reduced-motion: no-preference) {
   .gearbox-inspect {
