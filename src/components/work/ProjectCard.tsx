@@ -23,11 +23,15 @@ export function ProjectCard({ project }: { project: Project }) {
         />
       ) : null}
       <div className="flex flex-1 flex-col p-6 sm:p-7">
-        <ProjectBody project={project} />
-        <div className="mt-auto flex flex-col gap-4 pt-6">
-          {project.result && !secondary ? <InspectionTag result={project.result} /> : null}
+        <div className="mb-5">
           <ProjectLinks project={project} />
         </div>
+        <ProjectBody project={project} />
+        {project.result && !secondary ? (
+          <div className="mt-auto pt-6">
+            <InspectionTag result={project.result} />
+          </div>
+        ) : null}
       </div>
     </article>
   );

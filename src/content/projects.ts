@@ -1,4 +1,4 @@
-import { pending, type ExternalLink, type Pending, type Photo } from "./types";
+import { pending, type Pending, type Photo } from "./types";
 
 export const PROJECT_IDS = [
   "field-shift",
@@ -23,8 +23,13 @@ export type Project = {
   tech: string[];
   /** Inspection-tag readout. Secondary cards have none. */
   result?: string;
-  links: (ExternalLink | Pending)[];
-  /** Shown when there are no public links. */
+  /**
+   * The "Live" and "GitHub" buttons at the top of every card. A URL makes a
+   * working button; pending or absent shows a disabled one ("no public link
+   * yet"), and pending also flags a TODO in development.
+   */
+  links: { live?: string | Pending; github?: string | Pending };
+  /** Why there are no public links, where that needs saying (knowledge file). */
   noLinksNote?: string;
   image?: Photo;
 };
@@ -53,11 +58,11 @@ export const projects: Project[] = [
       alt: "Group photo of participants at NASA's International Space Apps Challenge",
       position: "50% 40%",
     },
-    links: [
+    links: {
       // TODO(nadun): confirm the prototype URL; one earlier note had nasafieldship.netlify.app.
-      { label: "Live prototype", href: "https://nasafieldshift.netlify.app" },
-      { label: "GitHub", href: "https://github.com/nadunchandrabahu/field-shift-nasa" },
-    ],
+      live: "https://nasafieldshift.netlify.app",
+      github: "https://github.com/nadunchandrabahu/field-shift-nasa",
+    },
   },
   {
     id: "clinical-nlp",
@@ -71,7 +76,7 @@ export const projects: Project[] = [
     tech: ["Python", "Hugging Face Transformers", "BERT", "BioBERT", "GPT-4.1", "Google Colab"],
     result: "baseline established → GPT-4.1 nano ~48.7% accuracy",
     image: { src: "/images/projects/clinical-nlp.jpg", alt: "", position: "50% 45%" },
-    links: [pending("GitHub URL for the clinical NLP project")],
+    links: { github: pending("GitHub URL for the clinical NLP project") },
   },
   {
     id: "language-id",
@@ -89,7 +94,7 @@ export const projects: Project[] = [
       alt: "Hack 2025 participants in Sydney, with Global Recordings Network on the screen behind them",
       position: "50% 35%",
     },
-    links: [pending("GitHub URL for the language ID project")],
+    links: { github: pending("GitHub URL for the language ID project") },
   },
   {
     id: "mortgage-defaults",
@@ -103,7 +108,7 @@ export const projects: Project[] = [
     tech: ["R", "tidyverse", "ggplot2", "Quarto", "logistic regression"],
     result: "75 fields → 13-predictor model, 420,000+ loans",
     image: { src: "/images/projects/mortgage-defaults.jpg", alt: "" },
-    links: [pending("GitHub URL for the mortgage defaults project")],
+    links: { github: pending("GitHub URL for the mortgage defaults project") },
   },
   {
     id: "pickl-hq",
@@ -121,7 +126,7 @@ export const projects: Project[] = [
       alt: "The PICKL HQ home page: \"Gear worth playing for.\" with a Shop the range button",
       position: "0% 50%",
     },
-    links: [{ label: "Live site", href: "https://picklhq.com" }],
+    links: { live: "https://picklhq.com" },
   },
   {
     id: "grow365",
@@ -135,7 +140,7 @@ export const projects: Project[] = [
     tech: ["React Native", "Expo", "Supabase", "EAS"],
     result: "complete build · in testing",
     image: { src: "/images/projects/grow365.jpg", alt: "", position: "30% 50%" },
-    links: [],
+    links: {},
     noLinksNote: "Private build, no public link yet",
   },
   {
@@ -149,7 +154,7 @@ export const projects: Project[] = [
     ],
     tech: ["research", "technical writing"],
     image: { src: "/images/projects/mil-survey.jpg", alt: "" },
-    links: [pending("GitHub URL for the MIL survey")],
+    links: { github: pending("GitHub URL for the MIL survey") },
   },
 ];
 

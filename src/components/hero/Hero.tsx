@@ -5,6 +5,7 @@ import { GithubIcon, LinkedinIcon } from "@/components/ui/BrandIcons";
 import { EmailIconLink } from "@/components/ui/Email";
 import { site } from "@/content/site";
 import { DataPlate } from "./DataPlate";
+import { DigitalRain } from "./DigitalRain";
 
 const iconLink =
   "inline-flex size-11 items-center justify-center rounded-machined border border-steel-line text-concrete transition-colors hover:border-brass/60 hover:text-brass";
@@ -18,6 +19,7 @@ export function Hero() {
       className="relative overflow-x-clip"
     >
       <div aria-hidden="true" className="blueprint-grid absolute inset-0" />
+      <DigitalRain />
 
       <div className="relative mx-auto grid max-w-7xl items-center gap-y-8 px-4 pt-6 pb-20 sm:px-6 lg:grid-cols-[55fr_45fr] lg:gap-x-8 lg:px-8 lg:pt-16 lg:pb-28">
         {/* Gearbox: above the text on mobile, right column (bleeding off) on desktop.

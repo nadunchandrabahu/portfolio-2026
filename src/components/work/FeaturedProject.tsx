@@ -17,11 +17,15 @@ export function FeaturedProject({ project }: { project: Project }) {
         <p className="eyebrow mb-4 inline-flex w-fit items-center gap-2 rounded-sm border border-brass/40 px-2 py-1 text-brass">
           Featured
         </p>
-        <ProjectBody project={project} />
-        <div className="mt-auto flex flex-col gap-4 pt-8">
-          {project.result ? <InspectionTag result={project.result} /> : null}
+        <div className="mb-6">
           <ProjectLinks project={project} />
         </div>
+        <ProjectBody project={project} />
+        {project.result ? (
+          <div className="mt-auto pt-8">
+            <InspectionTag result={project.result} />
+          </div>
+        ) : null}
       </div>
       {/* Visual column: the project photo edge to edge at the top (kept wide, so
           a group photo isn't cropped to its middle), then the field-tile

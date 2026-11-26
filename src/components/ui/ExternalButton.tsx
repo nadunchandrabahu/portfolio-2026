@@ -1,4 +1,10 @@
-import { ArrowUpRight, type LucideIcon } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
+import type { ComponentType } from "react";
+
+type Icon = ComponentType<{ className?: string; "aria-hidden"?: "true" }>;
+
+const shape =
+  "inline-flex min-h-11 items-center gap-2 rounded-sm border px-4 font-mono text-small font-medium tracking-[0.08em] uppercase";
 
 /**
  * Brass outline button that opens an external page in a new tab, in the
@@ -11,7 +17,7 @@ export function ExternalButton({
   children,
 }: {
   href: string;
-  icon?: LucideIcon;
+  icon?: Icon;
   children: React.ReactNode;
 }) {
   return (
@@ -19,7 +25,7 @@ export function ExternalButton({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex min-h-11 items-center gap-2 rounded-sm border border-brass px-4 font-mono text-small font-medium tracking-[0.08em] text-brass uppercase transition-colors hover:bg-brass hover:text-graphite active:bg-brass-deep active:text-graphite"
+      className={`${shape} border-brass text-brass transition-colors hover:bg-brass hover:text-graphite active:bg-brass-deep active:text-graphite`}
     >
       {Icon ? <Icon aria-hidden="true" className="size-4" /> : null}
       {children}
@@ -30,18 +36,28 @@ export function ExternalButton({
 }
 
 /**
- * Development-only stand-in for a button whose link Nadun hasn't supplied
- * yet: the same shape, dashed and inert. Production renders nothing (the
- * page passes it only when SHOW_PLACEHOLDERS is on).
+ * The same button, dashed and disabled, for a link that isn't public yet.
+ * `reason` is read out by screen readers and shown as a tooltip.
  */
-export function PlaceholderButton({ icon: Icon, children }: { icon?: LucideIcon; children: React.ReactNode }) {
+export function PlaceholderButton({
+  icon: Icon,
+  reason = "no public link yet",
+  children,
+}: {
+  icon?: Icon;
+  reason?: string;
+  children: React.ReactNode;
+}) {
   return (
-    <span
-      aria-disabled="true"
-      className="inline-flex min-h-11 cursor-not-allowed items-center gap-2 rounded-sm border border-dashed border-brass/50 px-4 font-mono text-small font-medium tracking-[0.08em] text-brass/60 uppercase"
+    <button
+      type="button"
+      disabled
+      title={reason.charAt(0).toUpperCase() + reason.slice(1)}
+      className={`${shape} cursor-not-allowed border-dashed border-brass/45 text-brass/55`}
     >
       {Icon ? <Icon aria-hidden="true" className="size-4" /> : null}
       {children}
-    </span>
+      <span className="sr-only"> ({reason})</span>
+    </button>
   );
 }

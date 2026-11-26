@@ -67,7 +67,7 @@ test.describe("3D gearbox", () => {
     });
 
     // Hero-only canvas on phones; on desktop the same canvas is fixed over the page (scroll stage).
-    const canvas = page.locator("#hero canvas, .gearbox-stage canvas");
+    const canvas = page.locator("#hero canvas:not(.digital-rain), .gearbox-stage canvas");
     await page.goto("/", { waitUntil: "networkidle" });
     await expect(canvas).toHaveCount(0); // poster only until interaction
     await page.mouse.move(200, 200);

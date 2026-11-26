@@ -22,7 +22,7 @@ await page.goto("http://localhost:3100", { waitUntil: "networkidle" });
 await page.mouse.move(700, 400);
 await page.waitForFunction(
   () => {
-    const w = document.querySelector("#hero canvas")?.closest(".gearbox-canvas-fade");
+    const w = document.querySelector("#hero canvas:not(.digital-rain)")?.closest(".gearbox-canvas-fade");
     return w && getComputedStyle(w).opacity === "1";
   },
   null,
@@ -35,7 +35,7 @@ await page.addStyleTag({
     #hero img[src*="gearbox-poster"] { visibility: hidden !important; }`,
 });
 await page.waitForTimeout(1500);
-const png = await page.locator("#hero canvas").screenshot({ omitBackground: true });
+const png = await page.locator("#hero canvas:not(.digital-rain)").screenshot({ omitBackground: true });
 await browser.close();
 
 const square = await sharp(png).trim({ threshold: 1 }).toBuffer({ resolveWithObject: true });

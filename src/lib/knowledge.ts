@@ -54,7 +54,10 @@ export function buildKnowledge(): string {
     projects
       .map((p) => {
         const description = confirmed(p.description);
-        const links = confirmed(p.links).map((l) => `${l.label}: ${l.href}`);
+        const links = [
+          typeof p.links.live === "string" ? `Live site: ${p.links.live}` : null,
+          typeof p.links.github === "string" ? `GitHub: ${p.links.github}` : null,
+        ].filter((l): l is string => l !== null);
         return [
           `### ${p.index} · ${p.title}`,
           `${p.eyebrow}.`,

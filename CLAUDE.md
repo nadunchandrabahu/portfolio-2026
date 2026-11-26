@@ -56,6 +56,7 @@ The centrepiece is a **3D planetary gearbox** that tells his story (section 7). 
 - Overdone "rugged": rust, grunge, camo, flames, skulls, distressed stencil fonts, tool clip-art
 - One giant hero number. Metrics belong on the project inspection tags.
 - Generic hero copy
+- **Exception (approved by Nadun, 2026-11-26):** a faint green binary rain (0s and 1s) behind the hero gearbox only, so the hero reads as data and AI as well as engineering. It stays background texture: low opacity, masked to the gearbox side, never behind body text, ~20fps, paused off-screen, a still frame under reduced motion (`src/components/hero/DigitalRain.tsx`). The "matrix rain" and "acid-green" bans above still apply everywhere else.
 
 ### 2.3 Palette: "Graphite & Brass"
 
@@ -117,7 +118,7 @@ The status lamp is a small brass dot with a slow 3s "breathing" glow, which stop
 - GSAP + ScrollTrigger for scroll choreography of the 3D scene and section reveals. Keep native scrolling with no smooth-scroll library and no scroll-jacking.
 - Reveals: 16px rise + fade, 500ms, `power2.out`, staggered 60ms on card grids.
 - Hover: cards lift 4px and their border shifts to brass at 40%; links get a brass underline that grows from the left.
-- `prefers-reduced-motion: reduce` disables all scroll-driven 3D motion (the gearbox shows a static, assembled three-quarter view), reveals, the breathing lamp and idle rotation.
+- `prefers-reduced-motion: reduce` disables all scroll-driven 3D motion (the gearbox shows a static, assembled three-quarter view), reveals, the breathing lamp, idle rotation and the hero binary rain (which shows a still frame).
 
 ---
 
@@ -184,7 +185,7 @@ Header: `02 · SELECTED WORK` / title **Selected work**. Optional intro (one lin
 
 Layout: the **Field Shift card is featured and spans the full width** (two columns inside it: copy left, a stylised map or satellite-tile visual right, or the 3D ring segment if there is no image). The rest sit in a 2-column grid on desktop and 1 column on mobile. **MIL Survey is a smaller secondary card** (half height, no inspection tag).
 
-Card anatomy, top to bottom: optional thumbnail (16:9; the card must look finished without one) → eyebrow (mono, brass-deep) → title (Archivo 600) → description (Plex Sans) → tech tags (mono chips, 1px steel-line outline, no fill) → **inspection tag** → links (brass, with an arrow icon, "GitHub ↗", "Live site ↗").
+Card anatomy, top to bottom: optional thumbnail (16:9, full colour; the card must look finished without one) → **"Live ↗" and "GitHub ↗" buttons** (brass outline, on every card; a link that isn't public yet shows as a dashed, disabled button) → eyebrow (mono, brass-deep) → title (Archivo 600) → description (Plex Sans) → tech tags (mono chips, 1px steel-line outline, no fill) → **inspection tag**.
 
 Each card has `data-project-id`. When a card is in view or hovered, it writes `highlightProject` to the gearbox store so its ring segment lights up (section 7).
 
@@ -226,7 +227,7 @@ Two columns on desktop: copy on the left; the gearbox (sticky, from the shared c
   - `S-00 · Centre`: Ephesians 2:8. What everything turns around.
 
 ### 5.4 Off the keyboard (`#hands-on`) (new section)
-Purpose: show he is genuinely good with his hands without overdoing it. There are four tiles in a row (2×2 on tablet, stacked on mobile). Each has a mono label, a short title, one line, and an optional photo slot (4:3, grayscale with a brass duotone on hover). **Only use confirmed facts. All four need Nadun's sign-off.**
+Purpose: show he is genuinely good with his hands without overdoing it. There are four tiles in a row (2×2 on tablet, stacked on mobile). Each has a mono label, a short title, one line, and an optional photo slot (4:3, full colour). **Only use confirmed facts. All four need Nadun's sign-off.**
 
 - `WORKSHOP`: **Working as a mechanic.** TODO(nadun): employer/context and a line on the work, started Nov 2026.
 - `AUTOMOTIVE`: **Assistant automobile technician, DIMO Lanka.** Internship, Nov 2016 to Jan 2017, about 360 hours.
