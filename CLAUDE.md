@@ -336,8 +336,10 @@ One fixed full-viewport `<Canvas>` behind the content (`position: fixed; inset: 
 | work | moves right and tilts face-on to the ring; the segment for the card in view lights up |
 | about | moves right (sticky), **exploded** along its axis (amount 0.7), part callouts on, slow rpm |
 | hands-on | reassembles, `blueprint` mode, rpm 0 |
-| skills / experience / education | shrinks into the top-right corner (scale 0.35, opacity 0.5) or fades out; keep reading comfort first |
+| skills / experience / education | **docks in the header** (after the last header item), face-on and small, turned by the chain drive; keep reading comfort first |
 | contact | returns centre-bottom, face-on, slowly turning so `EPH 2:8` on the sun reads clearly beside the footer verse |
+
+**Chain drive (added 2026-11-26, Nadun's request; `ChainDrive.tsx`, `src/lib/chainDrive.ts`):** once past the hero, a quiet roller chain runs down the right edge of the screen (clear of text) from a gear docked in the header to a wheel at the bottom: a small sprocket on desktop, the chat button on phones. Scrolling runs the chain (down as you scroll down, up as you scroll up) and turns both wheels at matching speed. On desktop the 3D gearbox itself is the header gear in the docked sections above; it flies out to its section moments (work, about, hands-on, contact) and the chain hides while it's away. Elsewhere (phones, no WebGL, low power) a 2D sprocket stands in and the chain shows for the whole page after the hero. Decorative only (aria-hidden, no pointer events), static under reduced motion, hidden on phones while the chat sheet is open.
 
 On mobile (`< 768px`) or low-power devices, the canvas lives only in the hero (not fixed), uses DPR max 1.5, has no postprocessing and no scroll choreography. Chatbot actions still work: they scroll to the hero canvas first.
 

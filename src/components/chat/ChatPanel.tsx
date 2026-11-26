@@ -129,7 +129,7 @@ export function ChatPanel({
 
   if (minimised) {
     return (
-      <div className="chat-minimised fixed right-4 bottom-4 z-40 hidden lg:block">
+      <div className="chat-minimised fixed right-14 bottom-4 z-40 hidden lg:block">
         <button
           type="button"
           onClick={() => onMinimise(false)}

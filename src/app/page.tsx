@@ -1,5 +1,6 @@
 import { ChatLauncher } from "@/components/chat/ChatLauncher";
 import { Hero } from "@/components/hero/Hero";
+import { ChainDrive } from "@/components/layout/ChainDrive";
 import { Footer } from "@/components/layout/Footer";
 import { Nav } from "@/components/layout/Nav";
 import { PersonJsonLd } from "@/components/layout/PersonJsonLd";
@@ -34,6 +35,7 @@ export default function Home() {
       </main>
       <Footer />
       <ChatLauncher />
+      <ChainDrive />
       <RevealObserver />
       <PersonJsonLd />
     </>

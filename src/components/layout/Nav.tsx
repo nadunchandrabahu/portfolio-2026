@@ -81,7 +81,7 @@ export function Nav() {
     <header className="sticky top-0 z-50 bg-cast/85 backdrop-blur-md">
       <nav
         aria-label="Primary"
-        className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8"
+        className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 pr-10 pl-4 sm:pl-6 lg:pr-16 lg:pl-8 min-[88rem]:pr-8"
       >
         <a
           href="#hero"

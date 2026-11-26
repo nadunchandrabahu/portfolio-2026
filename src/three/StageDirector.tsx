@@ -28,9 +28,19 @@ gsap.registerPlugin(ScrollTrigger);
  * Sections without a slot fade it out, so the reading sections stay clear.
  */
 
-type Stage = { slot: SectionId | null; targets: Partial<GearboxTargets> };
+type SlotName = SectionId | "header";
+type Stage = { slot: SlotName | null; targets: Partial<GearboxTargets> };
 
-const HIDDEN: Stage = { slot: null, targets: { highlightProject: null } };
+/**
+ * Between its section moments the gearbox docks, small, in the header (the
+ * ChainDrive dock, after the last header item), turned by the chain as you
+ * scroll. Gears stop; the chain drives the whole assembly instead (Gearbox).
+ */
+const DOCKED: Stage = {
+  slot: "header",
+  // Face-on, like a sprocket on the chain.
+  targets: { focus: "ring", explode: 0, mode: "machined", rpm: 0, highlightProject: null, callouts: "none" },
+};
 
 const STAGES: Record<SectionId, Stage> = {
   hero: {
@@ -47,9 +57,9 @@ const STAGES: Record<SectionId, Stage> = {
     slot: "hands-on",
     targets: { focus: "overview", explode: 0, mode: "blueprint", rpm: 0, highlightProject: null, callouts: "none" },
   },
-  skills: HIDDEN,
-  experience: HIDDEN,
-  education: HIDDEN,
+  skills: DOCKED,
+  experience: DOCKED,
+  education: DOCKED,
   // Beside the footer verse, close on the sun so EPH 2:8 reads.
   contact: {
     slot: "contact",
@@ -75,7 +85,7 @@ const lerpRect = (a: Rect, b: Rect, t: number): Rect => ({
 
 /** The slot's box in viewport px, or null if it isn't laid out at this breakpoint. */
 /** Section slots, plus "chat": the desktop viewer while the chat has control. */
-function measureSlot(name: SectionId | "chat"): Rect | null {
+function measureSlot(name: SlotName | "chat"): Rect | null {
   const el = document.querySelector(`[data-gearbox-slot="${name}"]`);
   if (!el) return null;
   const r = el.getBoundingClientRect();
@@ -99,7 +109,7 @@ export default function StageDirector() {
     interactive: false,
     sleeping: false,
     /** Which slot the gearbox is heading for; a change starts a flight. */
-    slotKey: null as SectionId | "chat" | null,
+    slotKey: null as SlotName | "chat" | null,
   });
 
   useEffect(() => {
@@ -278,10 +288,15 @@ export default function StageDirector() {
     damp(d, "opacity", target ? 1 : 0, 0.18, dt);
 
     const wrapper = gl.domElement.closest<HTMLElement>(".gearbox-stage");
-    if (wrapper) wrapper.style.opacity = d.opacity.toFixed(3);
+    if (wrapper) {
+      wrapper.style.opacity = d.opacity.toFixed(3);
+      // Docked in the header: draw above the header bar (below the chat panel).
+      wrapper.style.zIndex = slotKey === "header" ? "55" : "";
+    }
 
-    // Only take pointer events (hover, drag) while it's visible.
-    const interactive = d.opacity > 0.5;
+    // Only take pointer events (hover, drag) while it's visible, and not
+    // while docked: it's too small there to inspect.
+    const interactive = d.opacity > 0.5 && slotKey !== "header";
     if (interactive !== d.interactive) {
       d.interactive = interactive;
       setEvents({ enabled: interactive });
