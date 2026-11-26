@@ -18,11 +18,10 @@ export const degrees: Degree[] = [
     institution: "Macquarie University",
     place: "Sydney",
     years: "2023–2025",
-    note: "Major project: clinical NLP · Distinction (82)",
+    note: "Major project: Empowering Medical Data Analytics with AI · Distinction (82)",
     credentialUrl:
       "https://www.myequals.net/sharelink/ec3208d5-d66c-44c8-8369-72ec80447faa/6381a0be-16bf-455a-92d1-9fe69257dd7a",
-    // TODO(nadun): link to the clinical NLP research (paper, report or repository).
-    researchUrl: pending("Link to the master's research (clinical NLP): paper, report or repository"),
+    researchUrl: "https://github.com/nadunchandrabahu/Empowering-medical-data-analytics-with-AI",
   },
   {
     title: "Bachelor of Engineering (Mechanical) (Hons.)",

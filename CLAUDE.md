@@ -174,7 +174,7 @@ Header: `02 · SELECTED WORK` / title **Selected work**. Optional intro (one lin
 
 Layout: the **Field Shift card is featured and spans the full width** (two columns inside it: copy left; right, the team photo with a screenshot of the Field Shift app below it (`screenshot` in `projects.ts`, uncropped). On phones the photo leads the card and the screenshot sits after the text, above the inspection tag. Without a screenshot the card falls back to the field-tile drawing). The rest sit in a 2-column grid on desktop and 1 column on mobile. **MIL Survey is a smaller secondary card** (half height, no inspection tag).
 
-Card anatomy, top to bottom: optional thumbnail (16:9, full colour; the card must look finished without one) → **"Live ↗" and "GitHub ↗" buttons** (brass outline, on every card; a link that isn't public yet shows as a dashed, disabled button) → eyebrow (mono, brass-deep) → title (Archivo 600) → description (Plex Sans) → tech tags (mono chips, 1px steel-line outline, no fill) → **inspection tag**.
+Card anatomy, top to bottom: optional thumbnail (16:9, full colour; the card must look finished without one) → **"Live ↗" and "GitHub ↗" buttons** (brass outline; only the buttons a project has. A link that exists but isn't public yet shows as a dashed, disabled button with its reason, and an optional one-line note can sit under the buttons: `links` and `linkNote` in `projects.ts`) → eyebrow (mono, brass-deep) → title (Archivo 600) → description (Plex Sans) → tech tags (mono chips, 1px steel-line outline, no fill) → **inspection tag**.
 
 Each card has `data-project-id`. When a card is in view or hovered, it writes `highlightProject` to the gearbox store so its ring segment lights up (section 7).
 
@@ -192,17 +192,17 @@ Each card has `data-project-id`. When a card is in view or hovered, it writes `h
 - Inspection tag: `30 yrs of NASA data → sowing windows · 3 crops × 3 cities`
 - Links: Live prototype → `https://nasafieldshift.netlify.app` · GitHub → `https://github.com/nadunchandrabahu/field-shift-nasa`. TODO(nadun): confirm the prototype URL; one earlier note had `nasafieldship.netlify.app`.
 
-**1 · `clinical-nlp`**: Empowering Medical Data Analytics with AI. Eyebrow `RESEARCH / NLP`. Description, tech, readout `baseline established → GPT-4.1 nano ~48.7% accuracy`, GitHub: all from Content.md. TODO(nadun): GitHub URL.
+**1 · `clinical-nlp`**: Empowering Medical Data Analytics with AI. Eyebrow `RESEARCH / NLP`. Description, tech, readout `baseline established → GPT-4.1 nano ~48.7% accuracy`, all from Content.md. GitHub only → `https://github.com/nadunchandrabahu/Empowering-medical-data-analytics-with-AI`. This is also the master's major project (Education links to the same repository).
 
-**2 · `language-id`**: Language ID for Endangered Languages (Hack 2025). Eyebrow `MACHINE LEARNING / SPEECH`. Readout `confidence 0.89 → 0.991`. TODO(nadun): GitHub URL.
+**2 · `language-id`**: Language ID for Endangered Languages (Hack 2025). Eyebrow `MACHINE LEARNING / SPEECH`. Readout `confidence 0.89 → 0.991`. GitHub only → `https://github.com/nadunchandrabahu/Hack2025`.
 
-**3 · `mortgage-defaults`**: Predicting Mortgage Defaults. Eyebrow `STATISTICS / MODELLING`. Readout `75 fields → 13-predictor model, 420,000+ loans`. TODO(nadun): GitHub URL.
+**3 · `mortgage-defaults`**: Predicting Mortgage Defaults. Eyebrow `STATISTICS / MODELLING`. Readout `75 fields → 13-predictor model, 420,000+ loans`. GitHub only → `https://github.com/nadunchandrabahu/Predicting-Mortgage-Defaults`.
 
-**4 · `pickl-hq`**: PICKL HQ. Eyebrow `FULL-STACK / E-COMMERCE`. Readout `live in pre-launch · ~200 visitors/week`. Link: Live site → `https://picklhq.com`.
+**4 · `pickl-hq`**: PICKL HQ. Eyebrow `FULL-STACK / E-COMMERCE`. Readout `live in pre-launch · ~200 visitors/week`. Live only → `https://picklhq.com`, with the note *Store products may currently be unavailable due to supply issues.*
 
-**5 · `grow365`**: Grow365. Eyebrow `MOBILE / FULL-STACK`. Readout `complete build · in testing`. Links: none yet (render "Private build, no public link yet" in concrete).
+**5 · `grow365`**: Grow365. Eyebrow `MOBILE / FULL-STACK`. Readout `complete build · in testing`. Live button disabled (not published yet); GitHub → `https://github.com/nadunchandrabahu/grow365-main`; note *App not published yet. Ask me for the Android .apk file.* (TODO(nadun): link a public .apk once there is one.)
 
-**6 · `mil-survey` (secondary)**: Multi-Instance Learning: A Survey. Eyebrow `RESEARCH / WRITING`. No inspection tag. TODO(nadun): GitHub URL.
+**6 · `mil-survey` (secondary)**: Multi-Instance Learning: A Survey. Eyebrow `RESEARCH / WRITING`. No inspection tag. GitHub only → `https://github.com/nadunchandrabahu/Multi-instance-learning-report`.
 
 ### 5.3 About (`#about`)
 Two columns on desktop: copy on the left; the gearbox (sticky, from the shared canvas) on the right in **exploded view** with part callouts. Use the two About paragraphs from Content.md exactly. Then:
@@ -237,7 +237,7 @@ A vertical timeline with a thin steel-line spine and brass nodes. Each entry sho
 Two sub-blocks.
 
 **Degrees** (two large cards, side by side on desktop):
-- **Master of Data Science**, Macquarie University, Sydney, 2023–2025. Mono note: `Major project: clinical NLP · Distinction (82)`.
+- **Master of Data Science**, Macquarie University, Sydney, 2023–2025. Mono note: `Major project: Empowering Medical Data Analytics with AI · Distinction (82)`.
 - **Bachelor of Engineering (Mechanical) (Hons.)**, Curtin University, delivered at SLIIT, Sri Lanka, 2014–2020. (Honours confirmed by Nadun.)
 - Each card has a **"View certificate ↗"** link driven by `credentialUrl`. If `credentialUrl` is empty, hide the link. Both degrees link to their My eQuals certificates.
 
@@ -547,7 +547,7 @@ Add `scripts/build-knowledge.ts`, run at `prebuild`. It compiles `src/content/*.
 ## 14. Open items for Nadun (keep this list current)
 1. Role line: "Data scientist and AI engineer" vs "Data Scientist".
 2. Field Shift: your own part (one sentence), front-end stack, prototype URL (`nasafieldshift` vs `nasafieldship`), teammate spelling (Nicholls/Nichols).
-3. GitHub URLs for clinical NLP, language ID, mortgage defaults and the MIL survey.
+3. ~~GitHub URLs for clinical NLP, language ID, mortgage defaults and the MIL survey.~~ Done (2026-11-27). Still open: a public Grow365 .apk to link.
 4. Mechanic role details (employer, whether it goes in Experience).
 5. Approval of the draft lines: About faith paragraph, Off-the-keyboard closing line, contact reply-time line.
 6. ~~Bachelor title: Honours or not. Degree certificate links.~~ Done: (Hons.) added, both certificates linked.
@@ -557,4 +557,4 @@ Add `scripts/build-knowledge.ts`, run at `prebuild`. It compiles `src/content/*.
 10. Optional photos for Off the keyboard (project thumbnails, Experience photos and the portrait are in).
 11. Optional: your own SolidWorks/Blender gearbox GLB (7.6).
 12. Production domain: set `SITE_URL` in Vercel (metadata, canonical URL, sitemap, robots, JSON-LD). Until then the Vercel production URL is used.
-13. Research links for both degrees' major projects (`researchUrl` in `src/content/education.ts`): the clinical NLP project (master's) and "Measurement of Thermal and Optical Properties of Metal Oxide Nanoparticles" (bachelor's). The "View research" buttons appear once these are set.
+13. Research link for the bachelor's major project (`researchUrl` in `src/content/education.ts`; the master's now links its GitHub repository): "Measurement of Thermal and Optical Properties of Metal Oxide Nanoparticles". Its "View research" button appears once it's set.

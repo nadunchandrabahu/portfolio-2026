@@ -64,7 +64,8 @@ export function buildKnowledge(): string {
           p.team ?? null,
           p.tech.length ? `Tech: ${p.tech.join(", ")}.` : null,
           p.result ? `Result: ${p.result}.` : null,
-          links.length ? list(links) : (p.noLinksNote ?? null),
+          links.length ? list(links) : null,
+          p.linkNote ? `Note on the card: ${p.linkNote}` : null,
         ]
           .filter(Boolean)
           .join("\n\n");
