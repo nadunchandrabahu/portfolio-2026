@@ -561,6 +561,7 @@ Add `scripts/build-knowledge.ts`, run at `prebuild`. It compiles `src/content/*.
 7. 8 certificates: titles, issuers, dates, links, images.
 8. Resume PDF.
 9. Preferred Bible translation for Ephesians 2:8.
-10. Optional photos for Off the keyboard and project thumbnails.
+10. Optional photos for Off the keyboard (project thumbnails, Experience photos and the portrait are in).
 11. Optional: your own SolidWorks/Blender gearbox GLB (7.6).
 12. Production domain: set `SITE_URL` in Vercel (metadata, canonical URL, sitemap, robots, JSON-LD). Until then the Vercel production URL is used.
+13. Research links for both degrees' major projects (`researchUrl` in `src/content/education.ts`): the clinical NLP project (master's) and "Measurement of Thermal and Optical Properties of Metal Oxide Nanoparticles" (bachelor's). The "View research" buttons appear once these are set.

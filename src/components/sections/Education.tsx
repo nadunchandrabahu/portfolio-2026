@@ -1,11 +1,13 @@
 import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { ChipList } from "@/components/ui/Chip";
+import { Award, FileText } from "lucide-react";
+import { ExternalButton, PlaceholderButton } from "@/components/ui/ExternalButton";
 import { ExternalTextLink } from "@/components/ui/ExternalTextLink";
 import { Todo } from "@/components/ui/Todo";
 import { certificates, certificatesIntro, type Certificate } from "@/content/certificates";
-import { degrees } from "@/content/education";
-import { pending, SHOW_PLACEHOLDERS } from "@/content/types";
+import { degrees, type Degree } from "@/content/education";
+import { isPending, pending, SHOW_PLACEHOLDERS } from "@/content/types";
 import { formatMonth } from "@/lib/format";
 
 // Placeholder slots show in development only (CLAUDE.md 5.7).
@@ -48,6 +50,33 @@ function CertificateCard({ cert }: { cert: Certificate }) {
   );
 }
 
+/** "View certificate" and "View research" as buttons along the foot of a degree card. */
+function DegreeActions({ degree }: { degree: Degree }) {
+  const research = degree.researchUrl;
+  const researchPending = isPending(research) && SHOW_PLACEHOLDERS ? research : null;
+  const researchHref = typeof research === "string" ? research : null;
+  if (!degree.credentialUrl && !researchHref && !researchPending) return null;
+  return (
+    <div className="mt-auto flex flex-col gap-3 pt-4">
+      <div className="flex flex-wrap gap-3">
+        {degree.credentialUrl ? (
+          <ExternalButton href={degree.credentialUrl} icon={Award}>
+            View certificate
+          </ExternalButton>
+        ) : null}
+        {researchHref ? (
+          <ExternalButton href={researchHref} icon={FileText}>
+            View research
+          </ExternalButton>
+        ) : researchPending ? (
+          <PlaceholderButton icon={FileText}>View research</PlaceholderButton>
+        ) : null}
+      </div>
+      {researchPending ? <Todo item={researchPending} /> : null}
+    </div>
+  );
+}
+
 export function Education() {
   return (
     <Section id="education" className="bg-cast">
@@ -67,11 +96,7 @@ export function Education() {
               {degree.institution}, {degree.place}
             </p>
             {degree.note ? <p className="font-mono text-small text-brass">{degree.note}</p> : null}
-            {degree.credentialUrl ? (
-              <div className="mt-auto pt-2">
-                <ExternalTextLink href={degree.credentialUrl}>View certificate</ExternalTextLink>
-              </div>
-            ) : null}
+            <DegreeActions degree={degree} />
             {degree.pendingNotes?.map((item) => (
               <Todo key={item.note} item={item} />
             ))}
