@@ -41,6 +41,15 @@ const EXPLODE_TRAVEL = { carrier: -10, planets: 6, sun: 13 };
 const PLANETS = ["engineering", "data", "ai", "build"] as const;
 /** The centre cross sits on the boss's front face. */
 const CROSS_Z = G.CARRIER_THICKNESS / 2 + G.CROSS_DEPTH / 2;
+/**
+ * Invisible hover zone for the ring's project segments: a flat band fixed to
+ * the ring, just in front of the carrier plate, from part-way out on the plate
+ * up under the ring. Pointing at the plate near the ring then opens the same
+ * card as the ring segment above it. Planets sit in front of it, so they keep
+ * their own cards.
+ */
+const RING_HOVER_INNER = G.CARRIER_RADIUS - 5;
+const RING_HOVER_Z = PLATE_Z + G.CARRIER_THICKNESS / 2 + 0.05;
 /** Hover outlines sit just proud of the faces so they don't z-fight. */
 const PROUD: [number, number, number] = [1, 1, 1.08];
 /** Mouse leaving a part: wait this long before closing, so moving between parts doesn't flicker. */
@@ -96,6 +105,7 @@ function buildGeometries() {
     bolt: G.hexHeadGeometry(0.7, 0.4),
     indexLine: new THREE.BoxGeometry(2.6, 0.12, 0.06),
     segments: PROJECT_IDS.map((_, i) => G.segmentArcGeometry(i, PROJECT_IDS.length)),
+    ringHoverZone: new THREE.RingGeometry(RING_HOVER_INNER, G.RING_OUTER_RADIUS, 96, 1),
     centreLines,
     dims,
   };
@@ -460,6 +470,19 @@ export function Gearbox({ reducedMotion }: { reducedMotion: boolean }) {
             {...grip}
           />
           <lineSegments ref={asOutline} geometry={geometries.ringEdges} material={materials.line} />
+          {/* Never drawn (material hidden), only hit-tested; hidden with the solids in blueprint mode. */}
+          <mesh
+            ref={asSolid}
+            geometry={geometries.ringHoverZone}
+            position={[0, 0, RING_HOVER_Z]}
+            onPointerOver={onRingHover}
+            onPointerMove={onRingHover}
+            onPointerOut={onPartOut}
+            onClick={onRingClick}
+            {...grip}
+          >
+            <meshBasicMaterial visible={false} side={THREE.DoubleSide} />
+          </mesh>
           {indexLines.map((line, i) => (
             <mesh
               key={i}
