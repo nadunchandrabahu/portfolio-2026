@@ -178,6 +178,10 @@ export function Gearbox({ reducedMotion }: { reducedMotion: boolean }) {
   const picked = inspect?.target.kind === "part" ? inspect.target.part : null;
 
   const rotor = useRef<THREE.Group>(null);
+  // Idle sway on the outer group: the whole assembly drifts gently side to
+  // side, as if hanging in the air, around the visitor's drag rotation.
+  const sway = useRef<THREE.Group>(null);
+  const swayAmount = useRef(0);
   const crossGroup = useRef<THREE.Group>(null);
   const { dragging, beginDrag } = useDragRotate(rotor, reducedMotion);
   const gl = useThree((s) => s.gl);
@@ -372,6 +376,19 @@ export function Gearbox({ reducedMotion }: { reducedMotion: boolean }) {
       if (spin) spin.rotation.z = -c.sunAngle - carrierAngle;
     }
 
+    // Natural sway: a slow side-to-side yaw with a little nod, from out-of-step
+    // sines so it never looks mechanical. Full in the overview, softer when a
+    // part is in focus, none while dragging or under reduced motion.
+    const swayTarget = reducedMotion || dragging.current ? 0 : s.focus === "overview" ? 1 : 0.4;
+    if (instant) swayAmount.current = swayTarget;
+    else damp(swayAmount, "current", swayTarget, 0.8, dt);
+    if (sway.current) {
+      const t = state.clock.elapsedTime;
+      const a = swayAmount.current;
+      sway.current.rotation.y = a * (0.11 * Math.sin(t * 0.5) + 0.035 * Math.sin(t * 1.27 + 1.3));
+      sway.current.rotation.x = a * 0.04 * Math.sin(t * 0.37 + 0.6);
+    }
+
     // Explode along the axis.
     const e = c.explode;
     if (sunGroup.current) sunGroup.current.position.z = e * EXPLODE_TRAVEL.sun;
@@ -427,7 +444,7 @@ export function Gearbox({ reducedMotion }: { reducedMotion: boolean }) {
   /* eslint-enable react-hooks/immutability */
 
   return (
-    <group scale={SCALE}>
+    <group ref={sway} scale={SCALE}>
       {/* The rotor takes the visitor's drag rotation; everything turns with it. */}
       <group ref={rotor}>
         {/* Ring gear: fixed. Carries the 7 project segments. */}

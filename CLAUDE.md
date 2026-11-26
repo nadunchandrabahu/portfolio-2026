@@ -272,10 +272,10 @@ Two sub-blocks.
 - **Download resume** button → `/resume/Nadun-Chandrabahu-Resume.pdf` (TODO(nadun): supply the PDF).
 - Knurled divider, then the footer.
 - **Footer verse.** Centred and quiet: Plex Sans italic for the verse, mono for the reference.
-  > *"For by grace you have been saved through faith, and that not of yourselves; it is the gift of God."*
-  > `EPHESIANS 2:8 · WEB`
+  > *"For it is by grace you have been saved, through faith—and this is not from yourselves, it is the gift of God."*
+  > `EPHESIANS 2:8 · NIV`
 
-  (World English Bible, public domain. TODO(nadun): swap to your preferred translation, e.g. NIV or ESV, and update the reference label to match.)
+  (New International Version, Nadun's choice, 2026-11-26. Biblica's quotation policy allows a short NIV quotation on the web with the "NIV" label.)
 - Bottom row (mono, concrete, small): `© 2026 Nadun Chandrabahu · Built in Sydney with Next.js and three.js`, plus a "Back to top ↑" link.
 
 ---
@@ -564,7 +564,7 @@ Add `scripts/build-knowledge.ts`, run at `prebuild`. It compiles `src/content/*.
 6. ~~Bachelor title: Honours or not. Degree certificate links.~~ Done: (Hons.) added, both certificates linked.
 7. 8 certificates: titles, issuers, dates, links, images.
 8. Resume PDF.
-9. Preferred Bible translation for Ephesians 2:8.
+9. ~~Preferred Bible translation for Ephesians 2:8.~~ Done: NIV.
 10. Optional photos for Off the keyboard (project thumbnails, Experience photos and the portrait are in).
 11. Optional: your own SolidWorks/Blender gearbox GLB (7.6).
 12. Production domain: set `SITE_URL` in Vercel (metadata, canonical URL, sitemap, robots, JSON-LD). Until then the Vercel production URL is used.

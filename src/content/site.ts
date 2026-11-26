@@ -86,10 +86,11 @@ export const site = {
   },
 
   verse: {
-    text: "For by grace you have been saved through faith, and that not of yourselves; it is the gift of God.",
-    // World English Bible, public domain.
-    // TODO(nadun): swap to your preferred translation and update the reference label.
-    reference: "Ephesians 2:8 · WEB",
+    // New International Version (NIV), Nadun's choice. The verse runs on into 2:9
+    // with a dash; quoted on its own, it ends at "gift of God".
+    // Biblica allows short NIV quotations on the web with the "NIV" label.
+    text: "For it is by grace you have been saved, through faith—and this is not from yourselves, it is the gift of God.",
+    reference: "Ephesians 2:8 · NIV",
   },
 
   footer: {
