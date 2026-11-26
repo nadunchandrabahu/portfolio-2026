@@ -186,8 +186,8 @@ test.describe("chat", () => {
   test("a suggestion chip gets a mock reply that moves the gearbox", async ({ page, isMobile }) => {
     await page.goto("/", { waitUntil: "networkidle" });
     const ask = isMobile
-      ? page.getByRole("button", { name: "Ask the workshop" }).last()
-      : page.getByRole("navigation", { name: "Primary" }).getByRole("button", { name: "Ask the workshop" });
+      ? page.getByRole("button", { name: "Ask AI Nadun" }).last()
+      : page.getByRole("navigation", { name: "Primary" }).getByRole("button", { name: "Ask AI Nadun" });
     await ask.click();
 
     const dialog = page.getByRole("dialog", { name: "Workshop assistant" });

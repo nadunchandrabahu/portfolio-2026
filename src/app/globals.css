@@ -607,8 +607,10 @@ html[data-gearbox-stage] .gearbox-slot-optional {
    Desktop: docked bottom-right. */
 .chat-panel {
   inset-inline: 0;
-  bottom: 0;
-  height: max(50dvh, calc(100dvh - 5.5rem - min(60vw, 30rem)));
+  /* --keyboard and --keyboard-sheet come from ChatPanel while the on-screen
+     keyboard is up: the sheet sits on top of it and fills what's left. */
+  bottom: var(--keyboard, 0px);
+  height: var(--keyboard-sheet, min(100dvh, max(50dvh, 22rem, calc(100dvh - 5.5rem - min(60vw, 30rem)))));
   border-radius: var(--radius-machined) var(--radius-machined) 0 0;
 }
 

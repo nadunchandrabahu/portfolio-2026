@@ -19,7 +19,7 @@ const variants = {
   hero: "min-h-11 gap-2 px-6 text-small",
 } as const;
 
-export function AskWorkshopButton({ variant, className = "" }: { variant: keyof typeof variants; className?: string }) {
+export function AskAiButton({ variant, className = "" }: { variant: keyof typeof variants; className?: string }) {
   if (!site.features.chat) return null;
   return (
     <button
@@ -29,7 +29,7 @@ export function AskWorkshopButton({ variant, className = "" }: { variant: keyof 
       className={`inline-flex items-center rounded-sm border border-brass font-mono font-medium uppercase tracking-[0.08em] text-brass transition-colors hover:bg-brass hover:text-graphite ${variants[variant]} ${className}`}
     >
       <Cog aria-hidden="true" className="size-4" />
-      Ask the workshop
+      Ask AI Nadun
     </button>
   );
 }
@@ -52,7 +52,7 @@ export function ChatLauncher() {
         className="fixed right-4 bottom-4 z-40 inline-flex size-14 items-center justify-center rounded-full border border-brass bg-cast text-brass shadow-machined lg:hidden"
       >
         <Cog aria-hidden="true" className="size-6" />
-        <span className="sr-only">Ask the workshop</span>
+        <span className="sr-only">Ask AI Nadun</span>
       </button>
       {loaded ? <ChatRoot open={open} /> : null}
     </>

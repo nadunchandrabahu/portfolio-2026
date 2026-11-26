@@ -46,9 +46,37 @@ export function ChatPanel({
   // Modal (focus trap, aria-modal) only where it's a sheet: below lg.
   const modal = useMediaQuery("(max-width: 1023.98px)");
 
+  // Straight into the text box on open. On phones the keyboard is already
+  // up (openChat summons it during the tap), and focus hands over to here.
+  // (16px text on phones, so iOS doesn't zoom in on focus.)
   useEffect(() => {
     if (!minimised) input.current?.focus({ preventScroll: true });
   }, [minimised]);
+
+  // Phones: keep the sheet sitting on top of the on-screen keyboard, sized to
+  // what's still visible, so the text box stays in view while typing. The
+  // visual viewport shrinks when the keyboard opens; the layout one doesn't.
+  useEffect(() => {
+    const el = panel.current;
+    const vv = window.visualViewport;
+    if (!modal || minimised || !el || !vv) return;
+    const update = () => {
+      const keyboard = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      el.style.setProperty("--keyboard", `${Math.round(keyboard)}px`);
+      // Keyboard up (not just a browser bar resizing): use all the space above it.
+      if (keyboard > 80) el.style.setProperty("--keyboard-sheet", `${Math.round(vv.height)}px`);
+      else el.style.removeProperty("--keyboard-sheet");
+    };
+    update();
+    vv.addEventListener("resize", update);
+    vv.addEventListener("scroll", update);
+    return () => {
+      vv.removeEventListener("resize", update);
+      vv.removeEventListener("scroll", update);
+      el.style.removeProperty("--keyboard");
+      el.style.removeProperty("--keyboard-sheet");
+    };
+  }, [modal, minimised]);
 
   const send = (text: string) => {
     const message = text.trim();
@@ -125,7 +153,7 @@ export function ChatPanel({
       aria-modal={modal || undefined}
       aria-labelledby={titleId}
       onKeyDown={onPanelKeyDown}
-      className="chat-panel fixed z-40 flex flex-col border border-steel-line bg-cast text-bone shadow-machined"
+      className="chat-panel fixed z-[60] flex flex-col border border-steel-line bg-cast text-bone shadow-machined"
     >
       <header className="flex items-center justify-between gap-3 border-b border-steel-line px-4 py-3">
         <h2 id={titleId} className="flex items-center gap-2.5 font-mono text-mono-label tracking-[0.12em] uppercase">
@@ -190,7 +218,7 @@ export function ChatPanel({
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={onInputKeyDown}
-            className="min-h-11 flex-1 resize-none rounded-sm border border-steel-line bg-graphite px-3 py-2 text-small text-bone placeholder:text-concrete/70 focus-visible:border-brass"
+            className="min-h-11 flex-1 resize-none rounded-sm border border-steel-line bg-graphite px-3 py-2 text-[1rem] text-bone placeholder:text-concrete/70 focus-visible:border-brass lg:text-small"
             placeholder="Ask about a project, a skill, or the gearbox"
           />
           <button

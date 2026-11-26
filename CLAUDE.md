@@ -148,7 +148,7 @@ There is no database, no auth and no CMS. Content is TypeScript files in the rep
 
 Single page, minimal sticky nav.
 
-**Nav:** monogram `NC` (Archivo, brass on cast, in a small machined square) on the left. Links on the right: Work · About · Experience · Education · Contact · **Resume** (small outlined). Then an **"Ask the workshop"** button that opens the chatbot (brass outline, small gear icon). The active section is highlighted in brass via IntersectionObserver. On mobile the links collapse into a full-height sheet menu; the chat button stays visible as a floating action button bottom-right.
+**Nav:** monogram `NC` (Archivo, brass on cast, in a small machined square) on the left. Links on the right: Work · About · Experience · Education · Contact · **Resume** (small outlined). Then an **"Ask AI Nadun"** button that opens the chatbot (brass outline, small gear icon). The active section is highlighted in brass via IntersectionObserver. On mobile the links collapse into a full-height sheet menu; the chat button stays visible as a floating action button bottom-right.
 
 **Section order and IDs:**
 
@@ -176,7 +176,7 @@ Content:
 - Role (Archivo, normal case, bone): `Data scientist and AI engineer` (TODO(nadun): Content.md says "Data Scientist"; confirm the wording)
 - Line (Plex Sans, concrete, max 52ch): *I build and evaluate machine learning systems, from statistical models on large datasets to LLM fine-tuning and agentic AI evaluation.*
 - Draft sub-line (TODO(nadun): approve or cut): *Trained as a mechanical engineer. I still like knowing how things work, down to the last bolt.*
-- Actions: primary button **View work** (brass fill, graphite text) → `#work`; secondary **Ask the workshop** (outline) opens chat; inline icon links: GitHub · LinkedIn · Email
+- Actions: primary button **View work** (brass fill, graphite text) → `#work`; secondary **Ask AI Nadun** (outline) opens chat; inline icon links: GitHub · LinkedIn · Email
 - Data plate (2.6A) under the actions on desktop, after the text on mobile
 - Micro-line under the plate: *Currently in Sydney, open to data and AI roles.*
 
@@ -373,7 +373,7 @@ type GearboxState = {
 ## 8. Chatbot (front end + proxy)
 
 ### 8.1 What it is
-An "Ask the workshop" assistant that answers questions about Nadun from a knowledge file, and **drives the gearbox to illustrate its answer**. Example: ask "how does a mechanical engineer end up in AI?" and it focuses the engineering planet, spins the gears so you can see the drive pass through the mesh, then focuses the AI planet.
+An "Ask AI Nadun" assistant that answers questions about Nadun from a knowledge file, and **drives the gearbox to illustrate its answer**. Example: ask "how does a mechanical engineer end up in AI?" and it focuses the engineering planet, spins the gears so you can see the drive pass through the mesh, then focuses the AI planet.
 
 ### 8.2 Architecture
 ```

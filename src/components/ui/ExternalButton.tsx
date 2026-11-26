@@ -8,7 +8,7 @@ const shape =
 
 /**
  * Brass outline button that opens an external page in a new tab, in the
- * same style as "Download resume" and "Ask the workshop": fills brass on
+ * same style as "Download resume" and "Ask AI Nadun": fills brass on
  * hover. 44px tall for touch.
  */
 export function ExternalButton({
