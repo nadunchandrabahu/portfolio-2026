@@ -136,6 +136,11 @@
 }
 
 @layer base {
+  /* Sections focused by in-page links (Nav.tsx) are landmarks, not controls. */
+  [tabindex="-1"]:focus {
+    outline: none;
+  }
+
   html {
     background-color: var(--graphite);
     -webkit-text-size-adjust: 100%;

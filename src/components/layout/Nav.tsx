@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { sections, site, type SectionId } from "@/content/site";
 import { SHOW_PLACEHOLDERS } from "@/content/types";
 import { AskAiButton } from "@/components/chat/ChatLauncher";
+import { scrollIntoViewAccurately } from "@/lib/accurateScroll";
 import { KnurlDivider } from "./KnurlDivider";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 
@@ -35,7 +36,36 @@ function useActiveSection(): SectionId | null {
   return active;
 }
 
+/**
+ * In-page links (#work, #contact, "Back to top"…) scroll with
+ * scrollIntoViewAccurately instead of the browser's jump, so they land on
+ * the section even while lazily rendered sections change height on the way.
+ * The URL hash and keyboard focus move as they would natively. Without
+ * JavaScript the links still work as plain anchors.
+ */
+function useAccurateInPageLinks() {
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const link = e.target instanceof Element ? e.target.closest<HTMLAnchorElement>('a[href^="#"]') : null;
+      const id = link ? decodeURIComponent(link.hash.slice(1)) : "";
+      const target = id ? document.getElementById(id) : null;
+      if (!target) return;
+      e.preventDefault();
+      if (window.location.hash !== `#${id}`) window.history.pushState(null, "", `#${id}`);
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      scrollIntoViewAccurately(target, { reducedMotion });
+      // Like a native jump: the next Tab continues from the section.
+      if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+      target.focus({ preventScroll: true });
+    };
+    document.addEventListener("click", onClick);
+    return () => document.removeEventListener("click", onClick);
+  }, []);
+}
+
 export function Nav() {
+  useAccurateInPageLinks();
   const active = useActiveSection();
   const menuRef = useRef<HTMLDivElement>(null);
   const closeMenu = () => menuRef.current?.hidePopover();

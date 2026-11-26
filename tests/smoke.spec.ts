@@ -240,6 +240,34 @@ test.describe("reduced motion", () => {
   });
 });
 
+test.describe("in-page navigation", () => {
+  // Sections below the fold render lazily (content-visibility), and on desktop
+  // the gearbox stage re-measures as they do; links used to stop short.
+  test("nav links land exactly on their section", async ({ page, viewport }) => {
+    const phone = (viewport?.width ?? 0) < 1024;
+    await page.goto("/", { waitUntil: "networkidle" });
+    const padding = await page.evaluate(() => parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop));
+    for (const id of ["contact", "experience", "about", "education"]) {
+      if (phone) {
+        await page.getByRole("button", { name: "Open menu" }).click();
+        await page.locator("#site-menu").locator(`a[href="#${id}"]`).click();
+      } else {
+        await page.getByRole("navigation", { name: "Primary" }).locator(`a[href="#${id}"]`).first().click();
+      }
+      const onTarget = () =>
+        page.evaluate(
+          ([i, pad]) => Math.abs(document.getElementById(i)!.getBoundingClientRect().top - pad) <= 4,
+          [id, padding] as const,
+        );
+      await expect.poll(onTarget, { timeout: 10_000 }).toBe(true);
+      // ...and it stays there once everything has settled.
+      await page.waitForTimeout(1200);
+      expect(await onTarget()).toBe(true);
+      await expect(page).toHaveURL(new RegExp(`#${id}$`));
+    }
+  });
+});
+
 test.describe("lights and rain", () => {
   test("toggle independently from the header and are remembered", async ({ page }) => {
     await page.goto("/");

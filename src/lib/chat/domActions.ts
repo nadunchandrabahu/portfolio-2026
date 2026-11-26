@@ -2,6 +2,7 @@
 
 import type { ProjectId } from "@/content/projects";
 import type { SectionId } from "@/content/site";
+import { scrollIntoViewAccurately } from "@/lib/accurateScroll";
 import { revealProjectCard } from "@/lib/revealProject";
 import { useGearboxStore } from "@/three/gearboxStore";
 import { STEP_MS, type ExecutorDeps } from "./executor";
@@ -50,7 +51,8 @@ export function domDeps(reducedMotion: boolean): ExecutorDeps {
     },
     scrollToSection(id: SectionId) {
       markScroll();
-      document.getElementById(id)?.scrollIntoView({ behavior, block: "start" });
+      const section = document.getElementById(id);
+      if (section) scrollIntoViewAccurately(section, { reducedMotion });
     },
     showProject(id: ProjectId) {
       // Longer than a plain scroll: revealProjectCard may re-centre once or twice.

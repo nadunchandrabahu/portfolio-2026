@@ -202,11 +202,31 @@ export default function StageDirector() {
     }
 
     // Sections render lazily (content-visibility), so their real heights arrive
-    // as you scroll. Re-measure the triggers whenever the page height changes.
+    // as you scroll. Re-measure the triggers whenever the page height changes,
+    // but never mid-scroll: a refresh resets the scroll position for a moment,
+    // which cancels a smooth scroll (a nav link would stop short). Wait until
+    // the page has been still for a moment.
     let raf = 0;
-    const resize = new ResizeObserver(() => {
+    let idle = 0;
+    let scrolling = false;
+    let refreshPending = false;
+    const refresh = () => {
+      refreshPending = false;
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => ScrollTrigger.refresh());
+    };
+    const onScroll = () => {
+      scrolling = true;
+      window.clearTimeout(idle);
+      idle = window.setTimeout(() => {
+        scrolling = false;
+        if (refreshPending) refresh();
+      }, 200);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    const resize = new ResizeObserver(() => {
+      if (scrolling) refreshPending = true;
+      else refresh();
     });
     resize.observe(document.body);
 
@@ -220,6 +240,8 @@ export default function StageDirector() {
       ctx.revert();
       resize.disconnect();
       cancelAnimationFrame(raf);
+      window.clearTimeout(idle);
+      window.removeEventListener("scroll", onScroll);
       listeners.forEach(([el, type, fn]) => el.removeEventListener(type, fn));
       delete document.documentElement.dataset.gearboxStage;
     };
