@@ -52,10 +52,7 @@ export const site = {
   role: "Data scientist and AI engineer",
   eyebrow: "Sydney, AU — Data science · AI engineering",
   heroLine:
-    "I build and evaluate machine learning systems, from statistical models on large datasets to LLM fine-tuning and agentic AI evaluation.",
-  // TODO(nadun): draft sub-line. Approve or cut.
-  heroSubLine:
-    "Trained as a mechanical engineer. I still like knowing how things work, down to the last bolt.",
+    "Engineer by training, builder by habit: I take AI from model to production, with automations, web apps and mobile apps that are live today.",
   availability: "Currently in Sydney, open to data and AI roles.",
 
   location: "Sydney, Australia",

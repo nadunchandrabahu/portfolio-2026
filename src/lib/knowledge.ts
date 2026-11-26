@@ -36,7 +36,6 @@ export function buildKnowledge(): string {
       `- Availability: ${site.availability}`,
       "",
       site.heroLine,
-      site.heroSubLine,
     ].join("\n"),
   );
 

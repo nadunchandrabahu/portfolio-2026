@@ -165,8 +165,7 @@ Content:
 - Eyebrow (mono, concrete): `SYDNEY, AU — DATA SCIENCE · AI ENGINEERING`
 - H1 (Archivo, uppercase, expanded): `NADUN CHANDRABAHU`
 - Role (Archivo, normal case, bone): `Data scientist and AI engineer` (TODO(nadun): Content.md says "Data Scientist"; confirm the wording)
-- Line (Plex Sans, concrete, max 52ch): *I build and evaluate machine learning systems, from statistical models on large datasets to LLM fine-tuning and agentic AI evaluation.*
-- Draft sub-line (TODO(nadun): approve or cut): *Trained as a mechanical engineer. I still like knowing how things work, down to the last bolt.*
+- Line (Plex Sans, concrete, max 52ch): *Engineer by training, builder by habit: I take AI from model to production, with automations, web apps and mobile apps that are live today.* (Nadun's wording, 2026-11-27; replaced the earlier line and the draft sub-line. Also the meta description.)
 - Actions: primary button **View work** (brass fill, graphite text) → `#work`; secondary **View resume** (outline) opens the resume PDF in a new tab and downloads a copy (`ResumeLink`); secondary **Digital twin** (outline) opens chat; inline icon links: GitHub · LinkedIn · Email
 - Micro-line under the actions, with the breathing status lamp: *Currently in Sydney, open to data and AI roles.*
 
@@ -550,7 +549,7 @@ Add `scripts/build-knowledge.ts`, run at `prebuild`. It compiles `src/content/*.
 2. Field Shift: your own part (one sentence), front-end stack, prototype URL (`nasafieldshift` vs `nasafieldship`), teammate spelling (Nicholls/Nichols).
 3. GitHub URLs for clinical NLP, language ID, mortgage defaults and the MIL survey.
 4. Mechanic role details (employer, whether it goes in Experience).
-5. Approval of the draft lines: hero sub-line, About faith paragraph, Off-the-keyboard closing line, contact reply-time line.
+5. Approval of the draft lines: About faith paragraph, Off-the-keyboard closing line, contact reply-time line.
 6. ~~Bachelor title: Honours or not. Degree certificate links.~~ Done: (Hons.) added, both certificates linked.
 7. 8 certificates: titles, issuers, dates, links, images.
 8. ~~Resume PDF.~~ Done (2026-11-27).
