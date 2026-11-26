@@ -14,7 +14,7 @@ export function Footer() {
             </blockquote>
             <figcaption className="eyebrow mt-4 text-brass">{site.verse.reference}</figcaption>
           </figure>
-          {/* The gearbox comes to rest here, close on the sun and its EPH 2:8 (StageDirector). */}
+          {/* The gearbox comes to rest here, face-on with the sun and its EPH 2:8 at the centre (StageDirector). */}
           <div
             aria-hidden="true"
             data-gearbox-slot="contact"

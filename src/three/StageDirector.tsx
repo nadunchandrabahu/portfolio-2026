@@ -50,10 +50,12 @@ const STAGES: Record<SectionId, Stage> = {
   skills: HIDDEN,
   experience: HIDDEN,
   education: HIDDEN,
-  // Beside the footer verse, close on the sun so EPH 2:8 reads.
+  // Beside the footer verse, face-on with the sun's EPH 2:8 at the centre. The
+  // whole assembly, not a close-up: the slot is small, and a close-up would
+  // overflow it and be cut off by the slot's mask.
   contact: {
     slot: "contact",
-    targets: { focus: "sun", explode: 0, mode: "machined", rpm: 2, highlightProject: null, callouts: "none" },
+    targets: { focus: "ring", explode: 0, mode: "machined", rpm: 2, highlightProject: null, callouts: "none" },
   },
 };
 
@@ -148,11 +150,12 @@ export default function StageDirector() {
       }
     });
 
+    const sectionTriggers: { id: SectionId; trigger: ScrollTrigger }[] = [];
     const ctx = gsap.context(() => {
       for (const id of SECTION_IDS) {
         const el = document.getElementById(id);
         if (!el) continue;
-        ScrollTrigger.create({
+        const trigger = ScrollTrigger.create({
           trigger: el,
           start: "top 55%",
           end: id === "contact" ? "max" : "bottom 55%",
@@ -160,6 +163,7 @@ export default function StageDirector() {
             if (self.isActive) enter(id);
           },
         });
+        sectionTriggers.push({ id, trigger });
       }
       for (const card of document.querySelectorAll<HTMLElement>("[data-project-id]")) {
         const id = card.dataset.projectId as ProjectId;
@@ -230,13 +234,27 @@ export default function StageDirector() {
     });
     resize.observe(document.body);
 
-    // Start on whichever section is active now.
-    const active = ScrollTrigger.getAll().find((t) => t.isActive && t.trigger?.tagName === "SECTION");
-    const startId = SECTION_IDS.find((id) => id === active?.trigger?.id) ?? "hero";
-    enter(startId);
+    // Whichever section is active now. A refresh can change that without
+    // firing onToggle (after a fast scroll, the lazily rendered sections
+    // settle their heights and the triggers move under a still page), so
+    // check again after every refresh: otherwise the gearbox could stay on
+    // the previous section until the next scroll.
+    // Compares the scroll position with each trigger's range directly: during
+    // the "refresh" event isActive can still hold the pre-refresh value.
+    const syncActive = () => {
+      const active = sectionTriggers.findLast(({ trigger: t }) => {
+        const y = t.scroll();
+        return y >= t.start && y <= t.end;
+      });
+      if (active) enter(active.id);
+      else if (!d.stage) enter("hero");
+    };
+    ScrollTrigger.addEventListener("refresh", syncActive);
+    syncActive();
 
     return () => {
       unsubscribe();
+      ScrollTrigger.removeEventListener("refresh", syncActive);
       ctx.revert();
       resize.disconnect();
       cancelAnimationFrame(raf);
