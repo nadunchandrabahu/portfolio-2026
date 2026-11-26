@@ -95,7 +95,7 @@ test.describe("scroll stage", () => {
     }
   }
 
-  test("moves the gearbox between section slots and docks it in the header for reading", async ({ page }) => {
+  test("moves the gearbox between section slots and fades it out for reading", async ({ page }) => {
     await page.goto("/", { waitUntil: "networkidle" });
     await page.mouse.move(200, 200);
     await page.mouse.move(400, 300);
@@ -119,19 +119,11 @@ test.describe("scroll stage", () => {
     await page.locator('button[data-part="ai"]').focus();
     await expect(page.locator(".gearbox-callout__label")).toHaveText(["P-03 · Machine learning and AI"]);
 
-    // Reading sections: it docks, small, in the header (above the header bar),
-    // and the chain drive down the right edge comes on.
     await scrollToSection(page, "experience");
     await expect(html).toHaveAttribute("data-gearbox-stage", "experience");
-    await expect(page.locator(".chain-drive")).toHaveAttribute("data-on", "true");
-    await expect.poll(() => page.locator(".gearbox-stage").evaluate((el) => getComputedStyle(el).zIndex)).toBe("55");
     await expect
       .poll(() => page.locator(".gearbox-stage").evaluate((el) => Number(getComputedStyle(el).opacity)))
-      .toBeGreaterThan(0.9);
-
-    // Back to a section moment: undocked, chain off.
-    await scrollToSection(page, "about");
-    await expect(page.locator(".chain-drive")).not.toHaveAttribute("data-on");
+      .toBeLessThan(0.05);
   });
 });
 

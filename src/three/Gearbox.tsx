@@ -21,7 +21,6 @@ import { useGearboxStore, type FocusTarget } from "./gearboxStore";
 import { sameTarget, useGearboxUi, type InspectTarget } from "./gearboxUi";
 import { createMaterials } from "./materials";
 import { useDragRotate } from "./useDragRotate";
-import { DOCK_SIZE_PX, isDocked, wheelAngle } from "@/lib/chainDrive";
 
 /** Gear units (module 1) → scene units. The assembly is ~1.8 units in radius. */
 export const SCALE = 1 / 16;
@@ -380,7 +379,7 @@ export function Gearbox({ reducedMotion }: { reducedMotion: boolean }) {
     // Natural sway: a slow side-to-side yaw with a little nod, from out-of-step
     // sines so it never looks mechanical. Full in the overview, softer when a
     // part is in focus, none while dragging or under reduced motion.
-    const swayTarget = reducedMotion || dragging.current || isDocked() ? 0 : s.focus === "overview" ? 1 : 0.4;
+    const swayTarget = reducedMotion || dragging.current ? 0 : s.focus === "overview" ? 1 : 0.4;
     if (instant) swayAmount.current = swayTarget;
     else damp(swayAmount, "current", swayTarget, 0.8, dt);
     if (sway.current) {
@@ -388,16 +387,6 @@ export function Gearbox({ reducedMotion }: { reducedMotion: boolean }) {
       const a = swayAmount.current;
       sway.current.rotation.y = a * (0.11 * Math.sin(t * 0.5) + 0.035 * Math.sin(t * 1.27 + 1.3));
       sway.current.rotation.x = a * 0.04 * Math.sin(t * 0.37 + 0.6);
-      // Docked in the header, the chain turns the whole assembly like a sprocket
-      // (clockwise on screen as you scroll down). Undocked, it unwinds to rest.
-      if (isDocked()) sway.current.rotation.z = -wheelAngle(DOCK_SIZE_PX / 2);
-      else if (sway.current.rotation.z !== 0) {
-        const z = sway.current.rotation.z % TAU;
-        sway.current.rotation.z = z > Math.PI ? z - TAU : z < -Math.PI ? z + TAU : z;
-        if (instant) sway.current.rotation.z = 0;
-        else damp(sway.current.rotation, "z", 0, 0.3, dt);
-        if (Math.abs(sway.current.rotation.z) < 1e-4) sway.current.rotation.z = 0;
-      }
     }
 
     // Explode along the axis.

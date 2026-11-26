@@ -49,7 +49,7 @@ export function ChatLauncher() {
         aria-haspopup="dialog"
         hidden={open}
         onClick={(e) => openChat(e.currentTarget)}
-        className="chain-fab fixed right-2 bottom-4 z-40 inline-flex size-14 items-center justify-center rounded-full border border-brass bg-cast text-brass shadow-machined lg:hidden"
+        className="fixed right-4 bottom-4 z-40 inline-flex size-14 items-center justify-center rounded-full border border-brass bg-cast text-brass shadow-machined lg:hidden"
       >
         <Cog aria-hidden="true" className="size-6" />
         <span className="sr-only">Open the Digital twin chat</span>
