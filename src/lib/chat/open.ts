@@ -3,7 +3,7 @@
 import { useSyncExternalStore } from "react";
 
 /**
- * Whether the chat panel is open, shared by every "Ask AI Nadun" button
+ * Whether the chat panel is open, shared by every "Digital twin" button
  * and the lazily loaded panel. A tiny external store rather than zustand, so
  * the launch buttons add next to nothing to the initial bundle.
  */

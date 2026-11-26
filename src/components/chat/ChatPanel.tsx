@@ -136,7 +136,7 @@ export function ChatPanel({
           className="flex min-h-11 items-center gap-3 rounded-machined border border-steel-line bg-cast px-4 font-mono text-mono-label tracking-[0.08em] text-bone uppercase shadow-machined"
         >
           <span aria-hidden="true" className="status-lamp" />
-          AI Nadun
+          Digital Nadun
           <span className="sr-only">(expand)</span>
         </button>
       </div>
@@ -158,7 +158,7 @@ export function ChatPanel({
       <header className="flex items-center justify-between gap-3 border-b border-steel-line px-4 py-3">
         <h2 id={titleId} className="flex items-center gap-2.5 font-mono text-mono-label tracking-[0.12em] uppercase">
           <span aria-hidden="true" className="status-lamp" />
-          AI Nadun
+          Digital Nadun
         </h2>
         <div className="flex items-center gap-1">
           <button

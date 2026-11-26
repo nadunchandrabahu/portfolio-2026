@@ -55,18 +55,24 @@ function fallback(): ChatResponse {
 
 const rules: Rule[] = [
   {
-    // "light mode", "switch to rain", "make it dark"… (theme words next to mode/theme, or rain on its own)
-    match: /\b(light|dark|rain|rainy)\s+(mode|theme)\b|\b(mode|theme)\b.*\b(light|dark|rain)\b|\brain\b/i,
+    // "lights on", "turn off the light", "make it rain", "stop the rain", "dark mode"…
+    match:
+      /\b(lights?|lamp|led|bright|dark|rain\w*|gloomy)\b.*\b(on|off|mode|theme|please)\b|\b(turn|switch|make|stop|start)\b.*\b(lights?|rain\w*|dark)\b/i,
     reply: (message) => {
-      const value = /rain/i.test(message) ? "rain" : /light/i.test(message) ? "light" : "dark";
-      const line = {
-        dark: "Back to the night workshop: dark mode.",
-        light: "Lights on: the drafting-paper theme.",
-        rain: "Rain mode: a greyer, gloomier workshop, with rain on the glass.",
-      }[value];
+      const off = /\b(off|stop|no|without)\b/i.test(message);
+      const actions: ChatResponse["actions"] = [];
+      if (/\bdark\b/i.test(message) && !/\blights?\b/i.test(message)) {
+        actions.push({ type: "lights", on: false }, { type: "rain", on: false });
+      } else {
+        if (/\b(lights?|lamp|led|bright)\b/i.test(message)) actions.push({ type: "lights", on: !off });
+        if (/\brain\w*\b/i.test(message)) actions.push({ type: "rain", on: !off });
+      }
+      const said = actions.flatMap((a) =>
+        a.type === "lights" || a.type === "rain" ? [`${a.type} ${a.on ? "on" : "off"}`] : [],
+      );
       return {
-        reply: `${line} You can also change it any time with the theme button in the header.`,
-        actions: [{ type: "theme", value }],
+        reply: `Done: ${said.join(", ")}. You can also flip the lights and rain any time with the two switches in the header.`,
+        actions,
         suggestions: ["Show me the NASA project", "Take the gearbox apart"],
       };
     },

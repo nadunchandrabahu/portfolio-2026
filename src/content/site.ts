@@ -98,7 +98,7 @@ export const site = {
   },
 
   /**
-   * Shows the "Ask AI Nadun" buttons. The server side has its own kill
+   * Shows the "Digital twin" buttons. The server side has its own kill
    * switch (CHAT_ENABLED): with it off, the panel answers with a polite
    * "offline, email Nadun" reply.
    */

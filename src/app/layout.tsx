@@ -34,7 +34,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en-AU"
       className={`${archivo.variable} ${plexSans.variable} ${plexSansItalic.variable} ${jetbrainsMono.variable}`}
-      // The init script may set data-theme before React hydrates.
+      // The init script may set data-light / data-rain before React hydrates.
       suppressHydrationWarning
     >
       <head>

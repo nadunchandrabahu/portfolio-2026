@@ -13,7 +13,7 @@ function fakeDeps(reducedMotion = false) {
     }),
     scrollToSection: vi.fn((id) => calls.push(`scroll ${id}`)),
     showProject: vi.fn((id) => calls.push(`project ${id}`)),
-    setTheme: vi.fn((theme) => calls.push(`theme ${theme}`)),
+    setEffects: vi.fn((change) => calls.push(`effects ${JSON.stringify(change)}`)),
     sleep: vi.fn(async (ms) => {
       calls.push(`sleep ${ms}`);
     }),
@@ -112,28 +112,46 @@ describe("runActions", () => {
   });
 });
 
-describe("theme action", () => {
-  it("switches the theme without scrolling to the gearbox", async () => {
+describe("lights and rain actions", () => {
+  it("switch the page effects without scrolling to the gearbox", async () => {
     const { deps, calls } = fakeDeps();
-    await runActions([{ type: "theme", value: "rain" }], deps);
-    expect(calls).toEqual(["theme rain"]);
-  });
-
-  it("applies the last theme under reduced motion", async () => {
-    const { deps, calls } = fakeDeps(true);
     await runActions(
       [
-        { type: "theme", value: "light" },
-        { type: "explode", amount: 1 },
-        { type: "theme", value: "dark" },
+        { type: "lights", on: true },
+        { type: "rain", on: true },
       ],
       deps,
     );
-    expect(calls).toEqual(["showGearbox", "theme dark", 'apply {"explode":1}']);
+    expect(calls).toEqual(['effects {"light":true}', `sleep ${STEP_MS}`, 'effects {"rain":true}']);
   });
 
-  it("shows in the receipt", () => {
-    expect(formatReceipt([{ type: "theme", value: "light" }])).toBe("→ theme: light");
+  it("accepts the older theme form", async () => {
+    const { deps, calls } = fakeDeps();
+    await runActions([{ type: "theme", value: "dark" }], deps);
+    expect(calls).toEqual(['effects {"light":false,"rain":false}']);
+  });
+
+  it("fold into one change under reduced motion", async () => {
+    const { deps, calls } = fakeDeps(true);
+    await runActions(
+      [
+        { type: "lights", on: true },
+        { type: "explode", amount: 1 },
+        { type: "rain", on: true },
+        { type: "lights", on: false },
+      ],
+      deps,
+    );
+    expect(calls).toEqual(["showGearbox", 'effects {"light":false,"rain":true}', 'apply {"explode":1}']);
+  });
+
+  it("show in the receipt", () => {
+    expect(
+      formatReceipt([
+        { type: "lights", on: true },
+        { type: "rain", on: false },
+      ]),
+    ).toBe("→ lights: on · rain: off");
   });
 });
 

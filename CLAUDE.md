@@ -77,7 +77,7 @@ Dark-first. Define everything as CSS variables in Tailwind v4 `@theme`.
 
 Contrast: bone on graphite ≈ 15:1, concrete on graphite ≈ 7:1, brass on graphite ≈ 7.9:1. Keep body text at bone or concrete only.
 
-**Themes (added 2026-11-26, Nadun's request):** three, picked from a selector in the header and remembered per browser (`localStorage`, applied before first paint): **dark** (the palette above, default), **light** ("drafting paper": paper `#F3F0E9`, ink `#1B1D20`, brass `#83601F`) and **rain** (a touch lighter than dark, cooler and greyer, muted brass, faint falling streaks and dimmer, cooler 3D lighting). The token names keep their dark-theme roles, so components never branch on theme; every text/accent pairing stays at least 4.5:1. The chatbot can switch themes with the `theme` action (8.3). Code: `src/lib/theme.ts`, `src/lib/themeConfig.ts`, `src/components/layout/ThemeSwitcher.tsx`, tokens in `globals.css`.
+**Lights and rain (added 2026-11-26, Nadun's request):** the site is always the dark workshop above; two independent effects sit on top, each switched on or off by its own toggle button in the header (lightbulb, rain cloud) and remembered per browser (`localStorage`, applied before first paint). Any combination works, including both. **Lights** is a bright LED overhead: cool light-grey surfaces (page `#D9DEE3`, cards `#EEF1F4`, ink `#101317`, brass `#6B4E16`), light pooling from the top of the screen, and the dark room still showing faintly at the edges; brighter, cooler 3D lighting. **Rain** adds faint falling streaks and a greyer, gloomier palette with dimmer, cooler 3D lighting; with the lights on as well it becomes an overcast, dimmer version of the lit workshop with darker streaks. Every text/accent pairing in every combination is at least 4.5:1. Token names keep their dark-theme roles, so components never branch. On `<html>` they are `data-light="on"` / `data-rain="on"`. The chatbot can switch them with the `lights` and `rain` actions (8.3). Code: `src/lib/theme.ts`, `src/lib/themeConfig.ts`, `src/components/layout/ThemeSwitcher.tsx`, tokens in `globals.css`.
 
 ### 2.4 Typography
 
@@ -148,7 +148,7 @@ There is no database, no auth and no CMS. Content is TypeScript files in the rep
 
 Single page, minimal sticky nav.
 
-**Nav:** monogram `NC` (Archivo, brass on cast, in a small machined square) on the left. Links on the right: Work · About · Experience · Education · Contact · **Resume** (small outlined). Then an **"Ask AI Nadun"** button that opens the chatbot (brass outline, small gear icon), and the theme selector (an icon button: dark / light / rain; also beside the menu button on mobile). The active section is highlighted in brass via IntersectionObserver. On mobile the links collapse into a full-height sheet menu; the chat button stays visible as a floating action button bottom-right.
+**Nav:** monogram `NC` (Archivo, brass on cast, in a small machined square) on the left. Links on the right: Work · About · Experience · Education · Contact · **Resume** (small outlined). Then an **"Digital twin"** button that opens the chatbot (brass outline, small gear icon), and two toggle buttons, lights and rain (also beside the menu button on mobile). The active section is highlighted in brass via IntersectionObserver. On mobile the links collapse into a full-height sheet menu; the chat button stays visible as a floating action button bottom-right.
 
 **Section order and IDs:**
 
@@ -176,7 +176,7 @@ Content:
 - Role (Archivo, normal case, bone): `Data scientist and AI engineer` (TODO(nadun): Content.md says "Data Scientist"; confirm the wording)
 - Line (Plex Sans, concrete, max 52ch): *I build and evaluate machine learning systems, from statistical models on large datasets to LLM fine-tuning and agentic AI evaluation.*
 - Draft sub-line (TODO(nadun): approve or cut): *Trained as a mechanical engineer. I still like knowing how things work, down to the last bolt.*
-- Actions: primary button **View work** (brass fill, graphite text) → `#work`; secondary **Ask AI Nadun** (outline) opens chat; inline icon links: GitHub · LinkedIn · Email
+- Actions: primary button **View work** (brass fill, graphite text) → `#work`; secondary **Digital twin** (outline) opens chat; inline icon links: GitHub · LinkedIn · Email
 - Data plate (2.6A) under the actions on desktop, after the text on mobile
 - Micro-line under the plate: *Currently in Sydney, open to data and AI roles.*
 
@@ -373,7 +373,7 @@ type GearboxState = {
 ## 8. Chatbot (front end + proxy)
 
 ### 8.1 What it is
-An "Ask AI Nadun" assistant that answers questions about Nadun from a knowledge file, and **drives the gearbox to illustrate its answer**. Example: ask "how does a mechanical engineer end up in AI?" and it focuses the engineering planet, spins the gears so you can see the drive pass through the mesh, then focuses the AI planet.
+A "Digital twin" assistant (panel title "Digital Nadun") that answers questions about Nadun from a knowledge file, and **drives the gearbox to illustrate its answer**. Example: ask "how does a mechanical engineer end up in AI?" and it focuses the engineering planet, spins the gears so you can see the drive pass through the mesh, then focuses the AI planet.
 
 ### 8.2 Architecture
 ```
@@ -406,7 +406,9 @@ export const GearboxAction = z.discriminatedUnion('type', [
   z.object({ type: z.literal('highlightProject'), id: ProjectId }),
   z.object({ type: z.literal('scrollTo'), section: SectionId }),
   z.object({ type: z.literal('reset') }),
-  z.object({ type: z.literal('theme'), value: z.enum(['dark','light','rain']) }), // site theme, added 2026-11-26
+  z.object({ type: z.literal('lights'), on: z.boolean() }), // page lighting, added 2026-11-26
+  z.object({ type: z.literal('rain'), on: z.boolean() }),   // page weather, added 2026-11-26
+  // (the route also accepts an older { type: 'theme', value: 'dark'|'light'|'rain' })
 ]);
 
 export const ChatResponse = z.object({
@@ -428,7 +430,7 @@ In the route, parse each action individually with `safeParse` and **drop invalid
 - Never echo upstream error bodies to the client. Never log message contents.
 
 ### 8.5 Chat UI (`src/components/chat/`)
-- A docked panel bottom-right on desktop (400×560); a full-height sheet on mobile. It's styled like a workshop instrument: a cast panel with a machined border, a header with a mono title `AI NADUN` and a small status lamp, and close/minimise buttons.
+- A docked panel bottom-right on desktop (400×560); a full-height sheet on mobile. It's styled like a workshop instrument: a cast panel with a machined border, a header with a mono title `DIGITAL NADUN` and a small status lamp, and close/minimise buttons.
 - Opening state: one line, *Ask about Nadun's projects, background or how to reach him. I can also take the gearbox apart for you.*, plus suggestion chips:
   - "How does a mechanical engineer end up in AI?"
   - "Show me the NASA project"

@@ -20,7 +20,7 @@ import {
 import { ASSEMBLY_RADIUS, Gearbox } from "./Gearbox";
 import { useGearboxStore } from "./gearboxStore";
 import { useGearboxUi } from "./gearboxUi";
-import { useTheme, type Theme } from "@/lib/theme";
+import { useEffectsKey, type EffectsKey } from "@/lib/theme";
 
 /** Postprocessing lives in its own chunk; low-power devices never fetch it. */
 const Effects = lazy(() => import("./Effects"));
@@ -40,9 +40,9 @@ export type GearboxCanvasProps = {
   children?: ReactNode;
 };
 
-/** Lighting per site theme: rain is dimmer and cooler (overcast); light lifts the front fill so the steel doesn't read black on paper. */
+/** Lighting per effect combination: rain is dimmer and cooler (overcast); lights add a bright, cool LED overhead so the steel reads lit. */
 const LIGHTS: Record<
-  Theme,
+  EffectsKey,
   {
     front: number;
     low: number;
@@ -69,16 +69,16 @@ const LIGHTS: Record<
     bounceColor: "#c9a35e",
   },
   light: {
-    front: 1.3,
-    low: 0.6,
-    key: 5,
-    keyColor: "#ffd6a0",
-    rim: 2.4,
-    rimColor: "#a9c8ff",
-    top: 2,
+    front: 1.7,
+    low: 0.8,
+    key: 6.5,
+    keyColor: "#f2f6ff",
+    rim: 2.2,
+    rimColor: "#cfe0ff",
+    top: 3.2,
     topColor: "#ffffff",
-    bounce: 0.6,
-    bounceColor: "#c9a35e",
+    bounce: 0.9,
+    bounceColor: "#dfe4ea",
   },
   rain: {
     front: 0.6,
@@ -92,11 +92,23 @@ const LIGHTS: Record<
     bounce: 0.35,
     bounceColor: "#7f8b96",
   },
+  "light rain": {
+    front: 1.3,
+    low: 0.6,
+    key: 3.8,
+    keyColor: "#e6eef8",
+    rim: 2.8,
+    rimColor: "#a9bdd8",
+    top: 2.2,
+    topColor: "#e8eef4",
+    bounce: 0.6,
+    bounceColor: "#b9c2cb",
+  },
 };
 
 /** Studio lighting from Lightformers: no HDR download, no CDN (CLAUDE.md 7.3). */
 function Studio() {
-  const theme = useTheme();
+  const theme = useEffectsKey();
   const invalidate = useThree((s) => s.invalidate);
   const l = LIGHTS[theme];
   // The environment renders once (frames=1); a new theme rebuilds it, then redraw.

@@ -22,16 +22,19 @@ describe("mock replies", () => {
   });
 
   it.each([
-    ["Switch to light mode", "light"],
-    ["Make it rain", "rain"],
-    ["dark theme please", "dark"],
-  ])("switches the theme: %s", (message, value) => {
-    expect(mockReply(message).actions).toEqual([{ type: "theme", value }]);
+    ["Turn the lights on", [{ type: "lights", on: true }]],
+    ["lights off please", [{ type: "lights", on: false }]],
+    ["Make it rain", [{ type: "rain", on: true }]],
+    ["Stop the rain", [{ type: "rain", on: false }]],
+    ["Turn on the lights and make it rain", [{ type: "lights", on: true }, { type: "rain", on: true }]],
+    ["dark mode please", [{ type: "lights", on: false }, { type: "rain", on: false }]],
+  ])("switches lights and rain: %s", (message, actions) => {
+    expect(mockReply(message).actions).toEqual(actions);
   });
 
-  it("doesn't mistake other questions for theme requests", () => {
-    for (const message of ["Show it as a drawing", "What tools does he use?", "Highlight the NASA project"]) {
-      expect(mockReply(message).actions.some((a) => a.type === "theme")).toBe(false);
+  it("doesn't mistake other questions for lights or rain", () => {
+    for (const message of ["Show it as a drawing", "What tools does he use?", "Highlight the NASA project", "Show me the NASA project"]) {
+      expect(mockReply(message).actions.some((a) => a.type === "lights" || a.type === "rain")).toBe(false);
     }
   });
 

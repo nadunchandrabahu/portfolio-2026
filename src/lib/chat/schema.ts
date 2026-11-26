@@ -45,7 +45,10 @@ export const GearboxAction = z.discriminatedUnion("type", [
   z.object({ type: z.literal("highlightProject"), id: ProjectId }),
   z.object({ type: z.literal("scrollTo"), section: SectionId }),
   z.object({ type: z.literal("reset") }),
-  // Site theme (not the gearbox itself, but the same action list).
+  // Lighting and weather on the page (not the gearbox, but the same action list).
+  z.object({ type: z.literal("lights"), on: z.boolean() }),
+  z.object({ type: z.literal("rain"), on: z.boolean() }),
+  // Older single-theme form, still accepted: dark = both off, light = lights only, rain = rain only.
   z.object({ type: z.literal("theme"), value: z.enum(THEMES) }),
 ]);
 export type GearboxAction = z.infer<typeof GearboxAction>;

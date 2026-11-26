@@ -186,11 +186,11 @@ test.describe("chat", () => {
   test("a suggestion chip gets a mock reply that moves the gearbox", async ({ page, isMobile }) => {
     await page.goto("/", { waitUntil: "networkidle" });
     const ask = isMobile
-      ? page.getByRole("button", { name: "Ask AI Nadun" }).last()
-      : page.getByRole("navigation", { name: "Primary" }).getByRole("button", { name: "Ask AI Nadun" });
+      ? page.getByRole("button", { name: "Digital twin" }).last()
+      : page.getByRole("navigation", { name: "Primary" }).getByRole("button", { name: "Digital twin" });
     await ask.click();
 
-    const dialog = page.getByRole("dialog", { name: "AI Nadun" });
+    const dialog = page.getByRole("dialog", { name: "Digital Nadun" });
     await expect(dialog).toBeVisible();
     await expect(dialog.getByLabel("Your question")).toBeFocused();
 
@@ -240,20 +240,26 @@ test.describe("reduced motion", () => {
   });
 });
 
-test.describe("theme selector", () => {
-  test("switches theme from the header and remembers it", async ({ page }) => {
+test.describe("lights and rain", () => {
+  test("toggle independently from the header and are remembered", async ({ page }) => {
     await page.goto("/");
     const html = page.locator("html");
-    await expect(html).not.toHaveAttribute("data-theme");
-    await page.getByRole("button", { name: /Change theme/ }).click();
-    await page.getByRole("button", { name: /^Light/ }).click();
-    await expect(html).toHaveAttribute("data-theme", "light");
-    await expect(page.getByRole("button", { name: /Change theme/ })).toHaveAccessibleName(/Theme: Light/);
+    const lights = page.getByRole("button", { name: "Lights", exact: true });
+    const rain = page.getByRole("button", { name: "Rain", exact: true });
+    await expect(lights).toHaveAttribute("aria-pressed", "false");
+    await lights.click();
+    await rain.click();
+    await expect(html).toHaveAttribute("data-light", "on");
+    await expect(html).toHaveAttribute("data-rain", "on");
     await page.reload();
-    await expect(html).toHaveAttribute("data-theme", "light");
-    await page.getByRole("button", { name: /Change theme/ }).click();
-    await page.getByRole("button", { name: /^Dark/ }).click();
-    await expect(html).not.toHaveAttribute("data-theme");
+    await expect(html).toHaveAttribute("data-light", "on");
+    await expect(html).toHaveAttribute("data-rain", "on");
+    await expect(lights).toHaveAttribute("aria-pressed", "true");
+    await lights.click();
+    await expect(html).not.toHaveAttribute("data-light");
+    await expect(html).toHaveAttribute("data-rain", "on");
+    await rain.click();
+    await expect(html).not.toHaveAttribute("data-rain");
   });
 });
 
