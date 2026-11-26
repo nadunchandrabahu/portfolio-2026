@@ -58,14 +58,6 @@ export const site = {
     "Trained as a mechanical engineer. I still like knowing how things work, down to the last bolt.",
   availability: "Currently in Sydney, open to data and AI roles.",
 
-  dataPlate: [
-    { field: "Model", value: "N. Chandrabahu" },
-    { field: "Class", value: "Data science · AI engineering" },
-    { field: "Build", value: "B.Eng (Hons.) (Mechanical) → M.Data Sci" },
-    { field: "Location", value: "Sydney, AU" },
-    { field: "Status", value: "Open to data & AI roles", lamp: true },
-  ],
-
   location: "Sydney, Australia",
   links: {
     github: "https://github.com/nadunchandrabahu",
@@ -75,9 +67,11 @@ export const site = {
   email: { user: "nadun.c.97", domain: "gmail.com" },
 
   resume: {
+    // Copied from Resume-NadunChandrabahu.pdf in the project root; replace this
+    // file when the resume changes. It includes the phone number (Nadun's choice).
     href: "/resume/Nadun-Chandrabahu-Resume.pdf",
-    // TODO(nadun): supply the PDF, then set this to true.
-    available: false,
+    fileName: "Nadun-Chandrabahu-Resume.pdf",
+    available: true,
   },
 
   contact: {

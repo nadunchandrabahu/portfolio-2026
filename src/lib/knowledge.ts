@@ -108,6 +108,9 @@ export function buildKnowledge(): string {
       `LinkedIn: ${site.links.linkedin}`,
       `GitHub: ${site.links.github}`,
       `Location: ${site.location}`,
+      ...(site.resume.available
+        ? [`Resume (PDF): ${site.resume.href} on this site, also linked from the hero ("View resume") and the Contact section.`]
+        : []),
     ]),
   );
 

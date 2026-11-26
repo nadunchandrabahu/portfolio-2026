@@ -46,3 +46,6 @@ npm-debug.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# The resume as dropped in the root; the site serves the copy in public/resume
+/Resume-NadunChandrabahu.pdf

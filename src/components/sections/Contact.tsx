@@ -39,7 +39,7 @@ export function Contact() {
         {site.resume.available ? (
           <a
             href={site.resume.href}
-            download
+            download={site.resume.fileName}
             className="inline-flex min-h-11 w-fit items-center gap-2 rounded-sm border border-brass px-5 font-mono text-small uppercase tracking-[0.08em] text-brass transition-colors hover:bg-brass hover:text-graphite"
           >
             <Download aria-hidden="true" className="size-4" />

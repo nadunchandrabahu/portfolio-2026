@@ -140,7 +140,7 @@ const rules: Rule[] = [
   {
     match: /\b(contact|email|reach|hire|hiring|available|availability|resume|cv)\b/i,
     reply: () => ({
-      reply: `Email is the fastest way to reach Nadun. The address and a copy button are in the Contact section. He's in ${site.location} and open to data and AI roles. He's also on LinkedIn and GitHub.`,
+      reply: `Email is the fastest way to reach Nadun. The address and a copy button are in the Contact section. He's in ${site.location} and open to data and AI roles. He's also on LinkedIn and GitHub, and his resume is linked from the top of the page and the Contact section.`,
       actions: [{ type: "scrollTo", section: "contact" }],
       suggestions: ["What has he built?", "What tools does he use?"],
     }),

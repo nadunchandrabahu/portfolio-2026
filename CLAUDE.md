@@ -97,16 +97,7 @@ Type scale (fluid with `clamp`): display-xl 56→112px, display-l 40→64px, h2 
 
 ### 2.6 Signature components
 
-**A. Data plate (hero).** A stamped metal nameplate like the one riveted to a machine: brushed-metal gradient surface, four small hex-screw heads in the corners (pure CSS), engraved mono text (dark text with a 1px light bottom text-shadow). Fields:
-
-```
-MODEL      N. CHANDRABAHU
-CLASS      DATA SCIENCE · AI ENGINEERING
-BUILD      B.ENG (MECHANICAL) → M.DATA SCI
-LOCATION   SYDNEY, AU
-STATUS     ● OPEN TO DATA & AI ROLES
-```
-The status lamp is a small brass dot with a slow 3s "breathing" glow, which stops under reduced motion.
+**A. Data plate (removed 2026-11-27, Nadun's request).** The hero no longer has the stamped nameplate; the "View resume" button and the availability line with its status lamp (a small brass dot with a slow 3s "breathing" glow, stopped under reduced motion) took its place. The OG card dropped it too.
 
 **B. Inspection tag (project results).** This replaces the old "result readout". It sits at the bottom of every project card and looks like a QC tag: 2px brass left rule, notched top-right corner (CSS `clip-path`), a tiny punched hole, a mono `RESULT` label in concrete, and the readout in brass mono. Use the `→` arrow (U+2192). Example: `confidence 0.89 → 0.991`. On card hover, a 1px temper-tint sheen runs along the rule.
 
@@ -154,7 +145,7 @@ Single page, minimal sticky nav.
 
 | # | id | Section | Notes |
 |---|---|---|---|
-| 01 | `hero` | Hero | Data plate + 3D gearbox |
+| 01 | `hero` | Hero | Name, actions + 3D gearbox |
 | 02 | `work` | Selected work | Projects are the centre of gravity |
 | 03 | `about` | About | Gearbox explodes into labelled parts |
 | 04 | `hands-on` | Off the keyboard | New. The "works with his hands" story |
@@ -176,9 +167,8 @@ Content:
 - Role (Archivo, normal case, bone): `Data scientist and AI engineer` (TODO(nadun): Content.md says "Data Scientist"; confirm the wording)
 - Line (Plex Sans, concrete, max 52ch): *I build and evaluate machine learning systems, from statistical models on large datasets to LLM fine-tuning and agentic AI evaluation.*
 - Draft sub-line (TODO(nadun): approve or cut): *Trained as a mechanical engineer. I still like knowing how things work, down to the last bolt.*
-- Actions: primary button **View work** (brass fill, graphite text) → `#work`; secondary **Digital twin** (outline) opens chat; inline icon links: GitHub · LinkedIn · Email
-- Data plate (2.6A) under the actions on desktop, after the text on mobile
-- Micro-line under the plate: *Currently in Sydney, open to data and AI roles.*
+- Actions: primary button **View work** (brass fill, graphite text) → `#work`; secondary **View resume** (outline) opens the resume PDF in a new tab and downloads a copy (`ResumeLink`); secondary **Digital twin** (outline) opens chat; inline icon links: GitHub · LinkedIn · Email
+- Micro-line under the actions, with the breathing status lamp: *Currently in Sydney, open to data and AI roles.*
 
 ### 5.2 Selected work (`#work`)
 Header: `02 · SELECTED WORK` / title **Selected work**. Optional intro (one line): *Projects with real data, real constraints and a measured result.*
@@ -268,8 +258,8 @@ Two sub-blocks.
 ### 5.8 Contact + footer (`#contact`)
 - Title: **Get in touch**. Line: *The fastest way to reach me is email. I reply within a couple of days.* (TODO(nadun): confirm)
 - Big email link (Archivo, brass on hover). Build the address client-side from parts to reduce scraping, and provide a "Copy email" button with a quiet "Copied" toast.
-- LinkedIn and GitHub links. Location: Sydney, Australia. **Never show the phone number.**
-- **Download resume** button → `/resume/Nadun-Chandrabahu-Resume.pdf` (TODO(nadun): supply the PDF).
+- LinkedIn and GitHub links. Location: Sydney, Australia. **Never show the phone number** on the page or in the knowledge file. (The resume PDF itself includes it: Nadun's choice, 2026-11-27.)
+- **Download resume** button → `/resume/Nadun-Chandrabahu-Resume.pdf`, copied from `Resume-NadunChandrabahu.pdf` in the project root (git-ignored there). Replace the public copy when the resume changes. The nav "Resume" links and the hero "View resume" button open it in a new tab and download it.
 - Knurled divider, then the footer.
 - **Footer verse.** Centred and quiet: Plex Sans italic for the verse, mono for the reference.
   > *"For it is by grace you have been saved, through faith—and this is not from yourselves, it is the gift of God."*
@@ -469,7 +459,7 @@ Add `scripts/build-knowledge.ts`, run at `prebuild`. It compiles `src/content/*.
 - **Output safety:** model output is treated as untrusted. It's rendered as text, actions are allow-listed by zod, and numbers are clamped. The model can never trigger navigation off-site, run code, or change anything but the gearbox and scroll position.
 - **No forms besides chat.** Contact is a mailto link plus "copy email". There is no newsletter, no contact form endpoint and no database.
 - **Dependencies:** commit the lockfile; enable Dependabot or Renovate; run `npm audit --omit=dev` in CI. **Keep Next.js on the latest patch.** Next.js has shipped security releases most months in 2026.
-- **Privacy:** no cookies, no tracking pixels, cookieless analytics only. Never render the phone number anywhere, including the knowledge file.
+- **Privacy:** no cookies, no tracking pixels, cookieless analytics only. Never render the phone number anywhere on the page or in the knowledge file (the resume PDF is the one exception, by Nadun's choice).
 
 ---
 
@@ -491,12 +481,12 @@ Add `scripts/build-knowledge.ts`, run at `prebuild`. It compiles `src/content/*.
 │  ├─ app/
 │  │  ├─ layout.tsx  page.tsx  globals.css
 │  │  ├─ api/chat/route.ts
-│  │  ├─ opengraph-image.tsx   # OG card: data plate style
+│  │  ├─ opengraph-image.tsx   # OG card: name, role, availability
 │  │  └─ sitemap.ts  robots.ts
 │  ├─ content/  site.ts projects.ts about.ts handsOn.ts skills.ts experience.ts education.ts certificates.ts
 │  ├─ components/
 │  │  ├─ layout/  Nav.tsx Footer.tsx SectionHeader.tsx KnurlDivider.tsx
-│  │  ├─ hero/    Hero.tsx DataPlate.tsx
+│  │  ├─ hero/    Hero.tsx DigitalRain.tsx
 │  │  ├─ work/    ProjectCard.tsx InspectionTag.tsx FeaturedProject.tsx
 │  │  ├─ sections/ About.tsx HandsOn.tsx Toolbox.tsx Experience.tsx Education.tsx Contact.tsx
 │  │  └─ chat/    ChatLauncher.tsx ChatPanel.tsx MessageList.tsx Suggestions.tsx
@@ -518,7 +508,7 @@ Add `scripts/build-knowledge.ts`, run at `prebuild`. It compiles `src/content/*.
 ## 11. SEO and sharing
 - Title: `Nadun Chandrabahu · Data scientist and AI engineer, Sydney`
 - Meta description: the hero line.
-- OG image generated with `next/og` in the data-plate style.
+- OG image generated with `next/og`: name, role and availability on graphite with a blueprint grid.
 - JSON-LD `Person` schema (name, jobTitle, address locality Sydney, sameAs LinkedIn/GitHub, alumniOf Macquarie and Curtin).
 - `sitemap.ts`, `robots.ts`. Disallow `/api/`.
 
@@ -563,7 +553,7 @@ Add `scripts/build-knowledge.ts`, run at `prebuild`. It compiles `src/content/*.
 5. Approval of the draft lines: hero sub-line, About faith paragraph, Off-the-keyboard closing line, contact reply-time line.
 6. ~~Bachelor title: Honours or not. Degree certificate links.~~ Done: (Hons.) added, both certificates linked.
 7. 8 certificates: titles, issuers, dates, links, images.
-8. Resume PDF.
+8. ~~Resume PDF.~~ Done (2026-11-27).
 9. ~~Preferred Bible translation for Ephesians 2:8.~~ Done: NIV.
 10. Optional photos for Off the keyboard (project thumbnails, Experience photos and the portrait are in).
 11. Optional: your own SolidWorks/Blender gearbox GLB (7.6).

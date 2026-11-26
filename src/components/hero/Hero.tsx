@@ -1,10 +1,11 @@
+import { FileText } from "lucide-react";
 import Image from "next/image";
 import { AskAiButton } from "@/components/chat/ChatLauncher";
 import { HeroGearbox } from "@/components/gearbox/HeroGearbox";
 import { GithubIcon, LinkedinIcon } from "@/components/ui/BrandIcons";
 import { EmailIconLink } from "@/components/ui/Email";
+import { ResumeLink } from "@/components/ui/ResumeLink";
 import { site } from "@/content/site";
-import { DataPlate } from "./DataPlate";
 import { DigitalRain } from "./DigitalRain";
 
 const iconLink =
@@ -64,6 +65,12 @@ export function Hero() {
             >
               View work
             </a>
+            {site.resume.available ? (
+              <ResumeLink className="inline-flex min-h-11 items-center gap-2 rounded-sm border border-brass px-6 font-mono text-small font-medium uppercase tracking-[0.08em] text-brass transition-colors hover:bg-brass hover:text-graphite">
+                <FileText aria-hidden="true" className="size-4" />
+                View resume
+              </ResumeLink>
+            ) : null}
             <AskAiButton variant="hero" />
             <div className="flex items-center gap-2 sm:ml-2">
               <a href={site.links.github} rel="noopener noreferrer" target="_blank" className={iconLink}>
@@ -78,10 +85,10 @@ export function Hero() {
             </div>
           </div>
 
-          <div className="mt-10">
-            <DataPlate />
-            <p className="mt-4 font-mono text-small text-concrete">{site.availability}</p>
-          </div>
+          <p className="mt-8 flex items-center gap-3 font-mono text-small text-concrete">
+            <span className="status-lamp shrink-0" aria-hidden="true" />
+            {site.availability}
+          </p>
         </div>
       </div>
     </section>

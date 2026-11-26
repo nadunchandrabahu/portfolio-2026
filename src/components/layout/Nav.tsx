@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { sections, site, type SectionId } from "@/content/site";
 import { SHOW_PLACEHOLDERS } from "@/content/types";
 import { AskAiButton } from "@/components/chat/ChatLauncher";
+import { ResumeLink } from "@/components/ui/ResumeLink";
 import { scrollIntoViewAccurately } from "@/lib/accurateScroll";
 import { KnurlDivider } from "./KnurlDivider";
 import { ThemeSwitcher } from "./ThemeSwitcher";
@@ -106,13 +107,12 @@ export function Nav() {
             ))}
             {showResume ? (
               <li className="ml-2">
-                <a
-                  href={site.resume.href}
+                <ResumeLink
                   title={resumeTitle}
                   className={`inline-flex min-h-9 items-center rounded-sm border px-3 font-mono text-mono-label uppercase tracking-[0.08em] transition-colors ${resumeClass}`}
                 >
                   Resume
-                </a>
+                </ResumeLink>
               </li>
             ) : null}
             <li className="ml-3">
@@ -172,13 +172,12 @@ export function Nav() {
           ))}
           {showResume ? (
             <li className="mt-4">
-              <a
-                href={site.resume.href}
+              <ResumeLink
                 title={resumeTitle}
                 className={`inline-flex min-h-11 items-center rounded-sm border px-4 font-mono text-mono-label uppercase tracking-[0.08em] ${resumeClass}`}
               >
                 Resume
-              </a>
+              </ResumeLink>
             </li>
           ) : null}
         </ul>
