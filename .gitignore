@@ -7,6 +7,9 @@
 CHATBOT_SETUP.md
 Content.md
 
+# Original photos (the site uses the processed copies in public/images)
+/img/
+
 # dependencies
 /node_modules
 /.pnp

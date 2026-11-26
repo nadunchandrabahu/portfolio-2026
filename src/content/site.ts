@@ -61,7 +61,7 @@ export const site = {
   dataPlate: [
     { field: "Model", value: "N. Chandrabahu" },
     { field: "Class", value: "Data science · AI engineering" },
-    { field: "Build", value: "B.Eng (Mechanical) → M.Data Sci" },
+    { field: "Build", value: "B.Eng (Hons.) (Mechanical) → M.Data Sci" },
     { field: "Location", value: "Sydney, AU" },
     { field: "Status", value: "Open to data & AI roles", lamp: true },
   ],

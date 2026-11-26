@@ -248,8 +248,8 @@ Two sub-blocks.
 
 **Degrees** (two large cards, side by side on desktop):
 - **Master of Data Science**, Macquarie University, Sydney, 2023–2025. Mono note: `Major project: clinical NLP · Distinction (82)`.
-- **Bachelor of Engineering (Mechanical)**, Curtin University, delivered at SLIIT, Sri Lanka, 2014–2020. TODO(nadun): is it "(Honours)"? Earlier notes say BEng (Hons.).
-- Each card has a **"View certificate ↗"** link driven by `credentialUrl`. If `credentialUrl` is empty, hide the link. TODO(nadun): degree certificate links.
+- **Bachelor of Engineering (Mechanical) (Hons.)**, Curtin University, delivered at SLIIT, Sri Lanka, 2014–2020. (Honours confirmed by Nadun.)
+- Each card has a **"View certificate ↗"** link driven by `credentialUrl`. If `credentialUrl` is empty, hide the link. Both degrees link to their My eQuals certificates.
 
 **Certificates** (sub-heading *Certifications*, mono eyebrow `ONLINE CREDENTIALS`):
 - Reserve a grid for **8 certificates**: 4 columns desktop, 2 tablet, 1 mobile. Cards are compact: issuer logo slot (optional, 32px), title, issuer, date, optional hours, 2–3 skill chips, and a **"Verify ↗"** link.
@@ -557,7 +557,7 @@ Add `scripts/build-knowledge.ts`, run at `prebuild`. It compiles `src/content/*.
 3. GitHub URLs for clinical NLP, language ID, mortgage defaults and the MIL survey.
 4. Mechanic role details (employer, whether it goes in Experience).
 5. Approval of the draft lines: hero sub-line, About faith paragraph, Off-the-keyboard closing line, contact reply-time line.
-6. Bachelor title: Honours or not. Degree certificate links.
+6. ~~Bachelor title: Honours or not. Degree certificate links.~~ Done: (Hons.) added, both certificates linked.
 7. 8 certificates: titles, issuers, dates, links, images.
 8. Resume PDF.
 9. Preferred Bible translation for Ephesians 2:8.
