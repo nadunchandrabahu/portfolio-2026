@@ -172,7 +172,7 @@ Content:
 ### 5.2 Selected work (`#work`)
 Header: `02 · SELECTED WORK` / title **Selected work**. Optional intro (one line): *Projects with real data, real constraints and a measured result.*
 
-Layout: the **Field Shift card is featured and spans the full width** (two columns inside it: copy left, a stylised map or satellite-tile visual right, or the 3D ring segment if there is no image). The rest sit in a 2-column grid on desktop and 1 column on mobile. **MIL Survey is a smaller secondary card** (half height, no inspection tag).
+Layout: the **Field Shift card is featured and spans the full width** (two columns inside it: copy left; right, the team photo with a screenshot of the Field Shift app below it (`screenshot` in `projects.ts`, uncropped). On phones the photo leads the card and the screenshot sits after the text, above the inspection tag. Without a screenshot the card falls back to the field-tile drawing). The rest sit in a 2-column grid on desktop and 1 column on mobile. **MIL Survey is a smaller secondary card** (half height, no inspection tag).
 
 Card anatomy, top to bottom: optional thumbnail (16:9, full colour; the card must look finished without one) → **"Live ↗" and "GitHub ↗" buttons** (brass outline, on every card; a link that isn't public yet shows as a dashed, disabled button) → eyebrow (mono, brass-deep) → title (Archivo 600) → description (Plex Sans) → tech tags (mono chips, 1px steel-line outline, no fill) → **inspection tag**.
 

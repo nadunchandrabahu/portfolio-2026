@@ -5,8 +5,29 @@ import { InspectionTag } from "./InspectionTag";
 import { ProjectBody, projectTitleId } from "./ProjectBody";
 import { ProjectLinks } from "./ProjectLinks";
 
+/** The app screenshot, uncropped at its own shape, in a machined frame. */
+function Screenshot({
+  shot,
+  sizes,
+  className = "",
+}: {
+  shot: NonNullable<Project["screenshot"]>;
+  sizes: string;
+  className?: string;
+}) {
+  return (
+    <Photo
+      photo={shot}
+      sizes={sizes}
+      className={`w-full rounded-machined border border-steel-line ${className}`}
+      style={{ aspectRatio: `${shot.width} / ${shot.height}` }}
+    />
+  );
+}
+
 /** Full-width card: copy on the left, a visual on the right. */
 export function FeaturedProject({ project }: { project: Project }) {
+  const { image, screenshot } = project;
   return (
     <article
       data-project-id={project.id}
@@ -21,6 +42,15 @@ export function FeaturedProject({ project }: { project: Project }) {
           <ProjectLinks project={project} />
         </div>
         <ProjectBody project={project} />
+        {/* Phones and tablets: the screenshot sits after the text, above the result
+            tag (desktop shows it in the visual column instead). */}
+        {screenshot && image ? (
+          <Screenshot
+            shot={screenshot}
+            sizes="100vw"
+            className="mt-8 lg:hidden"
+          />
+        ) : null}
         {project.result ? (
           <div className="mt-auto pt-8">
             <InspectionTag result={project.result} />
@@ -28,22 +58,37 @@ export function FeaturedProject({ project }: { project: Project }) {
         ) : null}
       </div>
       {/* Visual column: the project photo edge to edge at the top (kept wide, so
-          a group photo isn't cropped to its middle), then the field-tile
-          drawing. On phones the photo alone stands in for both, at the top of
-          the card like the other project cards. */}
+          a group photo isn't cropped to its middle), then the app screenshot, or
+          the field-tile drawing if there isn't one. On phones the photo sits at
+          the top of the card like the other project cards. */}
       <div
         className={`flex flex-col bg-cast lg:order-none lg:border-t-0 lg:border-l lg:border-steel-line ${
-          project.image ? "order-first" : "border-t border-steel-line"
+          image ? "order-first" : "border-t border-steel-line"
         }`}
       >
-        {project.image ? (
-          <Photo photo={project.image} sizes="(min-width: 1024px) 40vw, 100vw" className="aspect-[4/3]" />
+        {image ? (
+          <Photo
+            photo={image}
+            sizes="(min-width: 1024px) 40vw, 100vw"
+            className="aspect-[4/3]"
+          />
         ) : null}
-        <div
-          className={`flex-1 items-center p-6 sm:p-8 lg:p-10 ${project.image ? "hidden lg:flex" : "flex"}`}
-        >
-          <FieldTiles className="w-full" />
-        </div>
+        {screenshot ? (
+          <div
+            className={`flex-1 items-center p-6 ${image ? "hidden lg:flex" : "flex"}`}
+          >
+            <Screenshot
+              shot={screenshot}
+              sizes="(min-width: 1024px) 40vw, 100vw"
+            />
+          </div>
+        ) : (
+          <div
+            className={`flex-1 items-center p-6 sm:p-8 lg:p-10 ${image ? "hidden lg:flex" : "flex"}`}
+          >
+            <FieldTiles className="w-full" />
+          </div>
+        )}
       </div>
     </article>
   );

@@ -9,9 +9,19 @@ import type { Photo as PhotoData } from "@/content/types";
  * fills it, cropped at `photo.position`. next/image serves resized
  * AVIF/WebP copies and lazy-loads below the fold.
  */
-export function Photo({ photo, sizes, className = "" }: { photo: PhotoData; sizes: string; className?: string }) {
+export function Photo({
+  photo,
+  sizes,
+  className = "",
+  style,
+}: {
+  photo: PhotoData;
+  sizes: string;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
   return (
-    <div className={`photo-frame ${className}`}>
+    <div className={`photo-frame ${className}`} style={style}>
       <Image
         src={photo.src}
         alt={photo.alt}

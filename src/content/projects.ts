@@ -32,6 +32,12 @@ export type Project = {
   /** Why there are no public links, where that needs saying (knowledge file). */
   noLinksNote?: string;
   image?: Photo;
+  /**
+   * Featured card only: a second, uncropped picture under the photo (desktop)
+   * or after the text (phones), with its pixel size so it keeps its shape.
+   * Without one, the featured card shows the field-tile drawing instead.
+   */
+  screenshot?: Photo & { width: number; height: number };
 };
 
 export const projects: Project[] = [
@@ -57,6 +63,12 @@ export const projects: Project[] = [
       src: "/images/projects/field-shift.jpg",
       alt: "Group photo of participants at NASA's International Space Apps Challenge",
       position: "50% 40%",
+    },
+    screenshot: {
+      src: "/images/projects/field-shift-app.jpg",
+      alt: "Screenshot of the Field Shift prototype: predicted land surface temperature and typical rainfall across a year, above the sowing, crop growth, harvesting and post-harvest windows.",
+      width: 1701,
+      height: 857,
     },
     links: {
       // TODO(nadun): confirm the prototype URL; one earlier note had nasafieldship.netlify.app.
