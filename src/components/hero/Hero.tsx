@@ -55,7 +55,7 @@ export function Hero() {
             <span className="block">Chandrabahu</span>
           </h1>
           <p className="mt-5 font-display text-h3 font-medium text-bone">{site.role}</p>
-          <p className="mt-4 max-w-[52ch] text-concrete">{site.heroLine}</p>
+          <p className="mt-4 max-w-[58ch] text-pretty text-concrete">{site.heroLine}</p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <a
