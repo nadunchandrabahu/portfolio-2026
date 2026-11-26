@@ -1,4 +1,4 @@
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Download } from "lucide-react";
 import type { ComponentType } from "react";
 
 type Icon = ComponentType<{ className?: string; "aria-hidden"?: "true" }>;
@@ -31,6 +31,32 @@ export function ExternalButton({
       {children}
       <ArrowUpRight aria-hidden="true" className="size-4" />
       <span className="sr-only"> (opens in a new tab)</span>
+    </a>
+  );
+}
+
+/** The same button for a file on this site: it downloads the file. */
+export function DownloadButton({
+  href,
+  fileName,
+  icon: Icon,
+  children,
+}: {
+  href: string;
+  fileName: string;
+  icon?: Icon;
+  children: React.ReactNode;
+}) {
+  return (
+    <a
+      href={href}
+      download={fileName}
+      className={`${shape} border-brass text-brass transition-colors hover:bg-brass hover:text-graphite active:bg-brass-deep active:text-graphite`}
+    >
+      {Icon ? <Icon aria-hidden="true" className="size-4" /> : null}
+      {children}
+      <Download aria-hidden="true" className="size-4" />
+      <span className="sr-only"> (PDF download)</span>
     </a>
   );
 }

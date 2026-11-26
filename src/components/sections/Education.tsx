@@ -2,7 +2,7 @@ import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { ChipList } from "@/components/ui/Chip";
 import { Award, FileText } from "lucide-react";
-import { ExternalButton, PlaceholderButton } from "@/components/ui/ExternalButton";
+import { DownloadButton, ExternalButton, PlaceholderButton } from "@/components/ui/ExternalButton";
 import { ExternalTextLink } from "@/components/ui/ExternalTextLink";
 import { Todo } from "@/components/ui/Todo";
 import { certificates, certificatesIntro, type Certificate } from "@/content/certificates";
@@ -52,10 +52,10 @@ function CertificateCard({ cert }: { cert: Certificate }) {
 
 /** "View certificate" and "View research" as buttons along the foot of a degree card. */
 function DegreeActions({ degree }: { degree: Degree }) {
-  const research = degree.researchUrl;
+  const research = degree.research;
   const researchPending = isPending(research) && SHOW_PLACEHOLDERS ? research : null;
-  const researchHref = typeof research === "string" ? research : null;
-  if (!degree.credentialUrl && !researchHref && !researchPending) return null;
+  const researchFile = research && !isPending(research) ? research : null;
+  if (!degree.credentialUrl && !researchFile && !researchPending) return null;
   return (
     <div className="mt-auto flex flex-col gap-3 pt-4">
       <div className="flex flex-wrap gap-3">
@@ -64,10 +64,10 @@ function DegreeActions({ degree }: { degree: Degree }) {
             View certificate
           </ExternalButton>
         ) : null}
-        {researchHref ? (
-          <ExternalButton href={researchHref} icon={FileText}>
+        {researchFile ? (
+          <DownloadButton href={researchFile.href} fileName={researchFile.fileName} icon={FileText}>
             View research
-          </ExternalButton>
+          </DownloadButton>
         ) : researchPending ? (
           <PlaceholderButton icon={FileText}>View research</PlaceholderButton>
         ) : null}

@@ -192,7 +192,7 @@ Each card has `data-project-id`. When a card is in view or hovered, it writes `h
 - Inspection tag: `30 yrs of NASA data → sowing windows · 3 crops × 3 cities`
 - Links: Live prototype → `https://nasafieldshift.netlify.app` · GitHub → `https://github.com/nadunchandrabahu/field-shift-nasa`. TODO(nadun): confirm the prototype URL; one earlier note had `nasafieldship.netlify.app`.
 
-**1 · `clinical-nlp`**: Empowering Medical Data Analytics with AI. Eyebrow `RESEARCH / NLP`. Description, tech, readout `baseline established → GPT-4.1 nano ~48.7% accuracy`, all from Content.md. GitHub only → `https://github.com/nadunchandrabahu/Empowering-medical-data-analytics-with-AI`. This is also the master's major project (Education links to the same repository).
+**1 · `clinical-nlp`**: Empowering Medical Data Analytics with AI. Eyebrow `RESEARCH / NLP`. Description, tech, readout `baseline established → GPT-4.1 nano ~48.7% accuracy`, all from Content.md. GitHub only → `https://github.com/nadunchandrabahu/Empowering-medical-data-analytics-with-AI`. This is also the master's major project (the Education card downloads its report).
 
 **2 · `language-id`**: Language ID for Endangered Languages (Hack 2025). Eyebrow `MACHINE LEARNING / SPEECH`. Readout `confidence 0.89 → 0.991`. GitHub only → `https://github.com/nadunchandrabahu/Hack2025`.
 
@@ -239,7 +239,7 @@ Two sub-blocks.
 **Degrees** (two large cards, side by side on desktop):
 - **Master of Data Science**, Macquarie University, Sydney, 2023–2025. Mono note: `Major project: Empowering Medical Data Analytics with AI · Distinction (82)`.
 - **Bachelor of Engineering (Mechanical) (Hons.)**, Curtin University, delivered at SLIIT, Sri Lanka, 2014–2020. (Honours confirmed by Nadun.)
-- Each card has a **"View certificate ↗"** link driven by `credentialUrl`. If `credentialUrl` is empty, hide the link. Both degrees link to their My eQuals certificates.
+- Each card has a **"View certificate ↗"** link driven by `credentialUrl`. If `credentialUrl` is empty, hide the link. Both degrees link to their My eQuals certificates. Beside it, a **"View research"** button downloads the major project's write-up (`research` in `education.ts`, PDFs in `public/research/`, copied from `postgrad-research.pdf` and `undergrad-research.pdf` in the project root, which are git-ignored there). The bachelor's thesis is published without its page 3 cover letter, which has a home address and student ID; drop that page again if the file is ever replaced.
 
 **Certificates** (sub-heading *Certifications*, mono eyebrow `ONLINE CREDENTIALS`):
 - Reserve a grid for **8 certificates**: 4 columns desktop, 2 tablet, 1 mobile. Cards are compact: issuer logo slot (optional, 32px), title, issuer, date, optional hours, 2–3 skill chips, and a **"Verify ↗"** link.
@@ -557,4 +557,4 @@ Add `scripts/build-knowledge.ts`, run at `prebuild`. It compiles `src/content/*.
 10. Optional photos for Off the keyboard (project thumbnails, Experience photos and the portrait are in).
 11. Optional: your own SolidWorks/Blender gearbox GLB (7.6).
 12. Production domain: set `SITE_URL` in Vercel (metadata, canonical URL, sitemap, robots, JSON-LD). Until then the Vercel production URL is used.
-13. Research link for the bachelor's major project (`researchUrl` in `src/content/education.ts`; the master's now links its GitHub repository): "Measurement of Thermal and Optical Properties of Metal Oxide Nanoparticles". Its "View research" button appears once it's set.
+13. ~~Research links for both degrees' major projects.~~ Done (2026-11-27): both "View research" buttons download the reports.

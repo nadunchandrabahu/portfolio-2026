@@ -49,3 +49,7 @@ next-env.d.ts
 
 # The resume as dropped in the root; the site serves the copy in public/resume
 /Resume-NadunChandrabahu.pdf
+
+# Research PDFs as dropped in the root; the site serves copies in public/research
+/postgrad-research.pdf
+/undergrad-research.pdf

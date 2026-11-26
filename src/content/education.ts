@@ -1,4 +1,4 @@
-import { pending, type Pending } from "./types";
+import type { Pending } from "./types";
 
 export type Degree = {
   title: string;
@@ -7,8 +7,12 @@ export type Degree = {
   years: string;
   note?: string;
   credentialUrl?: string;
-  /** The major project's write-up. Pending: a dashed stand-in button in development, hidden in production. */
-  researchUrl?: string | Pending;
+  /**
+   * The major project's write-up, a PDF in /public/research that the "View
+   * research" button downloads. Pending: a dashed stand-in button in
+   * development, hidden in production.
+   */
+  research?: { href: string; fileName: string } | Pending;
   pendingNotes?: Pending[];
 };
 
@@ -21,7 +25,11 @@ export const degrees: Degree[] = [
     note: "Major project: Empowering Medical Data Analytics with AI · Distinction (82)",
     credentialUrl:
       "https://www.myequals.net/sharelink/ec3208d5-d66c-44c8-8369-72ec80447faa/6381a0be-16bf-455a-92d1-9fe69257dd7a",
-    researchUrl: "https://github.com/nadunchandrabahu/Empowering-medical-data-analytics-with-AI",
+    // Copied from postgrad-research.pdf in the project root.
+    research: {
+      href: "/research/Empowering-Medical-Data-Analytics-with-AI.pdf",
+      fileName: "Chandrabahu-Empowering-Medical-Data-Analytics-with-AI.pdf",
+    },
   },
   {
     title: "Bachelor of Engineering (Mechanical) (Hons.)",
@@ -31,7 +39,11 @@ export const degrees: Degree[] = [
     note: "Major project: Measurement of Thermal and Optical Properties of Metal Oxide Nanoparticles",
     credentialUrl:
       "https://www.myequals.net/sharelink/b4827fa7-91e9-488a-9d76-7fa767694fc0/4bd89176-0144-40ed-a04e-26d932f4ec1a",
-    // TODO(nadun): link to the nanoparticles research (thesis, paper or report).
-    researchUrl: pending("Link to the bachelor's research (metal oxide nanoparticles): thesis, paper or report"),
+    // From undergrad-research.pdf in the project root, without page 3 (the
+    // cover letter, which has a home address and student ID).
+    research: {
+      href: "/research/Metal-Oxide-Nanoparticles-Thesis.pdf",
+      fileName: "Chandrabahu-Metal-Oxide-Nanoparticles-Thesis.pdf",
+    },
   },
 ];
