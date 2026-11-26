@@ -13,6 +13,7 @@ function fakeDeps(reducedMotion = false) {
     }),
     scrollToSection: vi.fn((id) => calls.push(`scroll ${id}`)),
     showProject: vi.fn((id) => calls.push(`project ${id}`)),
+    setTheme: vi.fn((theme) => calls.push(`theme ${theme}`)),
     sleep: vi.fn(async (ms) => {
       calls.push(`sleep ${ms}`);
     }),
@@ -108,6 +109,31 @@ describe("runActions", () => {
         "project grow365",
       ]);
     });
+  });
+});
+
+describe("theme action", () => {
+  it("switches the theme without scrolling to the gearbox", async () => {
+    const { deps, calls } = fakeDeps();
+    await runActions([{ type: "theme", value: "rain" }], deps);
+    expect(calls).toEqual(["theme rain"]);
+  });
+
+  it("applies the last theme under reduced motion", async () => {
+    const { deps, calls } = fakeDeps(true);
+    await runActions(
+      [
+        { type: "theme", value: "light" },
+        { type: "explode", amount: 1 },
+        { type: "theme", value: "dark" },
+      ],
+      deps,
+    );
+    expect(calls).toEqual(["showGearbox", "theme dark", 'apply {"explode":1}']);
+  });
+
+  it("shows in the receipt", () => {
+    expect(formatReceipt([{ type: "theme", value: "light" }])).toBe("→ theme: light");
   });
 });
 

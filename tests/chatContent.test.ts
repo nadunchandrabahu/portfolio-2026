@@ -21,6 +21,20 @@ describe("mock replies", () => {
     expect(mockReply(OPENING_SUGGESTIONS[3]).actions).toContainEqual({ type: "focus", target: "sun" });
   });
 
+  it.each([
+    ["Switch to light mode", "light"],
+    ["Make it rain", "rain"],
+    ["dark theme please", "dark"],
+  ])("switches the theme: %s", (message, value) => {
+    expect(mockReply(message).actions).toEqual([{ type: "theme", value }]);
+  });
+
+  it("doesn't mistake other questions for theme requests", () => {
+    for (const message of ["Show it as a drawing", "What tools does he use?", "Highlight the NASA project"]) {
+      expect(mockReply(message).actions.some((a) => a.type === "theme")).toBe(false);
+    }
+  });
+
   it.each(["hello", "Put it back together", "What tools does he use?", "How do I contact him?", "zzz"])(
     "always returns a valid response: %s",
     (message) => {

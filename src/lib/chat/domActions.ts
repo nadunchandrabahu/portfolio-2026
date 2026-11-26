@@ -5,6 +5,7 @@ import type { SectionId } from "@/content/site";
 import { revealProjectCard } from "@/lib/revealProject";
 import { useGearboxStore } from "@/three/gearboxStore";
 import { STEP_MS, type ExecutorDeps } from "./executor";
+import { setTheme } from "@/lib/theme";
 
 /**
  * The browser side of the executor: store writes, scrolling and the card
@@ -56,6 +57,7 @@ export function domDeps(reducedMotion: boolean): ExecutorDeps {
       markScroll(4000);
       revealProjectCard(id, reducedMotion);
     },
+    setTheme,
     sleep,
   };
 }

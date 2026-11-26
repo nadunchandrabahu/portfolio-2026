@@ -190,7 +190,7 @@ test.describe("chat", () => {
       : page.getByRole("navigation", { name: "Primary" }).getByRole("button", { name: "Ask AI Nadun" });
     await ask.click();
 
-    const dialog = page.getByRole("dialog", { name: "Workshop assistant" });
+    const dialog = page.getByRole("dialog", { name: "AI Nadun" });
     await expect(dialog).toBeVisible();
     await expect(dialog.getByLabel("Your question")).toBeFocused();
 
@@ -237,6 +237,23 @@ test.describe("reduced motion", () => {
       () => document.getAnimations().filter((a) => a.playState === "running").length,
     );
     expect(running).toBe(0);
+  });
+});
+
+test.describe("theme selector", () => {
+  test("switches theme from the header and remembers it", async ({ page }) => {
+    await page.goto("/");
+    const html = page.locator("html");
+    await expect(html).not.toHaveAttribute("data-theme");
+    await page.getByRole("button", { name: /Change theme/ }).click();
+    await page.getByRole("button", { name: /^Light/ }).click();
+    await expect(html).toHaveAttribute("data-theme", "light");
+    await expect(page.getByRole("button", { name: /Change theme/ })).toHaveAccessibleName(/Theme: Light/);
+    await page.reload();
+    await expect(html).toHaveAttribute("data-theme", "light");
+    await page.getByRole("button", { name: /Change theme/ }).click();
+    await page.getByRole("button", { name: /^Dark/ }).click();
+    await expect(html).not.toHaveAttribute("data-theme");
   });
 });
 

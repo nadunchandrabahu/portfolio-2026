@@ -29,6 +29,8 @@ describe("GearboxAction", () => {
       { type: "highlightProject", id: "field-shift" },
       { type: "scrollTo", section: "contact" },
       { type: "reset" },
+      { type: "theme", value: "rain" },
+      { type: "theme", value: "light" },
     ];
     for (const action of valid) expect(GearboxAction.safeParse(action).success).toBe(true);
   });
@@ -39,6 +41,7 @@ describe("GearboxAction", () => {
     { type: "highlightProject", id: "not-a-project" },
     { type: "scrollTo", section: "footer" },
     { type: "explode", amount: "1" },
+    { type: "theme", value: "neon" },
     { target: "ai" },
     null,
   ])("rejects %j", (action) => {

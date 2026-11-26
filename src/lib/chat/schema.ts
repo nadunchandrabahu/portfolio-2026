@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { PROJECT_IDS } from "@/content/projects";
 import { SECTION_IDS } from "@/content/site";
+import { THEMES } from "@/lib/themeConfig";
 
 // No JIT-compiled validators: zod probes for that with `Function("")`, which
 // the site's CSP (no 'unsafe-eval') reports as a violation.
@@ -44,6 +45,8 @@ export const GearboxAction = z.discriminatedUnion("type", [
   z.object({ type: z.literal("highlightProject"), id: ProjectId }),
   z.object({ type: z.literal("scrollTo"), section: SectionId }),
   z.object({ type: z.literal("reset") }),
+  // Site theme (not the gearbox itself, but the same action list).
+  z.object({ type: z.literal("theme"), value: z.enum(THEMES) }),
 ]);
 export type GearboxAction = z.infer<typeof GearboxAction>;
 

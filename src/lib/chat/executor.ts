@@ -1,6 +1,7 @@
 import type { ProjectId } from "@/content/projects";
 import type { SectionId } from "@/content/site";
 import type { GearboxTargets } from "@/three/gearboxStore";
+import type { Theme } from "@/lib/themeConfig";
 import type { GearboxAction } from "./schema";
 
 /**
@@ -25,11 +26,13 @@ export type ExecutorDeps = {
   scrollToSection(id: SectionId): void;
   /** Scroll the project's card into view and pulse its outline. */
   showProject(id: ProjectId): void;
+  /** Switch the site theme (dark / light / rain). */
+  setTheme(theme: Theme): void;
   sleep(ms: number): Promise<void>;
 };
 
 /** Actions that move the model itself (rather than only the page). */
-const movesGearbox = (a: GearboxAction) => a.type !== "scrollTo" && a.type !== "reset";
+const movesGearbox = (a: GearboxAction) => a.type !== "scrollTo" && a.type !== "reset" && a.type !== "theme";
 
 /** Store changes for one action; null for actions that only scroll. */
 function toTargets(action: GearboxAction): Partial<GearboxTargets> | null {
@@ -53,6 +56,7 @@ function toTargets(action: GearboxAction): Partial<GearboxTargets> | null {
 function runOne(action: GearboxAction, deps: ExecutorDeps) {
   if (action.type === "reset") return deps.reset();
   if (action.type === "scrollTo") return deps.scrollToSection(action.section);
+  if (action.type === "theme") return deps.setTheme(action.value);
   const targets = toTargets(action);
   if (targets) deps.apply(targets);
   if (action.type === "highlightProject") deps.showProject(action.id);
@@ -62,6 +66,7 @@ function runOne(action: GearboxAction, deps: ExecutorDeps) {
 function runReduced(actions: GearboxAction[], deps: ExecutorDeps) {
   let targets: Partial<GearboxTargets> = {};
   let didReset = false;
+  let theme: Theme | null = null;
   let lastScroll: { kind: "section"; id: SectionId } | { kind: "project"; id: ProjectId } | null = null;
   for (const action of actions) {
     if (action.type === "reset") {
@@ -69,12 +74,15 @@ function runReduced(actions: GearboxAction[], deps: ExecutorDeps) {
       targets = {};
     } else if (action.type === "scrollTo") {
       lastScroll = { kind: "section", id: action.section };
+    } else if (action.type === "theme") {
+      theme = action.value;
     } else if (action.type !== "spin") {
       Object.assign(targets, toTargets(action));
       if (action.type === "highlightProject") lastScroll = { kind: "project", id: action.id };
     }
   }
   if (didReset) deps.reset();
+  if (theme) deps.setTheme(theme);
   if (Object.keys(targets).length > 0) deps.apply(targets);
   if (lastScroll?.kind === "project") deps.showProject(lastScroll.id);
   else if (lastScroll) deps.scrollToSection(lastScroll.id);
@@ -115,6 +123,8 @@ export function formatReceipt(actions: GearboxAction[]): string | null {
         return `scroll: ${a.section}`;
       case "reset":
         return "reset";
+      case "theme":
+        return `theme: ${a.value}`;
     }
   });
   return `→ ${parts.join(" · ")}`;

@@ -77,7 +77,7 @@ Dark-first. Define everything as CSS variables in Tailwind v4 `@theme`.
 
 Contrast: bone on graphite ≈ 15:1, concrete on graphite ≈ 7:1, brass on graphite ≈ 7.9:1. Keep body text at bone or concrete only.
 
-Light mode is out of scope for v1. Structure the tokens so a "drafting paper" light theme can be added later.
+**Themes (added 2026-11-26, Nadun's request):** three, picked from a selector in the header and remembered per browser (`localStorage`, applied before first paint): **dark** (the palette above, default), **light** ("drafting paper": paper `#F3F0E9`, ink `#1B1D20`, brass `#83601F`) and **rain** (a touch lighter than dark, cooler and greyer, muted brass, faint falling streaks and dimmer, cooler 3D lighting). The token names keep their dark-theme roles, so components never branch on theme; every text/accent pairing stays at least 4.5:1. The chatbot can switch themes with the `theme` action (8.3). Code: `src/lib/theme.ts`, `src/lib/themeConfig.ts`, `src/components/layout/ThemeSwitcher.tsx`, tokens in `globals.css`.
 
 ### 2.4 Typography
 
@@ -148,7 +148,7 @@ There is no database, no auth and no CMS. Content is TypeScript files in the rep
 
 Single page, minimal sticky nav.
 
-**Nav:** monogram `NC` (Archivo, brass on cast, in a small machined square) on the left. Links on the right: Work · About · Experience · Education · Contact · **Resume** (small outlined). Then an **"Ask AI Nadun"** button that opens the chatbot (brass outline, small gear icon). The active section is highlighted in brass via IntersectionObserver. On mobile the links collapse into a full-height sheet menu; the chat button stays visible as a floating action button bottom-right.
+**Nav:** monogram `NC` (Archivo, brass on cast, in a small machined square) on the left. Links on the right: Work · About · Experience · Education · Contact · **Resume** (small outlined). Then an **"Ask AI Nadun"** button that opens the chatbot (brass outline, small gear icon), and the theme selector (an icon button: dark / light / rain; also beside the menu button on mobile). The active section is highlighted in brass via IntersectionObserver. On mobile the links collapse into a full-height sheet menu; the chat button stays visible as a floating action button bottom-right.
 
 **Section order and IDs:**
 
@@ -406,6 +406,7 @@ export const GearboxAction = z.discriminatedUnion('type', [
   z.object({ type: z.literal('highlightProject'), id: ProjectId }),
   z.object({ type: z.literal('scrollTo'), section: SectionId }),
   z.object({ type: z.literal('reset') }),
+  z.object({ type: z.literal('theme'), value: z.enum(['dark','light','rain']) }), // site theme, added 2026-11-26
 ]);
 
 export const ChatResponse = z.object({
@@ -427,7 +428,7 @@ In the route, parse each action individually with `safeParse` and **drop invalid
 - Never echo upstream error bodies to the client. Never log message contents.
 
 ### 8.5 Chat UI (`src/components/chat/`)
-- A docked panel bottom-right on desktop (400×560); a full-height sheet on mobile. It's styled like a workshop instrument: a cast panel with a machined border, a header with a mono title `WORKSHOP ASSISTANT` and a small status lamp, and close/minimise buttons.
+- A docked panel bottom-right on desktop (400×560); a full-height sheet on mobile. It's styled like a workshop instrument: a cast panel with a machined border, a header with a mono title `AI NADUN` and a small status lamp, and close/minimise buttons.
 - Opening state: one line, *Ask about Nadun's projects, background or how to reach him. I can also take the gearbox apart for you.*, plus suggestion chips:
   - "How does a mechanical engineer end up in AI?"
   - "Show me the NASA project"

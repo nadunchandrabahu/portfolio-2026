@@ -6,6 +6,7 @@ import { sections, site, type SectionId } from "@/content/site";
 import { SHOW_PLACEHOLDERS } from "@/content/types";
 import { AskAiButton } from "@/components/chat/ChatLauncher";
 import { KnurlDivider } from "./KnurlDivider";
+import { ThemeSwitcher } from "./ThemeSwitcher";
 
 const navItems = sections.filter((s) => s.nav);
 const showResume = site.resume.available || SHOW_PLACEHOLDERS;
@@ -42,7 +43,9 @@ export function Nav() {
   const resumeClass = site.resume.available
     ? "border-steel-line text-bone hover:border-brass hover:text-brass"
     : "border-dashed border-brass/60 text-brass";
-  const resumeTitle = site.resume.available ? undefined : "TODO(nadun): resume PDF not supplied yet";
+  const resumeTitle = site.resume.available
+    ? undefined
+    : "TODO(nadun): resume PDF not supplied yet";
 
   return (
     <header className="sticky top-0 z-50 bg-cast/85 backdrop-blur-md">
@@ -58,42 +61,46 @@ export function Nav() {
           <span className="sr-only">{site.name}, back to top</span>
         </a>
 
-        <ul className="hidden items-center gap-1 lg:flex">
-          {navItems.map((item) => (
-            <li key={item.id}>
-              <a
-                href={`#${item.id}`}
-                aria-current={active === item.id ? "location" : undefined}
-                className="relative inline-flex min-h-11 items-center px-3 text-small text-concrete transition-colors hover:text-bone aria-[current=location]:text-brass"
-              >
-                {item.nav}
-              </a>
+        <div className="flex items-center gap-2 lg:gap-3">
+          <ul className="hidden items-center gap-1 lg:flex">
+            {navItems.map((item) => (
+              <li key={item.id}>
+                <a
+                  href={`#${item.id}`}
+                  aria-current={active === item.id ? "location" : undefined}
+                  className="relative inline-flex min-h-11 items-center px-3 text-small text-concrete transition-colors hover:text-bone aria-[current=location]:text-brass"
+                >
+                  {item.nav}
+                </a>
+              </li>
+            ))}
+            {showResume ? (
+              <li className="ml-2">
+                <a
+                  href={site.resume.href}
+                  title={resumeTitle}
+                  className={`inline-flex min-h-9 items-center rounded-sm border px-3 font-mono text-mono-label uppercase tracking-[0.08em] transition-colors ${resumeClass}`}
+                >
+                  Resume
+                </a>
+              </li>
+            ) : null}
+            <li className="ml-3">
+              <AskAiButton variant="nav" />
             </li>
-          ))}
-          {showResume ? (
-            <li className="ml-2">
-              <a
-                href={site.resume.href}
-                title={resumeTitle}
-                className={`inline-flex min-h-9 items-center rounded-sm border px-3 font-mono text-mono-label uppercase tracking-[0.08em] transition-colors ${resumeClass}`}
-              >
-                Resume
-              </a>
-            </li>
-          ) : null}
-          <li className="ml-3">
-            <AskAiButton variant="nav" />
-          </li>
-        </ul>
+          </ul>
 
-        <button
-          type="button"
-          popoverTarget="site-menu"
-          className="inline-flex size-11 items-center justify-center rounded-machined border border-steel-line text-bone lg:hidden"
-        >
-          <Menu aria-hidden="true" className="size-5" />
-          <span className="sr-only">Open menu</span>
-        </button>
+          <ThemeSwitcher />
+
+          <button
+            type="button"
+            popoverTarget="site-menu"
+            className="inline-flex size-11 items-center justify-center rounded-machined border border-steel-line text-bone lg:hidden"
+          >
+            <Menu aria-hidden="true" className="size-5" />
+            <span className="sr-only">Open menu</span>
+          </button>
+        </div>
       </nav>
       <KnurlDivider />
 

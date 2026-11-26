@@ -55,6 +55,23 @@ function fallback(): ChatResponse {
 
 const rules: Rule[] = [
   {
+    // "light mode", "switch to rain", "make it dark"… (theme words next to mode/theme, or rain on its own)
+    match: /\b(light|dark|rain|rainy)\s+(mode|theme)\b|\b(mode|theme)\b.*\b(light|dark|rain)\b|\brain\b/i,
+    reply: (message) => {
+      const value = /rain/i.test(message) ? "rain" : /light/i.test(message) ? "light" : "dark";
+      const line = {
+        dark: "Back to the night workshop: dark mode.",
+        light: "Lights on: the drafting-paper theme.",
+        rain: "Rain mode: a greyer, gloomier workshop, with rain on the glass.",
+      }[value];
+      return {
+        reply: `${line} You can also change it any time with the theme button in the header.`,
+        actions: [{ type: "theme", value }],
+        suggestions: ["Show me the NASA project", "Take the gearbox apart"],
+      };
+    },
+  },
+  {
     match: /\b(mechanical|engineer\w*|background|story|career|end up)\b/i,
     reply: () => ({
       reply: [
