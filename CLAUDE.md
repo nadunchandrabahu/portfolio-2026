@@ -414,7 +414,7 @@ In the route, parse each action individually with `safeParse` and **drop invalid
 - If `CHAT_ENABLED !== 'true'`, return a polite "assistant is offline, email Nadun" reply (a kill switch).
 - If `CHAT_MOCK === 'true'`, return canned responses from `src/lib/chat/mock.ts` (keyword-matched, with realistic actions) **so the whole UI can be built before n8n exists**.
 - Otherwise `fetch(process.env.N8N_WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Portfolio-Secret': process.env.N8N_WEBHOOK_SECRET }, body: JSON.stringify({ sessionId, message }), signal: AbortSignal.timeout(25000) })`.
-- Validate with `ChatResponse`. On any upstream error or timeout, return `{ reply: "The workshop assistant is having a moment. You can email Nadun directly at the address below.", actions: [], suggestions: [] }` with status 200, and log server-side without the message text.
+- Validate with `ChatResponse`. On any upstream error or timeout, return `{ reply: "Digital Nadun is having a moment. You can email Nadun directly: the address is in the Contact section.", actions: [], suggestions: [] }` with status 200, and log server-side without the message text.
 - Response headers: `Cache-Control: no-store`.
 - Never echo upstream error bodies to the client. Never log message contents.
 

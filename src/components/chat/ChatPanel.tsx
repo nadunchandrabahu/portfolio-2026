@@ -13,7 +13,7 @@ const INTRO = "Ask about Nadun's projects, background or how to reach him. I can
 const FOCUSABLE = 'button:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])';
 
 /**
- * The workshop assistant panel (CLAUDE.md 8.5): docked bottom-right on
+ * The Digital Nadun chat panel (CLAUDE.md 8.5): docked bottom-right on
  * desktop, a bottom sheet on phones that stops short of the hero gearbox so
  * you can watch it move. A labelled dialog; Esc closes; focus is trapped on
  * phones (modal there); new replies are announced politely.

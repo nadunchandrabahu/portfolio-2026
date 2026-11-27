@@ -57,6 +57,16 @@ describe("knowledge file", () => {
     }
   });
 
+  it("includes the downloads, degree certificates and each certification's date, skills and link", () => {
+    expect(md).toContain("/research/Empowering-Medical-Data-Analytics-with-AI.pdf");
+    expect(md).toContain("/research/Metal-Oxide-Nanoparticles-Thesis.pdf");
+    expect(md).toContain("/resume/Nadun-Chandrabahu-Resume.pdf");
+    expect(md).toMatch(/Degree certificate \(My eQuals\): https:\/\/www\.myequals\.net\//);
+    expect(md).toContain(
+      "LLMOps, DeepLearning.AI, Sep 2026. Skills: fine-tuning, evaluation and monitoring, data processing. Verify: https://www.deeplearning.ai/",
+    );
+  });
+
   it("leaves out placeholders, TODOs and unpublished certificate slots", () => {
     expect(md).not.toMatch(/TODO|pending|Certificate slot|\[employer\]/i);
   });

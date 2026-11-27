@@ -6,6 +6,7 @@
 # Private docs (kept local, matches at the root or in docs/)
 CHATBOT_SETUP.md
 Content.md
+chatbot_setup_updates.md
 
 # Original photos (the site uses the processed copies in public/images)
 /img/

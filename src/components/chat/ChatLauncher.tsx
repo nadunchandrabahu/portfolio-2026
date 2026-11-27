@@ -7,7 +7,7 @@ import { site } from "@/content/site";
 import { openChat, useChatOpen } from "@/lib/chat/open";
 
 /**
- * Entry points to the workshop assistant (CLAUDE.md 4, 8.5). Only these small
+ * Entry points to the Digital Nadun assistant (CLAUDE.md 4, 8.5). Only these small
  * buttons ship with the page: the panel, the executor and the chat chunk load
  * the first time someone opens it.
  */

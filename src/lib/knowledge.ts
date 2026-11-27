@@ -7,7 +7,8 @@ import { projects } from "@/content/projects";
 import { site } from "@/content/site";
 import { skillDrawers } from "@/content/skills";
 import { confirmed, isPending } from "@/content/types";
-import { formatRange } from "@/lib/format";
+import { formatMonth, formatRange } from "@/lib/format";
+import { SITE_URL } from "@/lib/siteUrl";
 
 /**
  * The assistant's fact sheet (CLAUDE.md 8.7), compiled from the same content
@@ -94,9 +95,32 @@ export function buildKnowledge(): string {
   section(
     "Education",
     [
-      list(degrees.map((d) => `${d.title}, ${d.institution}, ${d.place}, ${d.years}${d.note ? `. ${d.note}` : ""}`)),
+      list(
+        degrees.map((d) => {
+          const research = d.research && !isPending(d.research) ? d.research : null;
+          return [
+            `${d.title}, ${d.institution}, ${d.place}, ${d.years}${d.note ? `. ${d.note}` : ""}.`,
+            d.credentialUrl ? `Degree certificate (My eQuals): ${d.credentialUrl}` : null,
+            research
+              ? `Research report (PDF download, the card's "View research" button): ${SITE_URL}${research.href}`
+              : null,
+          ]
+            .filter(Boolean)
+            .join(" ");
+        }),
+      ),
       published.length
-        ? `Certifications:\n\n${list(published.map((c) => `${c.title}, ${c.issuer}`))}`
+        ? `Certifications (each card in the Education section has a "Verify" link):\n\n${list(
+            published.map((c) =>
+              [
+                `${c.title}, ${c.issuer}, ${formatMonth(c.date)}.`,
+                c.skills.length ? `Skills: ${c.skills.join(", ")}.` : null,
+                c.credentialUrl ? `Verify: ${c.credentialUrl}` : null,
+              ]
+                .filter(Boolean)
+                .join(" "),
+            ),
+          )}`
         : "",
     ].join("\n\n"),
   );
@@ -109,7 +133,9 @@ export function buildKnowledge(): string {
       `GitHub: ${site.links.github}`,
       `Location: ${site.location}`,
       ...(site.resume.available
-        ? [`Resume (PDF): ${site.resume.href} on this site, also linked from the hero ("View resume") and the Contact section.`]
+        ? [
+            `Resume (PDF): ${SITE_URL}${site.resume.href}, linked from the top of the page ("View resume") and the Contact section ("Download resume").`,
+          ]
         : []),
     ]),
   );

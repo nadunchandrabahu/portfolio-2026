@@ -31,9 +31,9 @@ export const MESSAGES = {
   rateLimited: "You're sending messages faster than the workshop can answer. Give it a minute and try again.",
   badRequest: "That message couldn't be read. Keep it to 500 characters of plain text.",
   offline:
-    "The workshop assistant is offline right now. You can email Nadun directly: the address is in the Contact section.",
+    "Digital Nadun is offline right now. You can email Nadun directly: the address is in the Contact section.",
   upstream:
-    "The workshop assistant is having a moment. You can email Nadun directly at the address below.",
+    "Digital Nadun is having a moment. You can email Nadun directly: the address is in the Contact section.",
 } as const;
 
 const textReply = (reply: string): ChatResponse => ({ reply, actions: [], suggestions: [] });
