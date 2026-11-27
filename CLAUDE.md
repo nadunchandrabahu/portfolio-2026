@@ -412,7 +412,7 @@ In the route, parse each action individually with `safeParse` and **drop invalid
 
 ### 8.4 `/api/chat` route handler (`src/app/api/chat/route.ts`)
 - `export const runtime = 'nodejs'`; POST only; return 405 for anything else.
-- Order: `checkBotId()` → 403 if bot; reject if the `Origin` header isn't the site's own origin; rate limit by a hashed IP (sliding window **8 requests/minute and 60/day**) → 429 with a friendly JSON message; parse the body (max 2 KB) with `ChatRequest` → 400 on failure.
+- Order: `checkBotId()` → 403 if bot; reject if the `Origin` header isn't the site's own origin; rate limit by a hashed IP (sliding window **8 requests/minute and 100/day**, raised from 60 on 2026-11-27; the minute is checked first and only messages it lets through count towards the day) → 429 with a friendly JSON message, which says whether it's the minute or the daily limit; parse the body (max 2 KB) with `ChatRequest` → 400 on failure.
 - If `CHAT_ENABLED !== 'true'`, return a polite "assistant is offline, email Nadun" reply (a kill switch).
 - If `CHAT_MOCK === 'true'`, return canned responses from `src/lib/chat/mock.ts` (keyword-matched, with realistic actions) **so the whole UI can be built before n8n exists**.
 - Otherwise `fetch(process.env.N8N_WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Portfolio-Secret': process.env.N8N_WEBHOOK_SECRET }, body: JSON.stringify({ sessionId, message }), signal: AbortSignal.timeout(25000) })`.

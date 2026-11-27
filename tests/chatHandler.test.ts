@@ -65,8 +65,15 @@ describe("handleChat", () => {
     expect((await handleChat(req, deps)).status).toBe(403);
   });
 
+  it("says when the daily limit is the one that's been reached", async () => {
+    const { deps } = makeDeps({ limiter: { check: async () => ({ ok: false, limit: "day" }) } });
+    const res = await read(await handleChat(request(valid), deps));
+    expect(res).toMatchObject({ status: 429, body: { reply: MESSAGES.dailyLimit } });
+    expect(MESSAGES.dailyLimit).not.toMatch(/minute/);
+  });
+
   it("rate limits with 429 and a friendly reply", async () => {
-    const { deps } = makeDeps({ limiter: { check: async () => ({ ok: false }) } });
+    const { deps } = makeDeps({ limiter: { check: async () => ({ ok: false, limit: "minute" }) } });
     const res = await read(await handleChat(request(valid), deps));
     expect(res).toMatchObject({ status: 429, body: { reply: MESSAGES.rateLimited } });
   });

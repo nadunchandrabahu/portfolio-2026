@@ -3,7 +3,7 @@ import { linkify, toParagraphs } from "@/lib/chat/linkify";
 import { mockReply, QUIPS, requestedHumour } from "@/lib/chat/mock";
 import { ChatResponse, OPENING_SUGGESTIONS } from "@/lib/chat/schema";
 import { buildKnowledge } from "@/lib/knowledge";
-import { hashIp, LIMITS, memoryLimiter } from "@/lib/ratelimit";
+import { hashIp, LIMITS, memoryLimiter, twoWindowLimiter } from "@/lib/ratelimit";
 
 describe("mock replies: humour slider", () => {
   const questions = ["Show me the NASA project", "What tools does he use?", "How do I contact him?", "What has he built?"];
@@ -181,14 +181,39 @@ describe("rate limiter (in-memory fallback)", () => {
     expect((await limiter.check("1.2.3.4")).ok).toBe(true);
   });
 
-  it("caps a visitor at 60 a day", async () => {
+  it("caps a visitor at 100 a day, and says which limit it was", async () => {
     let now = 0;
     const limiter = memoryLimiter(() => now);
     for (let i = 0; i < LIMITS.perDay; i++) {
       expect((await limiter.check("1.2.3.4")).ok).toBe(true);
       now += 61_000 / LIMITS.perMinute + 1_000;
     }
-    expect((await limiter.check("1.2.3.4")).ok).toBe(false);
+    expect(await limiter.check("1.2.3.4")).toEqual({ ok: false, limit: "day" });
+  });
+
+  it("names the minute limit when that's the one hit", async () => {
+    const limiter = memoryLimiter(() => 0);
+    for (let i = 0; i < LIMITS.perMinute; i++) await limiter.check("1.2.3.4");
+    expect(await limiter.check("1.2.3.4")).toEqual({ ok: false, limit: "minute" });
+  });
+
+  it("(Upstash path) doesn't count messages the minute limit refused against the day", async () => {
+    const dayCalls: string[] = [];
+    let minuteOk = false;
+    const limiter = twoWindowLimiter(
+      { limit: async () => ({ success: minuteOk }) },
+      { limit: async (key) => (dayCalls.push(key), { success: true }) },
+    );
+    for (let i = 0; i < 5; i++) expect(await limiter.check("1.2.3.4")).toEqual({ ok: false, limit: "minute" });
+    expect(dayCalls).toHaveLength(0);
+    minuteOk = true;
+    expect(await limiter.check("1.2.3.4")).toEqual({ ok: true });
+    expect(dayCalls).toHaveLength(1);
+  });
+
+  it("(Upstash path) reports the day limit once the minute allows it", async () => {
+    const limiter = twoWindowLimiter({ limit: async () => ({ success: true }) }, { limit: async () => ({ success: false }) });
+    expect(await limiter.check("1.2.3.4")).toEqual({ ok: false, limit: "day" });
   });
 
   it("keys visitors by a hash, never the raw IP", () => {

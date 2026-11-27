@@ -29,6 +29,8 @@ export const UPSTREAM_TIMEOUT_MS = 25_000;
 export const MESSAGES = {
   forbidden: "This request couldn't be accepted.",
   rateLimited: "You're sending messages faster than the workshop can answer. Give it a minute and try again.",
+  dailyLimit:
+    "That's today's chat limit reached, so Digital Nadun is taking a break. You can email Nadun directly: the address is in the Contact section.",
   badRequest: "That message couldn't be read. Keep it to 500 characters of plain text.",
   offline:
     "Digital Nadun is offline right now. You can email Nadun directly: the address is in the Contact section.",
@@ -130,8 +132,10 @@ export async function handleChat(request: Request, deps: ChatDeps): Promise<Resp
   if (await deps.isBot()) return respond(textReply(MESSAGES.forbidden), 403);
   if (!isSameOrigin(request)) return respond(textReply(MESSAGES.forbidden), 403);
 
-  const { ok } = await deps.limiter.check(clientIp(request.headers));
-  if (!ok) return respond(textReply(MESSAGES.rateLimited), 429);
+  const limit = await deps.limiter.check(clientIp(request.headers));
+  if (!limit.ok) {
+    return respond(textReply(limit.limit === "day" ? MESSAGES.dailyLimit : MESSAGES.rateLimited), 429);
+  }
 
   if (Number(request.headers.get("content-length") ?? 0) > MAX_BODY_BYTES) {
     return respond(textReply(MESSAGES.badRequest), 400);
