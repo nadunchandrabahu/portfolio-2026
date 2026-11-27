@@ -29,6 +29,21 @@ describe("ChatRequest", () => {
   });
 });
 
+describe("ChatResponse humour", () => {
+  it("keeps a reply's humour setting, snapped to 5% steps and 0-100", () => {
+    expect(parseChatResponse({ reply: "Hi", humour: 80 })?.humour).toBe(80);
+    expect(parseChatResponse({ reply: "Hi", humour: 83 })?.humour).toBe(85);
+    expect(parseChatResponse({ reply: "Hi", humour: 140 })?.humour).toBe(100);
+    expect(parseChatResponse({ reply: "Hi", humour: -10 })?.humour).toBe(0);
+  });
+
+  it("drops a missing or non-numeric humour", () => {
+    expect(parseChatResponse({ reply: "Hi" })).not.toHaveProperty("humour");
+    expect(parseChatResponse({ reply: "Hi", humour: "lots" })).not.toHaveProperty("humour");
+    expect(parseChatResponse({ reply: "Hi", humour: Number.NaN })).not.toHaveProperty("humour");
+  });
+});
+
 describe("GearboxAction", () => {
   it("accepts every action type", () => {
     const valid = [

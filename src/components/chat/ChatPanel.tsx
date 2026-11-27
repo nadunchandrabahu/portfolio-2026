@@ -2,7 +2,7 @@
 
 import { ArrowUp, Minus, X } from "lucide-react";
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
-import { getHumour, setHumour } from "@/lib/chat/client";
+import { setHumour, useHumour } from "@/lib/chat/client";
 import { HUMOUR_PLAIN_MAX, HUMOUR_STEP, MESSAGE_MAX } from "@/lib/chat/schema";
 import { useMediaQuery } from "@/lib/useMediaQuery";
 import { MessageList, type ChatMessage } from "./MessageList";
@@ -44,9 +44,8 @@ export function ChatPanel({
   const inputId = useId();
   const humourId = useId();
   const humourHintId = useId();
-  // The panel only renders in the browser (ChatRoot loads without SSR), so
-  // the remembered setting can be read straight away.
-  const [humour, setHumourValue] = useState(getHumour);
+  // Shared with the replies: a reply can move it when the visitor asks.
+  const humour = useHumour();
   const panel = useRef<HTMLElement>(null);
   const input = useRef<HTMLTextAreaElement>(null);
   const [draft, setDraft] = useState("");
@@ -230,11 +229,7 @@ export function ChatPanel({
               max={100}
               step={HUMOUR_STEP}
               value={humour}
-              onChange={(e) => {
-                const value = Number(e.target.value);
-                setHumourValue(value);
-                setHumour(value);
-              }}
+              onChange={(e) => setHumour(Number(e.target.value))}
               aria-valuetext={`${humour}%`}
               aria-describedby={humourHintId}
               className="humour-slider"

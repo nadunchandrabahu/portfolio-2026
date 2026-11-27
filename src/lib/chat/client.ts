@@ -1,5 +1,6 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import { HUMOUR_DEFAULT, Humour, parseChatResponse, type ChatResponse } from "./schema";
 
 /** Browser side of the chat: a per-tab session id and the one request it makes. */
@@ -23,6 +24,7 @@ export function getSessionId(): string {
 
 const HUMOUR_KEY = "nc-chat-humour";
 let humourSetting: number | null = null;
+const humourListeners = new Set<() => void>();
 
 /** The humour slider's setting, remembered in this browser (default 25%). */
 export function getHumour(): number {
@@ -40,15 +42,29 @@ export function getHumour(): number {
   return humourSetting;
 }
 
+/** Set from the slider, or from a reply when the visitor asked the bot to change it. */
 export function setHumour(value: number): void {
   const parsed = Humour.safeParse(value);
-  if (!parsed.success) return;
+  if (!parsed.success || parsed.data === humourSetting) return;
   humourSetting = parsed.data;
   try {
     window.localStorage.setItem(HUMOUR_KEY, String(parsed.data));
   } catch {
     // Storage blocked: the setting lasts for this page only.
   }
+  humourListeners.forEach((listener) => listener());
+}
+
+/** The current humour setting, kept in step wherever it changes. */
+export function useHumour(): number {
+  return useSyncExternalStore(
+    (onChange) => {
+      humourListeners.add(onChange);
+      return () => humourListeners.delete(onChange);
+    },
+    getHumour,
+    () => HUMOUR_DEFAULT,
+  );
 }
 
 export const NETWORK_ERROR =
@@ -60,12 +76,12 @@ export const NETWORK_ERROR =
  * is shown as-is. The reply is re-validated here: the server already did, but
  * the actions it carries are about to move things on the page.
  */
-export async function sendMessage(message: string, signal?: AbortSignal): Promise<ChatResponse> {
+export async function sendMessage(message: string, humour: number, signal?: AbortSignal): Promise<ChatResponse> {
   try {
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sessionId: getSessionId(), message, humour: getHumour() }),
+      body: JSON.stringify({ sessionId: getSessionId(), message, humour }),
       signal,
     });
     const data = parseChatResponse(await res.json().catch(() => null));

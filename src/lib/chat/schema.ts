@@ -68,6 +68,12 @@ export const ChatResponse = z.object({
   reply: z.string().max(REPLY_MAX),
   actions: z.array(GearboxAction).max(MAX_ACTIONS).default([]),
   suggestions: z.array(z.string().max(SUGGESTION_MAX)).max(MAX_SUGGESTIONS).default([]),
+  /**
+   * The humour setting the reply was written at. Normally the one the visitor
+   * sent; different when they asked the bot to change it ("be funnier", "set
+   * humour to 80"), and then the slider follows.
+   */
+  humour: Humour.optional(),
 });
 export type ChatResponse = z.infer<typeof ChatResponse>;
 
@@ -107,5 +113,16 @@ export function parseChatResponse(raw: unknown): ChatResponse | null {
     .map((s) => s.trim().slice(0, SUGGESTION_MAX))
     .slice(0, MAX_SUGGESTIONS);
 
-  return { reply: data.reply.slice(0, REPLY_MAX), actions, suggestions };
+  // Snap any number to the slider's 5% steps and 0-100 range; drop anything else.
+  const humour =
+    typeof data.humour === "number" && Number.isFinite(data.humour)
+      ? clamp(Math.round(data.humour / HUMOUR_STEP) * HUMOUR_STEP, 0, 100)
+      : undefined;
+
+  return {
+    reply: data.reply.slice(0, REPLY_MAX),
+    actions,
+    suggestions,
+    ...(humour === undefined ? {} : { humour }),
+  };
 }

@@ -1,36 +1,71 @@
 import { describe, expect, it } from "vitest";
 import { linkify, toParagraphs } from "@/lib/chat/linkify";
-import { mockReply } from "@/lib/chat/mock";
+import { mockReply, QUIPS, requestedHumour } from "@/lib/chat/mock";
 import { ChatResponse, OPENING_SUGGESTIONS } from "@/lib/chat/schema";
 import { buildKnowledge } from "@/lib/knowledge";
 import { hashIp, LIMITS, memoryLimiter } from "@/lib/ratelimit";
 
 describe("mock replies: humour slider", () => {
   const questions = ["Show me the NASA project", "What tools does he use?", "How do I contact him?", "What has he built?"];
+  const text = (r: ReturnType<typeof mockReply>) => ({ reply: r.reply, actions: r.actions, suggestions: r.suggestions });
+  const squash = (s: string) => s.replace(/\s+/g, " ").trim();
+  const allQuips: string[] = [...QUIPS.light, ...QUIPS.bold];
 
-  it("answers exactly the same at 0% and 25% as with no setting", () => {
+  it("answers exactly the same at 0% and 25% as with no setting, and says which setting it used", () => {
     for (const q of questions) {
-      expect(mockReply(q, 0)).toEqual(mockReply(q));
-      expect(mockReply(q, 25)).toEqual(mockReply(q));
+      expect(text(mockReply(q, 0))).toEqual(text(mockReply(q)));
+      expect(text(mockReply(q, 25))).toEqual(text(mockReply(q)));
+      expect(mockReply(q, 0).humour).toBe(0);
+      expect(mockReply(q).humour).toBe(25);
     }
   });
 
-  it("at 100% adds one short line, keeping the answer and the actions", () => {
-    for (const q of questions) {
+  it("at 100% weaves in one short line somewhere, keeping the answer and the actions", () => {
+    const slots = new Set<string>();
+    for (const q of [...questions, "Tell me about PICKL HQ", "What's Grow365?", "Show me the mortgage project"]) {
       const plain = mockReply(q, 25);
       const funny = mockReply(q, 100);
       expect(funny.actions).toEqual(plain.actions);
-      expect(funny.reply.startsWith(plain.reply)).toBe(true);
-      const extra = funny.reply.slice(plain.reply.length).trim();
-      expect(extra.length).toBeGreaterThan(0);
-      expect(extra.split(/\s+/).length).toBeLessThanOrEqual(12);
-      expect(extra).not.toMatch(/!/);
+      const quip = allQuips.find((line) => funny.reply.includes(line));
+      expect(quip).toBeDefined();
+      expect(squash(funny.reply.replace(quip!, ""))).toBe(squash(plain.reply));
+      expect(quip!.split(/\s+/).length).toBeLessThanOrEqual(12);
+      expect(quip).not.toMatch(/!/);
+      const at = funny.reply.indexOf(quip!);
+      slots.add(at === 0 ? "start" : at + quip!.length >= funny.reply.length ? "end" : "middle");
     }
+    // Not always tacked on at the end.
+    expect(slots.size).toBeGreaterThan(1);
   });
 
   it("keeps faith answers sincere at any setting", () => {
-    expect(mockReply(OPENING_SUGGESTIONS[3], 100)).toEqual(mockReply(OPENING_SUGGESTIONS[3], 25));
+    expect(text(mockReply(OPENING_SUGGESTIONS[3], 100))).toEqual(text(mockReply(OPENING_SUGGESTIONS[3], 25)));
   });
+
+  it.each([
+    ["set humour to 80%", 50, 80],
+    ["Humour 100 please", 25, 100],
+    ["make it 37% funny", 25, 35],
+    ["be funnier", 25, 50],
+    ["Can you be funnier?", 90, 100],
+    ["less funny please", 50, 25],
+    ["no jokes", 75, 0],
+    ["be serious for a moment", 60, 0],
+    ["max humour", 25, 100],
+  ])("typed request %j at %d%% sets humour to %d%%", (message, current, expected) => {
+    expect(requestedHumour(message, current)).toBe(expected);
+    const reply = mockReply(message, current);
+    expect(reply.humour).toBe(expected);
+    expect(reply.actions).toEqual([]);
+  });
+
+  it.each(["Show me 3 projects", "Is he serious about AI?", "What's at the centre?", "Turn the lights on"])(
+    "leaves the setting alone for %j",
+    (message) => {
+      expect(requestedHumour(message, 40)).toBeNull();
+      expect(mockReply(message, 40).humour).toBe(40);
+    },
+  );
 });
 
 describe("mock replies", () => {

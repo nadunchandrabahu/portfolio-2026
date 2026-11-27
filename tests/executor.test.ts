@@ -171,4 +171,10 @@ describe("formatReceipt", () => {
   it("is null when nothing moved", () => {
     expect(formatReceipt([])).toBeNull();
   });
+
+  it("adds a humour change to the receipt, even with no actions", () => {
+    expect(formatReceipt([], 80)).toBe("→ humour: 80%");
+    expect(formatReceipt([{ type: "lights", on: true }], 0)).toBe("→ lights: on · humour: 0%");
+    expect(formatReceipt([], null)).toBeNull();
+  });
 });

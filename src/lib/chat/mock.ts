@@ -2,7 +2,7 @@ import { about } from "@/content/about";
 import { projects, type ProjectId } from "@/content/projects";
 import { site } from "@/content/site";
 import { skillDrawers } from "@/content/skills";
-import { HUMOUR_DEFAULT, HUMOUR_PLAIN_MAX, OPENING_SUGGESTIONS, type ChatResponse } from "./schema";
+import { HUMOUR_DEFAULT, HUMOUR_PLAIN_MAX, HUMOUR_STEP, OPENING_SUGGESTIONS, type ChatResponse } from "./schema";
 
 /**
  * Canned replies for CHAT_MOCK=true (CLAUDE.md 8.4), so the whole chat UI
@@ -170,20 +170,26 @@ const rules: Rule[] = [
 
 /**
  * Humour slider stand-ins: short, dry one-liners with a confident, roguish
- * edge, never at anyone's expense. Original lines, no film quotes.
+ * edge, never at anyone's expense. Original lines, no film quotes. Varied on
+ * purpose: understatement, mock bravado, deadpan asides, the gearbox.
  */
-const QUIPS = {
+export const QUIPS = {
   light: [
     "Short answer: it works. That's usually the point.",
     "The gears did most of the talking there.",
     "Measured twice, like a proper engineer.",
     "No hype. Just the numbers.",
+    "Fewer slides, more working parts.",
+    "Turns out spreadsheets can be quietly dramatic.",
   ],
   bold: [
     "Not bad for a guy who started out with a spanner.",
     "I'd call it luck, but he'd show you the spreadsheet.",
     "Confident? Sure. He also checked the numbers.",
     "Smooth, tested and still in one piece. The gearbox too.",
+    "He doesn't do hype. He does results, then shrugs.",
+    "Ask nicely and I'll even spin the gears for you.",
+    "Plan, build, test, ship. No dramatic monologue required.",
   ],
 } as const;
 
@@ -191,20 +197,64 @@ const QUIPS = {
 const hash = (text: string) => [...text].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7);
 
 /**
+ * Put the line somewhere natural: up front, after the first sentence, or at
+ * the end. Paragraph breaks in the reply are kept.
+ */
+function insertQuip(reply: string, quip: string, slot: number): string {
+  if (slot === 0) return `${quip} ${reply}`;
+  if (slot === 1) {
+    const firstSentence = /^(.+?[.?])\s+(?=\S)/.exec(reply);
+    if (firstSentence) return `${firstSentence[1]} ${quip} ${reply.slice(firstSentence[0].length)}`;
+  }
+  return `${reply} ${quip}`;
+}
+
+/**
  * Above 25%, add one line of humour, more often the higher the slider (every
  * reply at 100%). Never on faith answers: those stay sincere at any setting.
  */
 function withHumour(reply: ChatResponse, message: string, humour: number): ChatResponse {
-  if (humour <= HUMOUR_PLAIN_MAX) return reply;
-  if (reply.actions.some((a) => a.type === "focus" && a.target === "sun")) return reply;
+  const plain = { ...reply, humour };
+  if (humour <= HUMOUR_PLAIN_MAX) return plain;
+  if (reply.actions.some((a) => a.type === "focus" && a.target === "sun")) return plain;
   const h = hash(message);
   const chance = (humour - HUMOUR_PLAIN_MAX) / (100 - HUMOUR_PLAIN_MAX);
-  if ((h % 100) / 100 >= chance) return reply;
+  if ((h % 100) / 100 >= chance) return plain;
   const pool = humour > 60 ? QUIPS.bold : QUIPS.light;
-  return { ...reply, reply: `${reply.reply}\n\n${pool[h % pool.length]}` };
+  return { ...plain, reply: insertQuip(reply.reply, pool[h % pool.length] ?? "", (h >>> 3) % 3) };
+}
+
+const snap = (n: number) => Math.min(100, Math.max(0, Math.round(n / HUMOUR_STEP) * HUMOUR_STEP));
+const HUMOUR_WORDS = /\b(humou?r|funn(y|ier)|jokes?|joking|serious|snark(y|ier)?|sarcas\w*)\b/i;
+
+/**
+ * A request to change the humour setting, typed instead of using the slider:
+ * "set humour to 80%", "be funnier", "less funny", "no jokes", "max humour".
+ * Returns the new setting, or null if the message isn't about humour.
+ */
+export function requestedHumour(message: string, current: number): number | null {
+  if (!HUMOUR_WORDS.test(message)) return null;
+  // A number counts only next to a humour word, or written as a percentage.
+  const number = /\b(?:humou?r|funn\w*|jokes?|snark\w*)\b\D{0,15}?(\d{1,3})|(\d{1,3})\s*%/i.exec(message);
+  if (number) return snap(Number(number[1] ?? number[2]));
+  if (/\b(no jokes|stop joking|be serious|serious mode|humou?r off|no humou?r)\b/i.test(message)) return 0;
+  if (/\b(max(imum)? (humou?r|snark)|full snark|as funny as)\b/i.test(message)) return 100;
+  if (/\b(less|fewer|tone (it )?down|dial (it )?(back|down))\b/i.test(message)) return snap(current - 25);
+  if (/\b(more|funnier|crank|turn (it )?up|dial (it )?up|snarkier)\b/i.test(message)) return snap(current + 25);
+  return null;
+}
+
+function humourChangeReply(value: number): ChatResponse {
+  const reply =
+    value <= HUMOUR_PLAIN_MAX
+      ? `Done: humour is at ${value}%. Straight answers from here.`
+      : `Humour is now at ${value}%. Ask away.`;
+  return { reply, actions: [], suggestions: ["Show me the NASA project", "What has he built?"] };
 }
 
 export function mockReply(message: string, humour: number = HUMOUR_DEFAULT): ChatResponse {
+  const requested = requestedHumour(message, humour);
+  if (requested !== null) return withHumour(humourChangeReply(requested), message, requested);
   return withHumour(plainReply(message), message, humour);
 }
 

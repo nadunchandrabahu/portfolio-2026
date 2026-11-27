@@ -405,6 +405,7 @@ export const ChatResponse = z.object({
   reply: z.string().max(1500),
   actions: z.array(GearboxAction).max(4).default([]),
   suggestions: z.array(z.string().max(80)).max(3).default([]),
+  humour: z.number().optional(), // the setting the reply was written at; snapped to 5% steps, 0-100
 });
 ```
 In the route, parse each action individually with `safeParse` and **drop invalid ones rather than failing the whole reply**. Clamp numbers before validating.
@@ -431,7 +432,7 @@ In the route, parse each action individually with `safeParse` and **drop invalid
 - When actions run, show a one-line mono receipt under the reply, e.g. `→ focus: ai · spin: 30 rpm`, so it's clear the bot moved the model.
 - Input: max 500 chars with a visible counter after 400; Enter sends, Shift+Enter adds a newline; the send button is disabled while waiting.
 - Session: generate a `sessionId` with `crypto.randomUUID()` and keep it in `sessionStorage`. No cookies.
-- **Humour slider** (added 2026-11-27, Nadun's request): a small "Humour" range on the right of the "Your question" row, 0–100% in 5% steps, starting at 25%, remembered per browser (`localStorage`). It's sent with every message as `humour` and forwarded to n8n. Up to 25% the bot answers exactly as before; above that it adds short, dry one-liners (Han Solo-style snark, never rude, never about faith), more often the higher it goes. The n8n side is in `docs/chatbot_setup_updates.md`; mock mode imitates it.
+- **Humour slider** (added 2026-11-27, Nadun's request): a small "Humour" range on the right of the "Your question" row, 0–100% in 5% steps, starting at 25%, remembered per browser (`localStorage`). It's sent with every message as `humour` and forwarded to n8n. Every reply carries back the `humour` it was written at; visitors can change it by typing ("set humour to 80%", "be funnier", "no jokes"), and when the reply's value differs from what that message sent, the slider moves to it and the receipt adds `→ humour: 80%`. Up to 25% the bot answers exactly as before; above that it adds short, dry one-liners (Han Solo-style snark, never rude, never about faith), more often the higher it goes, placed anywhere in the reply and varied in form. The n8n side is in `docs/chatbot_setup_updates.md`; mock mode imitates it.
 - Small print under the input (concrete, 12px): *AI assistant. It can be wrong; check anything important with Nadun.* (TODO(nadun): add "Chats aren't stored" only once n8n execution saving is turned off, see CHATBOT_SETUP.md.)
 
 ### 8.6 Action executor (`src/lib/chat/executor.ts`)

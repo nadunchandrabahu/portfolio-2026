@@ -121,8 +121,7 @@ export async function runActions(actions: GearboxAction[], deps: ExecutorDeps, s
 }
 
 /** One-line receipt under a reply, e.g. "→ focus: ai · spin: 30 rpm". */
-export function formatReceipt(actions: GearboxAction[]): string | null {
-  if (actions.length === 0) return null;
+export function formatReceipt(actions: GearboxAction[], humour?: number | null): string | null {
   const parts = actions.map((a) => {
     switch (a.type) {
       case "focus":
@@ -147,5 +146,7 @@ export function formatReceipt(actions: GearboxAction[]): string | null {
         return `theme: ${a.value}`;
     }
   });
+  if (humour !== undefined && humour !== null) parts.push(`humour: ${humour}%`);
+  if (parts.length === 0) return null;
   return `→ ${parts.join(" · ")}`;
 }

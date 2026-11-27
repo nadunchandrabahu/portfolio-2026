@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { sendMessage } from "@/lib/chat/client";
+import { getHumour, sendMessage, setHumour } from "@/lib/chat/client";
 import { domDeps, isProgrammaticScroll } from "@/lib/chat/domActions";
 import { formatReceipt, runActions } from "@/lib/chat/executor";
 import { closeChat } from "@/lib/chat/open";
@@ -84,16 +84,28 @@ export default function ChatRoot({ open }: { open: boolean }) {
     setSuggestions([]);
     setPending(true);
 
+    const humourSent = getHumour();
     let reply;
     try {
-      reply = await sendMessage(text, controller.signal);
+      reply = await sendMessage(text, humourSent, controller.signal);
     } catch {
       return; // superseded by a newer message
     }
     setPending(false);
+    // Every reply says which humour setting it used. A different one means the
+    // visitor asked for a change ("be funnier", "humour 80"), so the slider
+    // follows. Compared with what this message sent, so a reply never undoes
+    // a slider move made while it was on its way.
+    const humourChanged = reply.humour !== undefined && reply.humour !== humourSent ? reply.humour : null;
+    if (humourChanged !== null) setHumour(humourChanged);
     setMessages((m) => [
       ...m,
-      { id: nextId.current++, role: "assistant", text: reply.reply, receipt: formatReceipt(reply.actions) },
+      {
+        id: nextId.current++,
+        role: "assistant",
+        text: reply.reply,
+        receipt: formatReceipt(reply.actions, humourChanged),
+      },
     ]);
     setSuggestions(reply.suggestions);
     setAnnouncement(reply.reply);
