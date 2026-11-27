@@ -251,7 +251,7 @@ Two sub-blocks.
     status: 'published' | 'placeholder';
   };
   ```
-- Seed **8 entries**. Entry 1 is known: *Data Analytics Foundations*, DeepLearning.AI, 2026-09, course 1 of the Data Analytics Professional Certificate (TODO(nadun): credential URL and confirm). Entries 2–8 are `status: 'placeholder'`.
+- **8 entries, all published (Nadun's list, 2026-11-27), in this order:** Siemens Mobility - Project Management (Siemens, 2026-09, Forage) · AI Builder: Create Agents, Voice Agents & Automations in n8n (Ligency, 2026-11) · Data Analytics Foundations, Applied Statistics for Data Analytics and LLMOps (DeepLearning.AI, 2026-09) · The Complete JavaScript Course 2023 (Udemy, 2023-12) · Deep Learning A-Z: Hands-on Artificial Neural Networks and Machine Learning A-Z: Hands-on Python & R in Data Science (Udemy, 2022-01). Each has a credential link. Skill chips and images are optional and still empty.
 - Placeholder cards render as dashed-outline "slot reserved" cards **in development only**. In production they are filtered out, and the grid still lays out cleanly for any count from 1 to 8.
 
 ### 5.8 Contact + footer (`#contact`)
@@ -551,7 +551,7 @@ Add `scripts/build-knowledge.ts`, run at `prebuild`. It compiles `src/content/*.
 4. Mechanic role details (employer, whether it goes in Experience).
 5. Approval of the draft lines: About faith paragraph, Off-the-keyboard closing line, contact reply-time line.
 6. ~~Bachelor title: Honours or not. Degree certificate links.~~ Done: (Hons.) added, both certificates linked.
-7. 8 certificates: titles, issuers, dates, links, images.
+7. ~~8 certificates: titles, issuers, dates, links.~~ Done (2026-11-27). Optional: 2–3 skill chips and an issuer logo each.
 8. ~~Resume PDF.~~ Done (2026-11-27).
 9. ~~Preferred Bible translation for Ephesians 2:8.~~ Done: NIV.
 10. Optional photos for Off the keyboard (project thumbnails, Experience photos and the portrait are in).
