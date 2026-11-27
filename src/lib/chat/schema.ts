@@ -29,9 +29,20 @@ export const MAX_ACTIONS = 4;
 export const MAX_SUGGESTIONS = 3;
 export const SUGGESTION_MAX = 80;
 
+/**
+ * The chat panel's humour slider: 0 to 100 in steps of 5. Up to 25 the bot
+ * answers exactly as it always has; above that it adds dry one-liners.
+ */
+export const HUMOUR_DEFAULT = 25;
+export const HUMOUR_PLAIN_MAX = 25;
+export const HUMOUR_STEP = 5;
+export const Humour = z.number().int().min(0).max(100).multipleOf(HUMOUR_STEP);
+
 export const ChatRequest = z.object({
   sessionId: z.uuid(),
   message: z.string().trim().min(1).max(MESSAGE_MAX),
+  /** Optional, so older open tabs keep working; they get the default. */
+  humour: Humour.default(HUMOUR_DEFAULT),
 });
 export type ChatRequest = z.infer<typeof ChatRequest>;
 

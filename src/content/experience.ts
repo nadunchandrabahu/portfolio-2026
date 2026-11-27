@@ -24,7 +24,7 @@ export const experience: (ExperienceEntry | Pending)[] = [
     role: "AI Engineer (Contract)",
     employer: "Hatch",
     start: "2026-04",
-    end: "2026-07",
+    end: "2026-11",
     line: "Evaluated agentic AI for e-commerce, tracing agent reasoning and catching reward hacking, and ran prompt engineering to make agents more reliable.",
     image: { src: "/images/experience/hatch.jpg", alt: "" },
   },

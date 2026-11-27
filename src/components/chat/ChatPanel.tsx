@@ -2,7 +2,8 @@
 
 import { ArrowUp, Minus, X } from "lucide-react";
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
-import { MESSAGE_MAX } from "@/lib/chat/schema";
+import { getHumour, setHumour } from "@/lib/chat/client";
+import { HUMOUR_PLAIN_MAX, HUMOUR_STEP, MESSAGE_MAX } from "@/lib/chat/schema";
 import { useMediaQuery } from "@/lib/useMediaQuery";
 import { MessageList, type ChatMessage } from "./MessageList";
 import { Suggestions } from "./Suggestions";
@@ -10,7 +11,8 @@ import { Suggestions } from "./Suggestions";
 const COUNTER_FROM = 400;
 const INTRO = "Ask about Nadun's projects, background or how to reach him. I can also take the gearbox apart for you.";
 
-const FOCUSABLE = 'button:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])';
+const FOCUSABLE =
+  'button:not([disabled]), textarea:not([disabled]), input:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])';
 
 /**
  * The Digital Nadun chat panel (CLAUDE.md 8.5): docked bottom-right on
@@ -40,6 +42,11 @@ export function ChatPanel({
 }) {
   const titleId = useId();
   const inputId = useId();
+  const humourId = useId();
+  const humourHintId = useId();
+  // The panel only renders in the browser (ChatRoot loads without SSR), so
+  // the remembered setting can be read straight away.
+  const [humour, setHumourValue] = useState(getHumour);
   const panel = useRef<HTMLElement>(null);
   const input = useRef<HTMLTextAreaElement>(null);
   const [draft, setDraft] = useState("");
@@ -199,15 +206,50 @@ export function ChatPanel({
           send(draft);
         }}
       >
-        <div className="flex items-baseline justify-between">
-          <label htmlFor={inputId} className="font-mono text-[11px] tracking-[0.08em] text-concrete uppercase">
-            Your question
-          </label>
-          {draft.length >= COUNTER_FROM ? (
-            <span className={`font-mono text-[11px] ${remaining < 20 ? "text-brass" : "text-concrete"}`}>
-              {draft.length}/{MESSAGE_MAX}
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-baseline gap-2">
+            <label htmlFor={inputId} className="font-mono text-[11px] tracking-[0.08em] text-concrete uppercase">
+              Your question
+            </label>
+            {draft.length >= COUNTER_FROM ? (
+              <span className={`font-mono text-[11px] ${remaining < 20 ? "text-brass" : "text-concrete"}`}>
+                {draft.length}/{MESSAGE_MAX}
+              </span>
+            ) : null}
+          </div>
+          {/* Humour: how much dry wit goes into the replies. Up to 25% the
+              answers are plain; above that, one-liners get more frequent. */}
+          <div className="flex items-center gap-2" title="How funny the replies are. Up to 25%: straight answers.">
+            <label htmlFor={humourId} className="font-mono text-[11px] tracking-[0.08em] text-concrete uppercase">
+              Humour
+            </label>
+            <input
+              id={humourId}
+              type="range"
+              min={0}
+              max={100}
+              step={HUMOUR_STEP}
+              value={humour}
+              onChange={(e) => {
+                const value = Number(e.target.value);
+                setHumourValue(value);
+                setHumour(value);
+              }}
+              aria-valuetext={`${humour}%`}
+              aria-describedby={humourHintId}
+              className="humour-slider"
+            />
+            <output
+              htmlFor={humourId}
+              aria-hidden="true"
+              className={`w-8 text-right font-mono text-[11px] tabular-nums ${humour > HUMOUR_PLAIN_MAX ? "text-brass" : "text-concrete"}`}
+            >
+              {humour}%
+            </output>
+            <span id={humourHintId} className="sr-only">
+              Up to {HUMOUR_PLAIN_MAX}%, straight answers. Higher adds short, dry one-liners.
             </span>
-          ) : null}
+          </div>
         </div>
         <div className="mt-1.5 flex items-end gap-2">
           <textarea

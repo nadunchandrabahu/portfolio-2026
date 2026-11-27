@@ -2,7 +2,7 @@ import { about } from "@/content/about";
 import { projects, type ProjectId } from "@/content/projects";
 import { site } from "@/content/site";
 import { skillDrawers } from "@/content/skills";
-import { OPENING_SUGGESTIONS, type ChatResponse } from "./schema";
+import { HUMOUR_DEFAULT, HUMOUR_PLAIN_MAX, OPENING_SUGGESTIONS, type ChatResponse } from "./schema";
 
 /**
  * Canned replies for CHAT_MOCK=true (CLAUDE.md 8.4), so the whole chat UI
@@ -168,7 +168,47 @@ const rules: Rule[] = [
   },
 ];
 
-export function mockReply(message: string): ChatResponse {
+/**
+ * Humour slider stand-ins: short, dry one-liners with a confident, roguish
+ * edge, never at anyone's expense. Original lines, no film quotes.
+ */
+const QUIPS = {
+  light: [
+    "Short answer: it works. That's usually the point.",
+    "The gears did most of the talking there.",
+    "Measured twice, like a proper engineer.",
+    "No hype. Just the numbers.",
+  ],
+  bold: [
+    "Not bad for a guy who started out with a spanner.",
+    "I'd call it luck, but he'd show you the spreadsheet.",
+    "Confident? Sure. He also checked the numbers.",
+    "Smooth, tested and still in one piece. The gearbox too.",
+  ],
+} as const;
+
+/** Stable per message, so a test (or a repeated question) gets the same answer. */
+const hash = (text: string) => [...text].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7);
+
+/**
+ * Above 25%, add one line of humour, more often the higher the slider (every
+ * reply at 100%). Never on faith answers: those stay sincere at any setting.
+ */
+function withHumour(reply: ChatResponse, message: string, humour: number): ChatResponse {
+  if (humour <= HUMOUR_PLAIN_MAX) return reply;
+  if (reply.actions.some((a) => a.type === "focus" && a.target === "sun")) return reply;
+  const h = hash(message);
+  const chance = (humour - HUMOUR_PLAIN_MAX) / (100 - HUMOUR_PLAIN_MAX);
+  if ((h % 100) / 100 >= chance) return reply;
+  const pool = humour > 60 ? QUIPS.bold : QUIPS.light;
+  return { ...reply, reply: `${reply.reply}\n\n${pool[h % pool.length]}` };
+}
+
+export function mockReply(message: string, humour: number = HUMOUR_DEFAULT): ChatResponse {
+  return withHumour(plainReply(message), message, humour);
+}
+
+function plainReply(message: string): ChatResponse {
   for (const [pattern, id] of projectKeywords) {
     if (pattern.test(message)) return projectReply(id);
   }

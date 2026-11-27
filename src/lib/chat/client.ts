@@ -1,6 +1,6 @@
 "use client";
 
-import { parseChatResponse, type ChatResponse } from "./schema";
+import { HUMOUR_DEFAULT, Humour, parseChatResponse, type ChatResponse } from "./schema";
 
 /** Browser side of the chat: a per-tab session id and the one request it makes. */
 
@@ -21,6 +21,36 @@ export function getSessionId(): string {
   }
 }
 
+const HUMOUR_KEY = "nc-chat-humour";
+let humourSetting: number | null = null;
+
+/** The humour slider's setting, remembered in this browser (default 25%). */
+export function getHumour(): number {
+  if (humourSetting === null) {
+    let stored: unknown = null;
+    try {
+      const raw = window.localStorage.getItem(HUMOUR_KEY);
+      stored = raw === null ? null : Number(raw);
+    } catch {
+      // Storage blocked: fall back to the default.
+    }
+    const parsed = Humour.safeParse(stored);
+    humourSetting = parsed.success ? parsed.data : HUMOUR_DEFAULT;
+  }
+  return humourSetting;
+}
+
+export function setHumour(value: number): void {
+  const parsed = Humour.safeParse(value);
+  if (!parsed.success) return;
+  humourSetting = parsed.data;
+  try {
+    window.localStorage.setItem(HUMOUR_KEY, String(parsed.data));
+  } catch {
+    // Storage blocked: the setting lasts for this page only.
+  }
+}
+
 export const NETWORK_ERROR =
   "The message didn't get through. Check your connection and try again, or email Nadun directly.";
 
@@ -35,7 +65,7 @@ export async function sendMessage(message: string, signal?: AbortSignal): Promis
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sessionId: getSessionId(), message }),
+      body: JSON.stringify({ sessionId: getSessionId(), message, humour: getHumour() }),
       signal,
     });
     const data = parseChatResponse(await res.json().catch(() => null));

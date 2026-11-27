@@ -5,7 +5,13 @@ const sessionId = "4f8e2b1a-3c5d-4e6f-8a9b-0c1d2e3f4a5b";
 
 describe("ChatRequest", () => {
   it("accepts a uuid session and a trimmed message", () => {
-    expect(ChatRequest.parse({ sessionId, message: "  hello  " })).toEqual({ sessionId, message: "hello" });
+    expect(ChatRequest.parse({ sessionId, message: "  hello  " })).toEqual({ sessionId, message: "hello", humour: 25 });
+  });
+
+  it("accepts a humour setting in 5% steps from 0 to 100, defaulting to 25", () => {
+    expect(ChatRequest.parse({ sessionId, message: "hi", humour: 0 }).humour).toBe(0);
+    expect(ChatRequest.parse({ sessionId, message: "hi", humour: 85 }).humour).toBe(85);
+    expect(ChatRequest.parse({ sessionId, message: "hi" }).humour).toBe(25);
   });
 
   it.each([
@@ -14,6 +20,10 @@ describe("ChatRequest", () => {
     ["non-uuid session", { sessionId: "abc", message: "hi" }],
     ["missing message", { sessionId }],
     ["wrong types", { sessionId: 1, message: ["hi"] }],
+    ["humour over 100", { sessionId, message: "hi", humour: 105 }],
+    ["negative humour", { sessionId, message: "hi", humour: -5 }],
+    ["humour off the 5% steps", { sessionId, message: "hi", humour: 33 }],
+    ["humour as text", { sessionId, message: "hi", humour: "max" }],
   ])("rejects %s", (_, input) => {
     expect(ChatRequest.safeParse(input).success).toBe(false);
   });

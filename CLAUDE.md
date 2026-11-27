@@ -385,6 +385,7 @@ export const SectionId = z.enum(['hero','work','about','hands-on','skills','expe
 export const ChatRequest = z.object({
   sessionId: z.string().uuid(),
   message: z.string().trim().min(1).max(500),
+  humour: z.number().int().min(0).max(100).multipleOf(5).default(25), // humour slider, added 2026-11-27
 });
 
 export const GearboxAction = z.discriminatedUnion('type', [
@@ -430,6 +431,7 @@ In the route, parse each action individually with `safeParse` and **drop invalid
 - When actions run, show a one-line mono receipt under the reply, e.g. `→ focus: ai · spin: 30 rpm`, so it's clear the bot moved the model.
 - Input: max 500 chars with a visible counter after 400; Enter sends, Shift+Enter adds a newline; the send button is disabled while waiting.
 - Session: generate a `sessionId` with `crypto.randomUUID()` and keep it in `sessionStorage`. No cookies.
+- **Humour slider** (added 2026-11-27, Nadun's request): a small "Humour" range on the right of the "Your question" row, 0–100% in 5% steps, starting at 25%, remembered per browser (`localStorage`). It's sent with every message as `humour` and forwarded to n8n. Up to 25% the bot answers exactly as before; above that it adds short, dry one-liners (Han Solo-style snark, never rude, never about faith), more often the higher it goes. The n8n side is in `docs/chatbot_setup_updates.md`; mock mode imitates it.
 - Small print under the input (concrete, 12px): *AI assistant. It can be wrong; check anything important with Nadun.* (TODO(nadun): add "Chats aren't stored" only once n8n execution saving is turned off, see CHATBOT_SETUP.md.)
 
 ### 8.6 Action executor (`src/lib/chat/executor.ts`)

@@ -5,6 +5,34 @@ import { ChatResponse, OPENING_SUGGESTIONS } from "@/lib/chat/schema";
 import { buildKnowledge } from "@/lib/knowledge";
 import { hashIp, LIMITS, memoryLimiter } from "@/lib/ratelimit";
 
+describe("mock replies: humour slider", () => {
+  const questions = ["Show me the NASA project", "What tools does he use?", "How do I contact him?", "What has he built?"];
+
+  it("answers exactly the same at 0% and 25% as with no setting", () => {
+    for (const q of questions) {
+      expect(mockReply(q, 0)).toEqual(mockReply(q));
+      expect(mockReply(q, 25)).toEqual(mockReply(q));
+    }
+  });
+
+  it("at 100% adds one short line, keeping the answer and the actions", () => {
+    for (const q of questions) {
+      const plain = mockReply(q, 25);
+      const funny = mockReply(q, 100);
+      expect(funny.actions).toEqual(plain.actions);
+      expect(funny.reply.startsWith(plain.reply)).toBe(true);
+      const extra = funny.reply.slice(plain.reply.length).trim();
+      expect(extra.length).toBeGreaterThan(0);
+      expect(extra.split(/\s+/).length).toBeLessThanOrEqual(12);
+      expect(extra).not.toMatch(/!/);
+    }
+  });
+
+  it("keeps faith answers sincere at any setting", () => {
+    expect(mockReply(OPENING_SUGGESTIONS[3], 100)).toEqual(mockReply(OPENING_SUGGESTIONS[3], 25));
+  });
+});
+
 describe("mock replies", () => {
   it("every opening chip gets a sensible reply that moves the gearbox", () => {
     for (const chip of OPENING_SUGGESTIONS) {

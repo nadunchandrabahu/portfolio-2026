@@ -151,7 +151,7 @@ export async function handleChat(request: Request, deps: ChatDeps): Promise<Resp
 
   // Kill switch.
   if (!deps.env.CHAT_ENABLED) return respond(textReply(MESSAGES.offline));
-  if (deps.env.CHAT_MOCK) return respond(mockReply(parsed.data.message));
+  if (deps.env.CHAT_MOCK) return respond(mockReply(parsed.data.message, parsed.data.humour));
 
   const url = deps.env.N8N_WEBHOOK_URL;
   const secret = deps.env.N8N_WEBHOOK_SECRET;
@@ -164,7 +164,11 @@ export async function handleChat(request: Request, deps: ChatDeps): Promise<Resp
     const upstream = await deps.fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Portfolio-Secret": secret },
-      body: JSON.stringify({ sessionId: parsed.data.sessionId, message: parsed.data.message }),
+      body: JSON.stringify({
+        sessionId: parsed.data.sessionId,
+        message: parsed.data.message,
+        humour: parsed.data.humour,
+      }),
       signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
     });
     if (!upstream.ok) {

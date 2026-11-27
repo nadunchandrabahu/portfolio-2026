@@ -821,6 +821,21 @@ html[data-gearbox-stage] .gearbox-slot-optional {
   scale: 1.02;
 }
 
+/* Chat humour slider: small on desktop, a full touch target on phones. */
+.humour-slider {
+  width: 5rem;
+  height: 1.5rem;
+  accent-color: var(--brass);
+  cursor: pointer;
+}
+
+@media (pointer: coarse) {
+  .humour-slider {
+    width: 6.5rem;
+    height: 2.75rem;
+  }
+}
+
 /* Hover/tap details card beside the gearbox (GearboxInspectCard). */
 @media (prefers-reduced-motion: no-preference) {
   .gearbox-inspect {

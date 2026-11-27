@@ -100,7 +100,7 @@ describe("handleChat", () => {
   });
 
   describe("live (n8n)", () => {
-    it("forwards only sessionId and message, with the secret header", async () => {
+    it("forwards only sessionId, message and humour, with the secret header", async () => {
       const fetchMock = vi.fn(async () =>
         Response.json({ reply: "Hello", actions: [{ type: "focus", target: "ai" }, { type: "hack" }] }),
       );
@@ -112,8 +112,16 @@ describe("handleChat", () => {
       expect(url).toBe(WEBHOOK);
       expect(init.method).toBe("POST");
       expect((init.headers as Record<string, string>)["X-Portfolio-Secret"]).toBe(SECRET);
-      expect(JSON.parse(init.body as string)).toEqual(valid);
+      expect(JSON.parse(init.body as string)).toEqual({ ...valid, humour: 25 });
       expect(init.signal).toBeInstanceOf(AbortSignal);
+    });
+
+    it("passes the visitor's humour setting on to n8n", async () => {
+      const fetchMock = vi.fn(async () => Response.json({ reply: "Hello" }));
+      const { deps } = makeDeps({ envVars: LIVE_ENV, fetch: fetchMock });
+      await handleChat(request({ ...valid, humour: 80 }), deps);
+      const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+      expect(JSON.parse(init.body as string)).toEqual({ ...valid, humour: 80 });
     });
 
     it.each([
