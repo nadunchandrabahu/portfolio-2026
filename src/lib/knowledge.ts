@@ -3,6 +3,7 @@ import { certificates } from "@/content/certificates";
 import { degrees } from "@/content/education";
 import { experience } from "@/content/experience";
 import { handsOn } from "@/content/handsOn";
+import { interests } from "@/content/interests";
 import { projects } from "@/content/projects";
 import { site } from "@/content/site";
 import { skillDrawers } from "@/content/skills";
@@ -82,6 +83,19 @@ export function buildKnowledge(): string {
         return [t.title, ...lines].join(" ");
       }),
     ),
+  );
+
+  section(
+    "Outside work: interests and personality",
+    [
+      interests.summary,
+      ...interests.groups.map((g) =>
+        [
+          `${g.label}: ${g.lines.join(" ")}`.trim(),
+          ...(g.favourites ?? []).map((f) => `${f.label}: ${f.items.join(", ")}.`),
+        ].join("\n"),
+      ),
+    ].join("\n\n"),
   );
 
   section("Skills", list(skillDrawers.map((d) => `${d.label}: ${d.skills.join(", ")}`)));

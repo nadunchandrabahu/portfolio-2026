@@ -440,7 +440,7 @@ In the route, parse each action individually with `safeParse` and **drop invalid
 - Unit-test the executor and schemas with vitest, including malformed input.
 
 ### 8.7 Knowledge file (single source of truth)
-Add `scripts/build-knowledge.ts`, run at `prebuild`. It compiles `src/content/*.ts` into `public/knowledge.md`: a plain-text fact sheet of hero, about, projects, hands-on, skills, experience, education, certificates (published only), public contact and the faith/verse note. **It must exclude** placeholders, TODO text and anything not shown on the site. The n8n workflow fetches this file, so the bot always matches the live site. This file is public by design: it contains only public site content.
+Add `scripts/build-knowledge.ts`, run at `prebuild`. It compiles `src/content/*.ts` into `public/knowledge.md`: a plain-text fact sheet of hero, about, projects, hands-on, skills, experience, education, certificates (published only), public contact and the faith/verse note. **It must exclude** placeholders, TODO text and anything not shown on the site. The n8n workflow fetches this file, so the bot always matches the live site. This file is public by design: it contains only public site content. **Exception (Nadun's request, 2026-11-27):** an "Outside work: interests and personality" section from `src/content/interests.ts` (cricket, training, favourite teams, films, TV, music and games, personality, current e-bike mechanic job at Lime) is in the knowledge file for the chatbot but not shown on the page. It is still public, since anyone can open `/knowledge.md`.
 
 ---
 

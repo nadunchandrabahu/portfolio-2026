@@ -67,6 +67,12 @@ describe("knowledge file", () => {
     );
   });
 
+  it("includes his interests and personality", () => {
+    for (const text of ["## Outside work", "e-bike mechanic for Lime", "won't choose between them", "Vinland Saga", "INFJ"]) {
+      expect(md).toContain(text);
+    }
+  });
+
   it("leaves out placeholders, TODOs and unpublished certificate slots", () => {
     expect(md).not.toMatch(/TODO|pending|Certificate slot|\[employer\]/i);
   });
