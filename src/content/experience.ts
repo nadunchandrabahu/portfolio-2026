@@ -1,4 +1,4 @@
-import { pending, type Pending, type Photo } from "./types";
+import type { Pending, Photo } from "./types";
 
 /** Dates are ISO "yyyy-mm"; `end: "present"` for a current role. */
 export type ExperienceEntry = {
@@ -13,8 +13,13 @@ export type ExperienceEntry = {
 
 /** Newest first. */
 export const experience: (ExperienceEntry | Pending)[] = [
-  // TODO(nadun): employer, one line, and whether this belongs here or only in Off the keyboard.
-  pending("Mechanic, [employer] (Nov 2026 – present). Confirm whether it belongs in Experience"),
+  {
+    role: "E-bike Mechanic",
+    employer: "Lime",
+    start: "2026-11",
+    end: "present",
+    line: "Servicing and repairing Lime's shared e-bikes.",
+  },
   {
     role: "AI Engineer (Contract)",
     employer: "Hatch",

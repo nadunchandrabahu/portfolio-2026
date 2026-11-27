@@ -52,7 +52,7 @@ export const site = {
   role: "Data scientist and AI engineer",
   eyebrow: "Sydney, AU — Data science · AI engineering",
   heroLine:
-    "Engineer by training, builder by habit: I take AI from model to production, with automations, web apps and mobile apps that are live today.",
+    "Scientist & Engineer by training, builder by habit: I take AI from model to production, with automations, web apps and mobile apps that are live today.",
   availability: "Currently in Sydney, open to data and AI roles.",
 
   location: "Sydney, Australia",

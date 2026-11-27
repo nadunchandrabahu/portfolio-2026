@@ -165,7 +165,7 @@ Content:
 - Eyebrow (mono, concrete): `SYDNEY, AU — DATA SCIENCE · AI ENGINEERING`
 - H1 (Archivo, uppercase, expanded): `NADUN CHANDRABAHU`
 - Role (Archivo, normal case, bone): `Data scientist and AI engineer` (TODO(nadun): Content.md says "Data Scientist"; confirm the wording)
-- Line (Plex Sans, concrete, max 52ch): *Engineer by training, builder by habit: I take AI from model to production, with automations, web apps and mobile apps that are live today.* (Nadun's wording, 2026-11-27; replaced the earlier line and the draft sub-line. Also the meta description.)
+- Line (Plex Sans, concrete, max 52ch): *Scientist & Engineer by training, builder by habit: I take AI from model to production, with automations, web apps and mobile apps that are live today.* (Nadun's wording, 2026-11-27; replaced the earlier line and the draft sub-line. Also the meta description.)
 - Actions: primary button **View work** (brass fill, graphite text) → `#work`; secondary **View resume** (outline) opens the resume PDF in a new tab and downloads a copy (`ResumeLink`); secondary **Digital twin** (outline) opens chat; inline icon links: GitHub · LinkedIn · Email
 - Micro-line under the actions, with the breathing status lamp: *Currently in Sydney, open to data and AI roles.*
 
@@ -218,7 +218,7 @@ Two columns on desktop: copy on the left; the gearbox (sticky, from the shared c
 ### 5.4 Off the keyboard (`#hands-on`) (new section)
 Purpose: show he is genuinely good with his hands without overdoing it. There are four tiles in a row (2×2 on tablet, stacked on mobile). Each has a mono label, a short title, one line, and an optional photo slot (4:3, full colour). **Only use confirmed facts. All four need Nadun's sign-off.**
 
-- `WORKSHOP`: **Working as a mechanic.** TODO(nadun): employer/context and a line on the work, started Nov 2026.
+- `WORKSHOP`: **E-bike mechanic, Lime.** Servicing and repairing Lime's shared e-bikes, since November 2026.
 - `AUTOMOTIVE`: **Assistant automobile technician, DIMO Lanka.** Internship, Nov 2016 to Jan 2017, about 360 hours.
 - `CAD & 3D`: **SolidWorks and Blender.** 3D modelling for engineering and product work. TODO(nadun): mention that the gearbox on this page could be your own model (see 7.6).
 - `INFRASTRUCTURE`: **Moved a company's server network.** Relocated Azzureo's entire server network between two Sydney sites.
@@ -230,7 +230,7 @@ Title **Toolbox**. Render the five clusters from Content.md as "drawers": each c
 
 ### 5.6 Experience (`#experience`)
 A vertical timeline with a thin steel-line spine and brass nodes. Each entry shows the role (Archivo 600), employer, dates (mono, concrete) and one line. Use the entries from Content.md, newest first, and add:
-- TODO(nadun): **Mechanic, [employer]** (Nov 2026 – present). Confirm whether this belongs in Experience or only in Off the keyboard.
+- **E-bike Mechanic, Lime** (Nov 2026 – present): servicing and repairing Lime's shared e-bikes. In both Experience and Off the keyboard (Nadun, 2026-11-27).
 - **Assistant Automobile Technician (Internship), DIMO Lanka** (Nov 2016 – Jan 2017): about 360 hours of hands-on vehicle servicing. TODO(nadun): confirm the line.
 
 ### 5.7 Education (`#education`)
@@ -548,7 +548,7 @@ Add `scripts/build-knowledge.ts`, run at `prebuild`. It compiles `src/content/*.
 1. Role line: "Data scientist and AI engineer" vs "Data Scientist".
 2. Field Shift: your own part (one sentence), front-end stack, prototype URL (`nasafieldshift` vs `nasafieldship`), teammate spelling (Nicholls/Nichols).
 3. ~~GitHub URLs for clinical NLP, language ID, mortgage defaults and the MIL survey.~~ Done (2026-11-27). Still open: a public Grow365 .apk to link.
-4. Mechanic role details (employer, whether it goes in Experience).
+4. ~~Mechanic role details (employer, whether it goes in Experience).~~ Done: e-bike mechanic at Lime, in both.
 5. Approval of the draft lines: About faith paragraph, Off-the-keyboard closing line, contact reply-time line.
 6. ~~Bachelor title: Honours or not. Degree certificate links.~~ Done: (Hons.) added, both certificates linked.
 7. ~~8 certificates: titles, issuers, dates, links.~~ Done (2026-11-27), with skill chips. Optional: an issuer logo each.

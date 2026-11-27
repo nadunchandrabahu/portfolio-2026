@@ -12,8 +12,8 @@ export const handsOn: { tiles: HandsOnTile[]; closing: string } = {
   tiles: [
     {
       label: "Workshop",
-      title: "Working as a mechanic.",
-      lines: ["Started in November 2026.", pending("Employer or context, and one line on the work")],
+      title: "E-bike mechanic, Lime.",
+      lines: ["Servicing and repairing Lime's shared e-bikes, since November 2026."],
     },
     {
       label: "Automotive",
